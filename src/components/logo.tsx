@@ -4,45 +4,17 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      viewBox="0 0 256 256"
       {...props}
     >
       <title>Syndicate ESP Dragon Logo</title>
-      {/* Head and neck - white */}
-      <path d="M6 15s-2-2-2-5 2-4 4-4 4.5 1 5 2" stroke="white" />
-
-      {/* Horns/Crest - red */}
-      <path
-        d="M13 3l2 4l-2 4"
-        stroke="hsl(var(--primary))"
-        strokeWidth="2"
+      <path 
+        fill="white" 
+        d="M93.1,43.2l-16.4,28.4l10.3,5.9l6.1-10.6l22.6,13.1l-2.1,3.6l-10.3,6l-2.1,3.6l-16.4,28.4l-14.3-8.3l-2.1,3.6l-8.2-4.7   l2.1-3.6l-6.1-3.5l-2.1,3.6l-8.2-4.7l2.1-3.6l-8.2-4.7L32,122.5l24.6,14.2l-2.1,3.6l8.2,4.7l-2.1,3.6l8.2,4.7l2.1-3.6l6.1,3.5   l2.1-3.6l8.2,4.7l-2.1,3.6L99,165.2l-4.1,7.1l16.4,9.5l12.3-7.1l12.3-7.1l-2.1-3.6l-10.3-5.9l-2.1-3.6l20.5-11.8l-2.1-3.6   l22.5,13l-2.1,3.6l10.3,5.9l6.1-10.6l16.4,9.5l2.1-3.6l8.2-4.7l2.1-3.6l8.2-4.7l-2.1-3.6l4.1-2.4l-14.3-24.8l-2.1-3.6l-16.4-9.5   l-10.3,5.9l-2.1,3.6l-22.5-13l-2.1-3.6l22.5-13l2.1-3.6l12.3-7.1l2.1-3.6l14.3-8.3l-2.1-3.6l8.2-4.7l-2.1-3.6l8.2-4.7l-2.1-3.6   l6.1-3.5l2.1-3.6l8.2-4.7l-2.1-3.6l4.1-2.4l-24.6-14.2l-2.1,3.6l-8.2,4.7l2.1,3.6l-8.2,4.7l-2.1-3.6l-6.1-3.5l-2.1,3.6l-8.2,4.7   l2.1,3.6l-14.3,8.3l-2.1-3.6l-16.4-9.5l-12.3,7.1l-12.3,7.1l2.1,3.6l10.3,5.9l2.1,3.6l-20.5,11.8l2.1,3.6l-22.5-13l2.1-3.6   l-10.3-5.9L93.1,43.2z"
       />
-      <path d="M5.5 5S4 8 6 10" stroke="hsl(var(--primary))" />
-
-      {/* Body/Tail - blue */}
-      <path
-        d="M19 12c-3 0-4-1-4-1s-1-1-3-1-3 1-3 1-1 1-2.5 1"
-        stroke="hsl(var(--accent))"
-      />
-      <path d="M10 18c-5 0-6-4-6-4" stroke="hsl(var(--accent))" />
-      <path
-        d="M21 21c-3-3-4-6-4-6"
-        stroke="hsl(var(--accent))"
-        strokeWidth="2"
-      />
-
-      {/* Eye - red */}
-      <circle
-        cx="9"
-        cy="8"
-        r="0.5"
-        fill="hsl(var(--primary))"
-        stroke="hsl(var(--primary))"
+      <path 
+        fill="white" 
+        d="M213.3,73.3l-12.2,21.2l-20.3-35.2L162.2,22L66.5,76.5l18.6,32.2l-26.4,45.7l95.7,54.5l37-64.2l20.4-35.3l12.2-21.2l10.8,18.8   l-12.2,21.2l-20.4,35.3l-37,64.2l-11.8,7.3l-4.1-7.1L82.1,170.8L57,127.2l-17.7-30.7l93.1-53.7l17.7,30.7l20.3,35.2l12.2,21.2   L213.3,73.3z"
       />
     </svg>
   );
