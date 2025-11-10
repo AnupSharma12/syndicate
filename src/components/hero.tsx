@@ -1,0 +1,47 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { ArrowRight } from 'lucide-react';
+
+export function Hero() {
+  const heroImage = PlaceHolderImages.find((p) => p.id === 'hero');
+
+  return (
+    <section className="relative h-[75vh] w-full min-h-[400px] sm:h-[80vh] md:h-[90vh]">
+      {heroImage && (
+        <Image
+          src={heroImage.imageUrl}
+          alt={heroImage.description}
+          fill
+          priority
+          className="object-cover"
+          data-ai-hint={heroImage.imageHint}
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+      <div className="absolute inset-0 bg-black/30" />
+
+      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4">
+        <h1 className="font-headline text-4xl font-bold tracking-tighter text-white sm:text-6xl md:text-7xl lg:text-8xl animate-fade-in-down drop-shadow-2xl">
+          Enter The Arena
+        </h1>
+        <p className="mt-6 max-w-3xl text-lg text-foreground/80 md:text-xl animate-fade-in-up drop-shadow-lg">
+          The ultimate destination for competitive gaming. Join tournaments, watch
+          live events, and become a part of the action.
+        </p>
+        <div className="mt-8 flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+          <Button asChild size="lg" className="font-bold text-base">
+            <Link href="#tournaments">
+              Explore Tournaments
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="font-bold text-base">
+            <Link href="#schedule">View Schedule</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}

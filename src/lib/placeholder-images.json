@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "A dramatic scene of an esports arena with a large crowd and vibrant lights.",
+      "imageUrl": "https://images.unsplash.com/photo-1759701546851-1d903ac1a2e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxlc3BvcnRzJTIwYXJlbmF8ZW58MHx8fHwxNzYyNzQyMjg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "esports arena"
+    },
+    {
+      "id": "Valorant",
+      "description": "Artwork representing the game Valorant.",
+      "imageUrl": "https://images.unsplash.com/photo-1738054040695-d6f1f0e161ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmdXR1cmlzdGljJTIwc29sZGllcnxlbnwwfHx8fDE3NjI2OTA0MTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "futuristic soldier"
+    },
+    {
+      "id": "Apex Legends",
+      "description": "Artwork representing the game Apex Legends.",
+      "imageUrl": "https://images.unsplash.com/photo-1760007418266-f08947dd3db9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzY2ktZmklMjBjaGFyYWN0ZXJzfGVufDB8fHx8MTc2Mjc3NTU2OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sci-fi characters"
+    },
+    {
+      "id": "League of Legends",
+      "description": "Artwork representing the game League of Legends.",
+      "imageUrl": "https://images.unsplash.com/photo-1761948244883-05a6a0454cc4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYW50YXN5JTIwYmF0dGxlfGVufDB8fHx8MTc2Mjc2OTYzNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fantasy battle"
+    }
+  ]
 }
