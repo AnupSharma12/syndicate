@@ -12,7 +12,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Users, Swords, ShieldCheck } from 'lucide-react';
 
-export function AdminDashboard() {
+type AdminView = 'dashboard' | 'users';
+
+interface AdminDashboardProps {
+  setView: (view: AdminView) => void;
+}
+
+export function AdminDashboard({ setView }: AdminDashboardProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <Header />
@@ -53,13 +59,13 @@ export function AdminDashboard() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+1,203</div>
+                <div className="text-2xl font-bold">Manage Roles</div>
                 <p className="text-xs text-muted-foreground">
-                  +180.1% from last month
+                  Grant or revoke staff access
                 </p>
               </CardContent>
                <CardContent>
-                 <Button>Manage Users</Button>
+                 <Button onClick={() => setView('users')}>Manage Users</Button>
               </CardContent>
             </Card>
             <Card className="bg-card border-border/60">

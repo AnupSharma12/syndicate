@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -29,33 +30,49 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!firestore || !auth) {
+        toast({
+            variant: 'destructive',
+            title: 'Firebase not initialized',
+            description: 'Please try again later.',
+        });
+        return;
+    }
+    
     try {
-      // This is a non-blocking call
+      // Create user without blocking
       initiateEmailSignUp(auth, email, password);
 
-      // We can't get user immediately, so we listen for auth state changes
-      // and create the user document there. For now, just show a toast.
-      // A more robust solution would use a listener that triggers after signup.
-      // The user object creation will happen via onAuthStateChanged side-effect
-      // for newly created users. We will create a placeholder for now.
-      auth.onAuthStateChanged(user => {
-        if(user) {
-           const userDocRef = doc(firestore, 'users', user.uid);
-           const userData = {
+      // Listen for the user to be created to then create their user document
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user && user.email === email) { // Ensure it's the user we just tried to register
+          const isStaff = user.email === 'anup34343@gmail.com';
+
+          const userDocRef = doc(firestore, 'users', user.uid);
+          const userData = {
             id: user.uid,
             username,
-            email,
-            staff: false // Default to not staff
+            email: user.email,
+            staff: isStaff 
           };
           setDocumentNonBlocking(userDocRef, userData, { merge: true });
-        }
-      })
 
-      toast({
-        title: 'Registration Successful!',
-        description: 'Please sign in with your new account.',
+          if (isStaff) {
+            const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
+            // The document can be simple, its existence is what matters.
+            setDocumentNonBlocking(staffRoleRef, { email: user.email, username: username }, { merge: true });
+          }
+          
+          unsubscribe(); // Stop listening after we've handled the user creation
+          
+          toast({
+            title: 'Registration Successful!',
+            description: 'Please sign in with your new account.',
+          });
+          router.push('/login');
+        }
       });
-      router.push('/login');
+
     } catch (error: any) {
       toast({
         variant: 'destructive',
