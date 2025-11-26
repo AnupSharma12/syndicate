@@ -53,13 +53,16 @@ export default function RegisterPage() {
             id: user.uid,
             username,
             email: user.email,
-            staff: isStaff 
+            // All users are non-staff by default on registration now.
+            // Staff status is managed in the admin panel.
+            staff: false 
           };
           setDocumentNonBlocking(userDocRef, userData, { merge: true });
 
+          // Create the staff role document if this is the designated admin email.
+          // This ensures the primary admin can log in and manage others.
           if (isStaff) {
             const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
-            // The document can be simple, its existence is what matters.
             setDocumentNonBlocking(staffRoleRef, { email: user.email, username: username }, { merge: true });
           }
           

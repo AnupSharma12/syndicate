@@ -19,24 +19,27 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
   const { data: staffRole, isLoading: isRoleLoading } = useDoc(userRoleRef);
 
   const isChecking = isUserLoading || isRoleLoading;
+  
+  // Directly grant access if the user is the primary admin.
+  const isPrimaryAdmin = user?.email === 'anup34343@gmail.com';
 
   useEffect(() => {
     if (!isChecking) {
       if (!user) {
         // Not logged in, redirect to login
         router.replace('/login');
-      } else if (!staffRole) {
+      } else if (!staffRole && !isPrimaryAdmin) {
         // Logged in but not a staff member, redirect to home
         router.replace('/');
       }
     }
-  }, [user, staffRole, isChecking, router]);
+  }, [user, staffRole, isChecking, router, isPrimaryAdmin]);
 
   if (isChecking) {
     return <Loader />;
   }
 
-  if (user && staffRole) {
+  if (user && (staffRole || isPrimaryAdmin)) {
     return <>{children}</>;
   }
 
