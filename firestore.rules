@@ -27,8 +27,7 @@ service cloud.firestore {
      *   read-only for all clients to prevent unauthorized modification. Role grants and
      *   log creation must be handled by a trusted server environment.
      * - User Privacy: User enumeration is disallowed by blocking `list` operations on the
-     *   top-level `/users` collection. All user-specific data is nested under their
-     *   own private path `/users/{userId}`.
+     *   top-level `/users` collection, except for staff.
      * - Default Deny: All operations are implicitly denied unless explicitly allowed.
      *
      * Denormalization for Authorization:
@@ -180,7 +179,7 @@ service cloud.firestore {
      * @principle Centralizes and secures role management, making it immutable from the client.
      */
     match /roles_staff/{userId} {
-      allow get: if isOwner(userId);
+      allow get: if isSignedIn();
       allow list: if isStaff();
       allow create: if false;
       allow update: if false;
