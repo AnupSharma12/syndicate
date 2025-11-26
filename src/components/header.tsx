@@ -14,11 +14,11 @@ export function Header() {
   const auth = useAuth();
   const firestore = useFirestore();
 
-  const userRoleRef = useMemoFirebase(
-    () => (user && firestore ? doc(firestore, 'roles_staff', user.uid) : null),
+  const userDocRef = useMemoFirebase(
+    () => (user && firestore ? doc(firestore, 'users', user.uid) : null),
     [user, firestore]
   );
-  const { data: staffRole, isLoading: isRoleLoading } = useDoc(userRoleRef);
+  const { data: userDoc, isLoading: isRoleLoading } = useDoc(userDocRef);
   
   // Client-side state to prevent hydration mismatch
   const [isClient, setIsClient] = useState(false);
@@ -41,7 +41,7 @@ export function Header() {
   
   const isCheckingAuth = isUserLoading || (user && isRoleLoading);
 
-  const isStaff = staffRole || user?.email === 'anup34343@gmail.com';
+  const isStaff = userDoc?.staff || user?.email === 'anup34343@gmail.com';
 
   const renderAuthButtons = () => {
     if (!isClient) {
@@ -111,7 +111,7 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            {isClient && isStaff && (
+            {isClient && !isCheckingAuth && isStaff && (
               <Link
                 href="/admin"
                 className="flex items-center font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -150,7 +150,7 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                {isClient && isStaff && (
+                {isClient && !isCheckingAuth && isStaff && (
                   <Link
                     href="/admin"
                     className="flex w-full items-center py-2 text-lg font-semibold"
