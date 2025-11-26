@@ -18,9 +18,9 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
 
   const { data: staffRole, isLoading: isRoleLoading } = useDoc(userRoleRef);
 
-  useEffect(() => {
-    const isChecking = isUserLoading || isRoleLoading;
+  const isChecking = isUserLoading || isRoleLoading;
 
+  useEffect(() => {
     if (!isChecking) {
       if (!user) {
         // Not logged in, redirect to login
@@ -31,8 +31,6 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
       }
     }
   }, [user, staffRole, isChecking, router]);
-
-  const isChecking = isUserLoading || isRoleLoading;
 
   if (isChecking) {
     return <Loader />;
