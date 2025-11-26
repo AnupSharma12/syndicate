@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useAuth, initiateEmailSignUp } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -17,20 +16,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
-import { onAuthStateChanged } from 'firebase/auth';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const auth = useAuth();
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firestore || !auth) {
+    if (!auth) {
         toast({
             variant: 'destructive',
             title: 'Firebase not initialized',
@@ -39,41 +36,15 @@ export default function RegisterPage() {
         return;
     }
     
-    // Listen for the user to be created to then create their user document
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.email === email) { // Ensure it's the user we just tried to register
-        const isStaff = user.email === 'anup34343@gmail.com';
-
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const userData = {
-          id: user.uid,
-          username,
-          email: user.email,
-          staff: isStaff, 
-        };
-        setDocumentNonBlocking(userDocRef, userData, { merge: true });
-
-        // Create the staff role document if this is the designated admin email.
-        if (isStaff) {
-          const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
-          setDocumentNonBlocking(staffRoleRef, { email: user.email, username: username }, { merge: true });
-        }
-        
-        unsubscribe(); // Stop listening after we've handled the user creation
-        
-        toast({
-          title: 'Registration Successful!',
-          description: 'Please sign in with your new account.',
-        });
-        router.push('/login');
-      }
-    });
-
     try {
       // Create user without blocking
-      initiateEmailSignUp(auth, email, password);
+      await initiateEmailSignUp(auth, email, password);
+      toast({
+        title: 'Registration Successful!',
+        description: 'Please sign in with your new account.',
+      });
+      router.push('/login');
     } catch (error: any) {
-      unsubscribe(); // Clean up listener on error
       toast({
         variant: 'destructive',
         title: 'Registration Failed',

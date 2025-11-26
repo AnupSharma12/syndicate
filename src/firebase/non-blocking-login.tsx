@@ -15,9 +15,9 @@ export function initiateAnonymousSignIn(authInstance: Auth): void {
 }
 
 /** Initiate email/password sign-up (non-blocking). */
-export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): void {
-  // CRITICAL: Call createUserWithEmailAndPassword directly. Do NOT use 'await createUserWithEmailAndPassword(...)'.
-  createUserWithEmailAndPassword(authInstance, email, password);
+export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
+  // CRITICAL: Call createUserWithEmailAndPassword directly.
+  return createUserWithEmailAndPassword(authInstance, email, password).then(() => {});
   // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
 }
 
