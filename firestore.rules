@@ -1,0 +1,190 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * Core Philosophy: This ruleset implements a Role-Based Access Control (RBAC) model,
+     * distinguishing between regular users and privileged "staff" members. The primary
+     * security goal is to grant staff full administrative control over public content
+     * (games, events) and system logs, while strictly isolating user data (profiles,
+     * registrations) to its owner.
+     *
+     * Data Structure:
+     * - /games/{gameId}/events/{eventId}: Publicly readable content managed by staff.
+     * - /users/{userId}: Private user profiles, only accessible by the owner.
+     * - /users/{userId}/registrations/{registrationId}: User-specific private data.
+     * - /roles_staff/{userId}: A secure, admin-only collection where the existence of a
+     *   document grants a user staff privileges. This is the source of truth for roles.
+     * - /logs/{logId}: System logs, readable only by staff and assumed to be written
+     *   by a trusted backend process.
+     *
+     * Key Security Decisions:
+     * - Staff Authorization: A user is considered "staff" if a document with their UID
+     *   exists in the `/roles_staff` collection. This existence-based check is fast,
+     *   secure, and avoids relying on user-editable fields.
+     * - Client-Side Immutability: The `/roles_staff` and `/logs` collections are made
+     *   read-only for all clients to prevent unauthorized modification. Role grants and
+     *   log creation must be handled by a trusted server environment.
+     * - User Privacy: User enumeration is disallowed by blocking `list` operations on the
+     *   top-level `/users` collection. All user-specific data is nested under their
+     *   own private path `/users/{userId}`.
+     * - Default Deny: All operations are implicitly denied unless explicitly allowed.
+     *
+     * Denormalization for Authorization:
+     * - The use of the `/roles_staff/{userId}` collection is a deliberate denormalization
+     *   strategy. Instead of joining data at runtime, we check for the existence of a
+     *   role document. This allows for simple, performant, and highly secure role
+     *   checks (`exists(...)`) across the entire ruleset.
+     *
+     * Structural Segregation:
+     * - The ruleset leverages separate collections for data with different access
+     *   patterns. Public data (`/games`, `/events`) is separate from private user data
+     *   (`/users/{userId}/...`) and admin-only data (`/logs`, `/roles_staff`). This
+     *   segregation enables secure and efficient `list` operations without complex queries.
+     */
+
+    // --------------------------------------------------------------------------
+    // Helper Functions
+    // --------------------------------------------------------------------------
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the foundation of the "Ownership" security pattern.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the requested document exists.
+     * CRITICAL for all update and delete operations to prevent writes on non-existent paths.
+     */
+    function isExistingDoc() {
+      return resource != null;
+    }
+
+    /**
+     * Checks if the authenticated user is a staff member by verifying the existence
+     * of their UID in the /roles_staff collection. This is the primary role check.
+     */
+    function isStaff() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_staff/$(request.auth.uid));
+    }
+
+    /**
+     * Enforces immutability of a specific field during an update operation.
+     * Ensures critical relational or role-based fields cannot be changed after creation.
+     */
+    function isFieldImmutable(fieldName) {
+      return request.resource.data[fieldName] == resource.data[fieldName];
+    }
+    
+    // --------------------------------------------------------------------------
+    // Collection Rules
+    // --------------------------------------------------------------------------
+
+    /**
+     * @description Manages the collection of games. Publicly readable, but only staff
+     *              can create, modify, or delete games.
+     * @path /games/{gameId}
+     * @allow (get) Any user, signed in or not, can read a game document.
+     * @deny (create) A non-staff user attempts to create a new game document.
+     * @principle Public Read with Role-Based Writes. Access is granted based on staff role.
+     */
+    match /games/{gameId} {
+      allow get, list: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    /**
+     * @description Manages events, which are nested under games. Events are publicly readable.
+     *              Only staff members can create, update, or delete events.
+     * @path /games/{gameId}/events/{eventId}
+     * @allow (create) A staff member creates a new event document.
+     * @deny (update) A regular signed-in user tries to update an existing event.
+     * @principle Enforces relational integrity and role-based writes.
+     */
+    match /games/{gameId}/events/{eventId} {
+      allow get, list: if true;
+      allow create: if isStaff() && request.resource.data.gameId == gameId;
+      allow update: if isStaff() && isExistingDoc() && isFieldImmutable('gameId');
+      allow delete: if isStaff() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages user profile documents. Users can create, read, and update their
+     *              own profile. Listing users is forbidden to prevent user enumeration.
+     * @path /users/{userId}
+     * @allow (create) A new user creates their own user document for the first time.
+     * @deny (get) User 'A' tries to read the user profile of user 'B'.
+     * @deny (list) Any user tries to get a list of all users in the application.
+     * @principle Restricts access to a user's own data tree and prevents data leakage.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.staff == false;
+      allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('id') && isFieldImmutable('staff');
+      allow delete: if isOwner(userId) && isExistingDoc();
+    }
+
+    /**
+     * @description Manages a user's event registrations. A user has full control over their
+     *              own registrations, but cannot see or modify anyone else's.
+     * @path /users/{userId}/registrations/{registrationId}
+     * @allow (list) A user lists all of their own event registrations.
+     * @deny (get) A staff member tries to read a specific user's registration.
+     * @principle Enforces document ownership and relational integrity within a user's private data.
+     */
+    match /users/{userId}/registrations/{registrationId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('userId');
+      allow delete: if isOwner(userId) && isExistingDoc();
+    }
+
+    /**
+     * @description Stores system logs. This collection is read-only for staff members.
+     *              Writes are disallowed from the client to ensure logs are only created
+     *              by trusted backend services (e.g., Cloud Functions).
+     * @path /logs/{logId}
+     * @allow (get) A staff member reads a specific log entry.
+     * @deny (create) Any user, including staff, attempts to create a log from the client.
+     * @deny (get) A non-staff user attempts to read any log entry.
+     * @principle Secures sensitive data for admin-only viewing and ensures data integrity
+     *              by preventing client-side writes.
+     */
+    match /logs/{logId} {
+      allow get, list: if isStaff();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Manages staff roles. The existence of a document grants staff privileges.
+     *              This collection is read-only for staff and completely inaccessible to others.
+     *              Writes must be performed by a trusted admin via the Firebase Console or a backend process.
+     * @path /roles_staff/{userId}
+     * @allow (list) An existing staff member lists all other staff members.
+     * @deny (create) A staff member attempts to grant another user staff privileges from the client.
+     * @deny (get) A regular user attempts to check if another user is staff.
+     * @principle Centralizes and secures role management, making it immutable from the client.
+     */
+    match /roles_staff/{userId} {
+      allow get, list: if isStaff();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+  }
+}
