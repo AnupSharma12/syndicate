@@ -58,7 +58,7 @@ export function UserManagement({ setView }: UserManagementProps) {
   const { data: staffRoles, isLoading: rolesLoading } =
     useCollection(staffRolesRef);
 
-  const handleRoleChange = async (user: User, isStaff: boolean) => {
+  const handleRoleChange = (user: User, isStaff: boolean) => {
     if (!firestore) return;
 
     setIsProcessing((prev) => ({ ...prev, [user.id]: true }));

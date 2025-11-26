@@ -39,44 +39,41 @@ export default function RegisterPage() {
         return;
     }
     
+    // Listen for the user to be created to then create their user document
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.email === email) { // Ensure it's the user we just tried to register
+        const isStaff = user.email === 'anup34343@gmail.com';
+
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userData = {
+          id: user.uid,
+          username,
+          email: user.email,
+          staff: isStaff, 
+        };
+        setDocumentNonBlocking(userDocRef, userData, { merge: true });
+
+        // Create the staff role document if this is the designated admin email.
+        if (isStaff) {
+          const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
+          setDocumentNonBlocking(staffRoleRef, { email: user.email, username: username }, { merge: true });
+        }
+        
+        unsubscribe(); // Stop listening after we've handled the user creation
+        
+        toast({
+          title: 'Registration Successful!',
+          description: 'Please sign in with your new account.',
+        });
+        router.push('/login');
+      }
+    });
+
     try {
       // Create user without blocking
       initiateEmailSignUp(auth, email, password);
-
-      // Listen for the user to be created to then create their user document
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user && user.email === email) { // Ensure it's the user we just tried to register
-          const isStaff = user.email === 'anup34343@gmail.com';
-
-          const userDocRef = doc(firestore, 'users', user.uid);
-          const userData = {
-            id: user.uid,
-            username,
-            email: user.email,
-            // All users are non-staff by default on registration now.
-            // Staff status is managed in the admin panel.
-            staff: false 
-          };
-          setDocumentNonBlocking(userDocRef, userData, { merge: true });
-
-          // Create the staff role document if this is the designated admin email.
-          // This ensures the primary admin can log in and manage others.
-          if (isStaff) {
-            const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
-            setDocumentNonBlocking(staffRoleRef, { email: user.email, username: username }, { merge: true });
-          }
-          
-          unsubscribe(); // Stop listening after we've handled the user creation
-          
-          toast({
-            title: 'Registration Successful!',
-            description: 'Please sign in with your new account.',
-          });
-          router.push('/login');
-        }
-      });
-
     } catch (error: any) {
+      unsubscribe(); // Clean up listener on error
       toast({
         variant: 'destructive',
         title: 'Registration Failed',
