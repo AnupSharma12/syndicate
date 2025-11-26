@@ -2,17 +2,17 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, getFirestore } from 'firebase/firestore';
+import { useUser, useDoc, useMemoFirebase, useFirestore } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { Loader } from '@/components/loader';
 
 export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const firestore = getFirestore();
+  const firestore = useFirestore();
 
   const userRoleRef = useMemoFirebase(
-    () => (user ? doc(firestore, 'roles_staff', user.uid) : null),
+    () => (user && firestore ? doc(firestore, 'roles_staff', user.uid) : null),
     [user, firestore]
   );
 

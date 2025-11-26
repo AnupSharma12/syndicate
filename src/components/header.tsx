@@ -7,6 +7,7 @@ import { Menu, LogOut, Shield, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { useAuth, useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
 
 export function Header() {
   const { user, isUserLoading } = useUser();
@@ -18,6 +19,13 @@ export function Header() {
     [user, firestore]
   );
   const { data: staffRole, isLoading: isRoleLoading } = useDoc(userRoleRef);
+  
+  // Client-side state to prevent hydration mismatch
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const navLinks = [
     { href: '#tournaments', label: 'Tournaments' },
@@ -33,7 +41,12 @@ export function Header() {
   
   const isCheckingAuth = isUserLoading || (user && isRoleLoading);
 
+  const isStaff = staffRole || user?.email === 'anup34343@gmail.com';
+
   const renderAuthButtons = () => {
+    if (!isClient) {
+       return <div className="h-10 w-36" />;
+    }
     if (isCheckingAuth) {
       return (
         <div className="flex items-center gap-2">
@@ -60,7 +73,7 @@ export function Header() {
   };
   
   const renderMobileAuthButtons = () => {
-    if (isCheckingAuth) {
+    if (!isClient || isCheckingAuth) {
       return <div className="h-10" />
     }
     if (user) {
@@ -98,7 +111,7 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            {staffRole && (
+            {isClient && isStaff && (
               <Link
                 href="/admin"
                 className="flex items-center font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -137,7 +150,7 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                {staffRole && (
+                {isClient && isStaff && (
                   <Link
                     href="/admin"
                     className="flex w-full items-center py-2 text-lg font-semibold"

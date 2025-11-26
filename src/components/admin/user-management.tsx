@@ -66,45 +66,36 @@ export function UserManagement({ setView }: UserManagementProps) {
     const staffRoleRef = doc(firestore, 'roles_staff', user.id);
     const userDocRef = doc(firestore, 'users', user.id);
 
-    try {
-      if (isStaff) {
-        // Grant staff role
-        setDocumentNonBlocking(staffRoleRef, {
-          email: user.email,
-          username: user.username,
-        }, {});
-        setDocumentNonBlocking(userDocRef, { staff: true }, { merge: true });
-        toast({
-          title: 'Success',
-          description: `${user.username} is now a staff member.`,
-        });
-      } else {
-        // Revoke staff role
-        deleteDocumentNonBlocking(staffRoleRef);
-        setDocumentNonBlocking(userDocRef, { staff: false }, { merge: true });
-        toast({
-          title: 'Success',
-          description: `Staff role revoked for ${user.username}.`,
-        });
-      }
-    } catch (error: any) {
+    if (isStaff) {
+      // Grant staff role
+      setDocumentNonBlocking(staffRoleRef, {
+        email: user.email,
+        username: user.username,
+      }, {});
+      setDocumentNonBlocking(userDocRef, { staff: true }, { merge: true });
       toast({
-        variant: 'destructive',
-        title: 'Operation Failed',
-        description: error.message,
+        title: 'Success',
+        description: `${user.username} is now a staff member.`,
       });
-    } finally {
-      // Note: With non-blocking updates, this might be better handled
-      // by listening to the data changes to stop the spinner.
-      // For now, we'll optimistically stop it after a short delay.
-      setTimeout(() => {
-        setIsProcessing((prev) => ({ ...prev, [user.id]: false }));
-      }, 1000);
+    } else {
+      // Revoke staff role
+      deleteDocumentNonBlocking(staffRoleRef);
+      setDocumentNonBlocking(userDocRef, { staff: false }, { merge: true });
+      toast({
+        title: 'Success',
+        description: `Staff role revoked for ${user.username}.`,
+      });
     }
+    
+    // Optimistically update UI
+    setTimeout(() => {
+      setIsProcessing((prev) => ({ ...prev, [user.id]: false }));
+    }, 1000);
   };
 
   const staffMap = useMemo(() => {
-    return staffRoles?.reduce((acc, role) => {
+    if (!staffRoles) return {};
+    return staffRoles.reduce((acc, role) => {
       acc[role.id] = true;
       return acc;
     }, {} as Record<string, boolean>);
@@ -163,10 +154,11 @@ export function UserManagement({ setView }: UserManagementProps) {
                             ) : (
                                 <Switch
                                 id={`staff-switch-${user.id}`}
-                                checked={staffMap?.[user.id] || false}
+                                checked={staffMap?.[user.id] || user.email === 'anup34343@gmail.com'}
                                 onCheckedChange={(checked) =>
                                     handleRoleChange(user, checked)
                                 }
+                                disabled={user.email === 'anup34343@gmail.com'}
                                 aria-label={`Toggle staff role for ${user.username}`}
                                 />
                             )}
