@@ -51,14 +51,7 @@ export function UserManagement({ setView }: UserManagementProps) {
   );
   const { data: users, isLoading: usersLoading } = useCollection<User>(usersRef);
 
-  const staffRolesRef = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'roles_staff') : null),
-    [firestore]
-  );
-  const { data: staffRoles, isLoading: rolesLoading } =
-    useCollection(staffRolesRef);
-
-  const handleRoleChange = (user: User, isStaff: boolean) => {
+  const handleRoleChange = async (user: User, isStaff: boolean) => {
     if (!firestore) return;
 
     setIsProcessing((prev) => ({ ...prev, [user.id]: true }));
@@ -66,42 +59,43 @@ export function UserManagement({ setView }: UserManagementProps) {
     const staffRoleRef = doc(firestore, 'roles_staff', user.id);
     const userDocRef = doc(firestore, 'users', user.id);
 
-    if (isStaff) {
-      // Grant staff role
-      setDocumentNonBlocking(staffRoleRef, {
-        email: user.email,
-        username: user.username,
-      }, {});
-      setDocumentNonBlocking(userDocRef, { staff: true }, { merge: true });
+    try {
+      if (isStaff) {
+        // Grant staff role
+        setDocumentNonBlocking(staffRoleRef, {
+          email: user.email,
+          username: user.username,
+        }, { merge: true });
+        setDocumentNonBlocking(userDocRef, { staff: true }, { merge: true });
+        toast({
+          title: 'Success',
+          description: `${user.username} is now a staff member.`,
+        });
+      } else {
+        // Revoke staff role
+        deleteDocumentNonBlocking(staffRoleRef);
+        setDocumentNonBlocking(userDocRef, { staff: false }, { merge: true });
+        toast({
+          title: 'Success',
+          description: `Staff role revoked for ${user.username}.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating roles: ", error);
       toast({
-        title: 'Success',
-        description: `${user.username} is now a staff member.`,
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to update role. Please check console for details.',
       });
-    } else {
-      // Revoke staff role
-      deleteDocumentNonBlocking(staffRoleRef);
-      setDocumentNonBlocking(userDocRef, { staff: false }, { merge: true });
-      toast({
-        title: 'Success',
-        description: `Staff role revoked for ${user.username}.`,
-      });
+    } finally {
+        // Use a timeout to give Firestore time to propagate changes before re-enabling switch
+        setTimeout(() => {
+            setIsProcessing((prev) => ({ ...prev, [user.id]: false }));
+        }, 1500);
     }
-    
-    // Optimistically update UI
-    setTimeout(() => {
-      setIsProcessing((prev) => ({ ...prev, [user.id]: false }));
-    }, 1000);
   };
 
-  const staffMap = useMemo(() => {
-    if (!staffRoles) return {};
-    return staffRoles.reduce((acc, role) => {
-      acc[role.id] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
-  }, [staffRoles]);
-
-  const isLoading = usersLoading || rolesLoading;
+  const isLoading = usersLoading;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -154,7 +148,7 @@ export function UserManagement({ setView }: UserManagementProps) {
                             ) : (
                                 <Switch
                                 id={`staff-switch-${user.id}`}
-                                checked={staffMap?.[user.id] || user.email === 'anup34343@gmail.com'}
+                                checked={user.staff || false}
                                 onCheckedChange={(checked) =>
                                     handleRoleChange(user, checked)
                                 }

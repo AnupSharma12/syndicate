@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth, useFirestore, initiateEmailSignIn, setDocumentNonBlocking } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -28,37 +28,34 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!auth || !firestore) return;
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+    if (!auth) return;
+  
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user && firestore) {
         const userDocRef = doc(firestore, 'users', user.uid);
-        
-        // This is a simplified example. In a real app, you might want to check 
-        // if the document exists before setting it to avoid overwriting data.
-        // For this app's purpose, we ensure the user document exists on login.
-        const username = user.email?.split('@')[0] || 'user';
-        const isStaff = user.email === 'anup34343@gmail.com';
+        const userDoc = await getDoc(userDocRef);
 
-        const userData = {
-          id: user.uid,
-          username,
-          email: user.email,
-          staff: isStaff,
-        };
-        
-        // Create user document if it doesn't exist
-        setDocumentNonBlocking(userDocRef, userData, { merge: true });
+        if (!userDoc.exists()) {
+          const username = user.email?.split('@')[0] || 'new-user';
+          const isStaff = user.email === 'anup34343@gmail.com';
+          const userData = {
+            id: user.uid,
+            username,
+            email: user.email,
+            staff: isStaff,
+          };
+          
+          setDocumentNonBlocking(userDocRef, userData, {});
 
-        if (isStaff) {
-          const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
-          setDocumentNonBlocking(staffRoleRef, { email: user.email, username }, { merge: true });
+          if (isStaff) {
+            const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
+            setDocumentNonBlocking(staffRoleRef, { email: user.email, username }, {});
+          }
         }
-        
         router.push('/');
       }
     });
-
+  
     return () => unsubscribe();
   }, [auth, firestore, router]);
 

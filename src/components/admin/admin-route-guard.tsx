@@ -11,35 +11,34 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const firestore = useFirestore();
 
-  const userRoleRef = useMemoFirebase(
-    () => (user && firestore ? doc(firestore, 'roles_staff', user.uid) : null),
+  const userDocRef = useMemoFirebase(
+    () => (user && firestore ? doc(firestore, 'users', user.uid) : null),
     [user, firestore]
   );
 
-  const { data: staffRole, isLoading: isRoleLoading } = useDoc(userRoleRef);
+  const { data: userDoc, isLoading: isRoleLoading } = useDoc(userDocRef);
 
   const isChecking = isUserLoading || isRoleLoading;
   
-  // Directly grant access if the user is the primary admin.
-  const isPrimaryAdmin = user?.email === 'anup34343@gmail.com';
+  const isStaff = userDoc?.staff === true;
 
   useEffect(() => {
     if (!isChecking) {
       if (!user) {
         // Not logged in, redirect to login
         router.replace('/login');
-      } else if (!staffRole && !isPrimaryAdmin) {
+      } else if (!isStaff) {
         // Logged in but not a staff member, redirect to home
         router.replace('/');
       }
     }
-  }, [user, staffRole, isChecking, router, isPrimaryAdmin]);
+  }, [user, isStaff, isChecking, router]);
 
   if (isChecking) {
     return <Loader />;
   }
 
-  if (user && (staffRole || isPrimaryAdmin)) {
+  if (user && isStaff) {
     return <>{children}</>;
   }
 
