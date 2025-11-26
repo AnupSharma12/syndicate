@@ -3,10 +3,8 @@ import { useState, useMemo } from 'react';
 import {
   collection,
   doc,
-  setDoc,
-  deleteDoc,
 } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -71,19 +69,19 @@ export function UserManagement({ setView }: UserManagementProps) {
     try {
       if (isStaff) {
         // Grant staff role
-        await setDoc(staffRoleRef, {
+        setDocumentNonBlocking(staffRoleRef, {
           email: user.email,
           username: user.username,
-        });
-        await setDoc(userDocRef, { staff: true }, { merge: true });
+        }, {});
+        setDocumentNonBlocking(userDocRef, { staff: true }, { merge: true });
         toast({
           title: 'Success',
           description: `${user.username} is now a staff member.`,
         });
       } else {
         // Revoke staff role
-        await deleteDoc(staffRoleRef);
-        await setDoc(userDocRef, { staff: false }, { merge: true });
+        deleteDocumentNonBlocking(staffRoleRef);
+        setDocumentNonBlocking(userDocRef, { staff: false }, { merge: true });
         toast({
           title: 'Success',
           description: `Staff role revoked for ${user.username}.`,
@@ -96,7 +94,12 @@ export function UserManagement({ setView }: UserManagementProps) {
         description: error.message,
       });
     } finally {
-      setIsProcessing((prev) => ({ ...prev, [user.id]: false }));
+      // Note: With non-blocking updates, this might be better handled
+      // by listening to the data changes to stop the spinner.
+      // For now, we'll optimistically stop it after a short delay.
+      setTimeout(() => {
+        setIsProcessing((prev) => ({ ...prev, [user.id]: false }));
+      }, 1000);
     }
   };
 
