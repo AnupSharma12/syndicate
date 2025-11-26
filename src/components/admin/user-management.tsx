@@ -1,17 +1,13 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   collection,
   doc,
-  query,
-  where,
-  getDocs,
   setDoc,
   deleteDoc,
 } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Card,
   CardContent,
@@ -28,7 +24,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Header } from '@/components/header';

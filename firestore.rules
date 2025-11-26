@@ -130,7 +130,7 @@ service cloud.firestore {
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false;
+      allow list: if isStaff();
       allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.staff == false;
       allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('id') && isFieldImmutable('staff');
       allow delete: if isOwner(userId) && isExistingDoc();
@@ -180,7 +180,8 @@ service cloud.firestore {
      * @principle Centralizes and secures role management, making it immutable from the client.
      */
     match /roles_staff/{userId} {
-      allow get, list: if isStaff();
+      allow get: if isOwner(userId);
+      allow list: if isStaff();
       allow create: if false;
       allow update: if false;
       allow delete: if false;
