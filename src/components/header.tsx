@@ -1,15 +1,25 @@
+'use client';
+
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { useAuth, useUser } from '@/firebase';
 
 export function Header() {
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+
   const navLinks = [
     { href: '#tournaments', label: 'Tournaments' },
     { href: '#schedule', label: 'Schedule' },
     { href: '#about', label: 'About' },
   ];
+
+  const handleSignOut = () => {
+    auth.signOut();
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -34,9 +44,16 @@ export function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
-          <Button asChild className="hidden md:flex">
-            <Link href="#registration">Register Now</Link>
-          </Button>
+          {!isUserLoading && user ? (
+            <Button variant="ghost" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button asChild className="hidden md:flex">
+              <Link href="/login">Sign In / Register</Link>
+            </Button>
+          )}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
@@ -61,9 +78,16 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                 <Button asChild className="mt-4">
-                    <Link href="#registration">Register Now</Link>
-                </Button>
+                 {!isUserLoading && user ? (
+                    <Button variant="ghost" onClick={handleSignOut} className="mt-4 justify-start">
+                        <LogOut className="mr-2 h-5 w-5" />
+                        Sign Out
+                    </Button>
+                 ) : (
+                    <Button asChild className="mt-4">
+                        <Link href="/login">Sign In / Register</Link>
+                    </Button>
+                 )}
               </div>
             </SheetContent>
           </Sheet>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { PageWrapper } from '@/components/page-wrapper';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'Syndicate ESP',
@@ -28,7 +29,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <PageWrapper>{children}</PageWrapper>
+        <FirebaseClientProvider>
+          <PageWrapper>{children}</PageWrapper>
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>
