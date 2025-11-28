@@ -1,7 +1,7 @@
 'use client';
 
 import type { Event } from '@/lib/data';
-import { Calendar, Trophy } from 'lucide-react';
+import { Calendar, Trophy, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -91,6 +91,10 @@ export function EventSchedule() {
                   <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                     <Trophy className="h-4 w-4 text-accent" />
                     <span>रु{event.prize} Prize Pool</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <Ticket className="h-4 w-4 text-accent" />
+                    <span>{event.fee > 0 ? `रु${event.fee} Entry Fee` : 'Free to Enter'}</span>
                   </div>
                 </CardContent>
                 <CardFooter>
