@@ -71,7 +71,7 @@ export default function LoginPage() {
         return;
     }
     try {
-      initiateEmailSignIn(auth, email, password);
+      await initiateEmailSignIn(auth, email, password);
       toast({
         title: 'Signing In...',
         description: 'You will be redirected shortly.',
