@@ -19,7 +19,16 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
-const gameFilters = ['All', 'Valorant', 'Apex Legends', 'League of Legends'];
+const gameFilters = [
+  'All',
+  'Valorant',
+  'Apex Legends',
+  'League of Legends',
+  'Free Fire',
+  'Minecraft',
+  'Pubg',
+  'Call of Duty',
+];
 
 export function EventSchedule() {
   const [activeFilter, setActiveFilter] = useState('All');

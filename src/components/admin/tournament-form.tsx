@@ -33,7 +33,15 @@ interface TournamentFormProps {
 
 const eventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  game: z.enum(['Valorant', 'Apex Legends', 'League of Legends']),
+  game: z.enum([
+    'Valorant',
+    'Apex Legends',
+    'League of Legends',
+    'Free Fire',
+    'Minecraft',
+    'Pubg',
+    'Call of Duty',
+  ]),
   date: z.string().min(1, 'Date is required'),
   status: z.enum(['Open', 'Closed', 'Live']),
   prize: z.coerce.number().min(0, 'Prize must be a positive number'),
@@ -83,6 +91,7 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
 
     const eventData = {
         ...data,
+        description: '', // Add a default empty description
         date: new Date(data.date).toISOString(),
     };
 
@@ -134,6 +143,10 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
                       <SelectItem value="Valorant">Valorant</SelectItem>
                       <SelectItem value="Apex Legends">Apex Legends</SelectItem>
                       <SelectItem value="League of Legends">League of Legends</SelectItem>
+                      <SelectItem value="Free Fire">Free Fire</SelectItem>
+                      <SelectItem value="Minecraft">Minecraft</SelectItem>
+                      <SelectItem value="Pubg">Pubg</SelectItem>
+                      <SelectItem value="Call of Duty">Call of Duty</SelectItem>
                     </SelectContent>
                   </Select>
                 )}

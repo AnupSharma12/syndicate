@@ -1,6 +1,13 @@
 export type Event = {
   id: string;
-  game: 'Valorant' | 'Apex Legends' | 'League of Legends';
+  game:
+    | 'Valorant'
+    | 'Apex Legends'
+    | 'League of Legends'
+    | 'Free Fire'
+    | 'Minecraft'
+    | 'Pubg'
+    | 'Call of Duty';
   name: string;
   date: string; // Should be ISO string
   status: 'Open' | 'Closed' | 'Live';
