@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth, useFirestore, initiateEmailSignIn, setDocumentNonBlocking } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,39 +30,19 @@ export default function LoginPage() {
   useEffect(() => {
     if (!auth) return;
   
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user && firestore) {
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (!userDoc.exists()) {
-          const username = user.email?.split('@')[0] || 'new-user';
-          const isStaff = user.email === 'anup34343@gmail.com';
-          const userData = {
-            id: user.uid,
-            username,
-            email: user.email,
-            staff: isStaff,
-          };
-          
-          setDocumentNonBlocking(userDocRef, userData, {});
-
-          if (isStaff) {
-            const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
-            setDocumentNonBlocking(staffRoleRef, { email: user.email, username }, {});
-          }
-        }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
         router.push('/');
       }
     });
   
     return () => unsubscribe();
-  }, [auth, firestore, router]);
+  }, [auth, router]);
 
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) {
+    if (!auth || !firestore) {
         toast({
             variant: 'destructive',
             title: 'Sign In Failed',
@@ -71,11 +51,41 @@ export default function LoginPage() {
         return;
     }
     try {
-      await initiateEmailSignIn(auth, email, password);
+      const userCredential = await initiateEmailSignIn(auth, email, password);
+      const user = userCredential.user;
+
+      // After successful sign-in, check and set user/admin documents
+      if (user) {
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+            const username = user.email?.split('@')[0] || 'new-user';
+            const isStaff = user.email === 'anup34343@gmail.com';
+            const userData = {
+                id: user.uid,
+                username,
+                email: user.email,
+                staff: isStaff,
+            };
+            
+            // Use blocking setDoc here to ensure docs are created before redirect
+            await setDoc(userDocRef, userData);
+
+            if (isStaff) {
+                const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
+                await setDoc(staffRoleRef, { email: user.email, username });
+            }
+        }
+      }
+
       toast({
         title: 'Signing In...',
         description: 'You will be redirected shortly.',
       });
+
+      router.push('/');
+
     } catch (error: any) {
       toast({
         variant: 'destructive',
