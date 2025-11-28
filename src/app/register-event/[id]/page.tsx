@@ -111,7 +111,7 @@ export default function RegisterEventPage() {
                     <div className="space-y-4">
                       <h4 className="text-lg font-medium">Payment Details</h4>
                       <Alert>
-                        <AlertTitle>Application Fee: Rs{event.fee}</AlertTitle>
+                        <AlertTitle>Application Fee: ₹{event.fee}</AlertTitle>
                         <AlertDescription>
                           Scan the QR code to complete the payment.
                         </AlertDescription>

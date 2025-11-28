@@ -105,7 +105,7 @@ export function EventSchedule() {
                   </div>
                   <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                     <Trophy className="h-4 w-4 text-accent" />
-                    <span>Rs{event.prize} Prize Pool</span>
+                    <span>₹{event.prize} Prize Pool</span>
                   </div>
                 </CardContent>
                 <CardFooter>
