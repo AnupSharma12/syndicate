@@ -94,13 +94,38 @@
           "type": "string",
           "description": "Date and time of the registration.",
           "format": "date-time"
+        },
+        "teamName": {
+          "type": "string",
+          "description": "The name of the registered team."
+        },
+        "whatsAppNumber": {
+          "type": "string",
+          "description": "The user's WhatsApp contact number."
+        },
+        "teamLogoUrl": {
+          "type": "string",
+          "description": "URL to the team's logo. Placeholder for file upload functionality."
+        },
+        "paymentProofUrl": {
+          "type": "string",
+          "description": "URL to the payment proof screenshot. Placeholder for file upload functionality."
+        },
+        "youtubeProofUrls": {
+          "type": "array",
+          "description": "Array of URLs to YouTube subscription screenshots. Placeholder for file upload functionality.",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
         "id",
         "userId",
         "eventId",
-        "registrationDate"
+        "registrationDate",
+        "teamName",
+        "whatsAppNumber"
       ]
     },
     "User": {

@@ -13,7 +13,21 @@ export type Event = {
   status: 'Open' | 'Closed' | 'Live';
   prize: number;
   fee: number;
+  description: string;
 };
+
+export type Registration = {
+  id: string;
+  userId: string;
+  eventId: string;
+  registrationDate: string; // ISO string
+  teamName: string;
+  whatsAppNumber: string;
+  teamLogoUrl: string; // Placeholder for file upload URL
+  paymentProofUrl: string; // Placeholder for file upload URL
+  youtubeProofUrls: string[]; // Placeholder for file upload URLs
+};
+
 
 // This mock data is no longer used by the application but is kept for reference.
 export const events: Event[] = [
@@ -25,6 +39,7 @@ export const events: Event[] = [
     status: 'Open',
     prize: 5000,
     fee: 25,
+    description: "Valorant tournament"
   },
   {
     id: '2',
@@ -34,6 +49,7 @@ export const events: Event[] = [
     status: 'Open',
     prize: 10000,
     fee: 25,
+    description: "Apex legends tournament"
   },
   {
     id: '3',
@@ -43,6 +59,7 @@ export const events: Event[] = [
     status: 'Open',
     prize: 20000,
     fee: 50,
+    description: "League of legends tournament"
   },
   {
     id: '4',
@@ -52,6 +69,7 @@ export const events: Event[] = [
     status: 'Closed',
     prize: 2500,
     fee: 0,
+    description: "Valorant tournament"
   },
   {
     id: '5',
@@ -61,6 +79,7 @@ export const events: Event[] = [
     status: 'Open',
     prize: 7500,
     fee: 25,
+    description: "Apex legends tournament"
   },
   {
     id: '6',
@@ -70,5 +89,6 @@ export const events: Event[] = [
     status: 'Live',
     prize: 15000,
     fee: 0,
+    description: "League of legends tournament"
   },
 ];

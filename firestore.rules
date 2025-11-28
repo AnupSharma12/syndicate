@@ -127,28 +127,28 @@ service cloud.firestore {
      * @principle Restricts access to a user's own data tree and prevents data leakage.
      */
     match /users/{userId} {
-      allow get: if isOwner(userId);
+      allow get: if isOwner(userId) || isStaff();
       allow list: if isStaff();
       allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.staff == false;
       allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('id') && isFieldImmutable('staff');
       allow delete: if isOwner(userId) && isExistingDoc();
-    }
 
-    /**
-     * @description Manages a user's event registrations. A user has full control over their
-     *              own registrations, but cannot see or modify anyone else's.
-     * @path /users/{userId}/registrations/{registrationId}
-     * @allow (list) A user lists all of their own event registrations.
-     * @deny (get) A staff member tries to read a specific user's registration.
-     * @principle Enforces document ownership and relational integrity within a user's private data.
-     */
-    match /users/{userId}/registrations/{registrationId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('userId');
-      allow delete: if isOwner(userId) && isExistingDoc();
+      /**
+       * @description Manages a user's event registrations. A user has full control over their
+       *              own registrations, but cannot see or modify anyone else's.
+       * @path /users/{userId}/registrations/{registrationId}
+       * @allow (list) A user lists all of their own event registrations.
+       * @deny (get) A staff member tries to read a specific user's registration.
+       * @principle Enforces document ownership and relational integrity within a user's private data.
+       */
+      match /registrations/{registrationId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('userId');
+        allow delete: if isOwner(userId) && isExistingDoc();
+      }
     }
-
+    
     /**
      * @description Stores system logs. This collection is read-only for staff members.
      *              Writes are disallowed from the client to ensure logs are only created

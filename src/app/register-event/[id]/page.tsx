@@ -21,26 +21,53 @@ import { Youtube, ArrowLeft } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Loader } from '@/components/loader';
-import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import type { Event } from '@/lib/data';
+import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
+import { doc, collection } from 'firebase/firestore';
+import type { Event, Registration } from '@/lib/data';
 
 export default function RegisterEventPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
   const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
   const eventId = params.id as string;
+
+  const [teamName, setTeamName] = useState('');
+  const [whatsAppNumber, setWhatsAppNumber] = useState('');
 
   const eventRef = useMemoFirebase(
     () => (firestore && eventId ? doc(firestore, 'events', eventId) : null),
     [firestore, eventId]
   );
-  const { data: event, isLoading: loading } = useDoc<Event>(eventRef);
+  const { data: event, isLoading: eventLoading } = useDoc<Event>(eventRef);
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!event) return;
+    if (!event || !user || !firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not submit registration. Please try again.',
+      });
+      return;
+    }
+
+    const registrationData: Omit<Registration, 'id'> = {
+      userId: user.uid,
+      eventId: event.id,
+      registrationDate: new Date().toISOString(),
+      teamName,
+      whatsAppNumber,
+      // NOTE: File upload fields are placeholders.
+      // A full implementation requires a service like Firebase Storage.
+      teamLogoUrl: '', 
+      paymentProofUrl: '',
+      youtubeProofUrls: [],
+    };
+
+    const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
+    addDocumentNonBlocking(registrationsColRef, registrationData);
     
     toast({
       title: 'Registration Submitted!',
@@ -49,10 +76,16 @@ export default function RegisterEventPage() {
     router.push('/');
   };
 
-  if (loading) {
+  if (eventLoading || isUserLoading) {
     return <Loader />;
   }
 
+  if (!user) {
+    // Redirect to login if not authenticated
+    router.push('/login');
+    return <Loader />;
+  }
+  
   if (!event) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground">
@@ -93,11 +126,11 @@ export default function RegisterEventPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label htmlFor="teamName">Team Name</Label>
-                        <Input id="teamName" placeholder="e.g., The Dragons" required />
+                        <Input id="teamName" placeholder="e.g., The Dragons" required value={teamName} onChange={(e) => setTeamName(e.target.value)} />
                     </div>
                      <div className="space-y-2">
                       <Label htmlFor="whatsapp">WhatsApp Number</Label>
-                      <Input id="whatsapp" type="tel" placeholder="+91..." required />
+                      <Input id="whatsapp" type="tel" placeholder="+977..." required value={whatsAppNumber} onChange={(e) => setWhatsAppNumber(e.target.value)} />
                     </div>
                 </div>
                  <div className="space-y-2">
@@ -111,7 +144,7 @@ export default function RegisterEventPage() {
                     <div className="space-y-4">
                       <h4 className="text-lg font-medium">Payment Details</h4>
                       <Alert>
-                        <AlertTitle>Application Fee: ₹{event.fee}</AlertTitle>
+                        <AlertTitle>Application Fee: रु{event.fee}</AlertTitle>
                         <AlertDescription>
                           Scan the QR code to complete the payment.
                         </AlertDescription>
