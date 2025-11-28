@@ -5,6 +5,7 @@ export type Event = {
   date: string;
   status: 'Open' | 'Closed' | 'Live';
   prize: string;
+  free: boolean;
 };
 
 export const events: Event[] = [
@@ -15,6 +16,7 @@ export const events: Event[] = [
     date: 'October 15, 2024',
     status: 'Open',
     prize: '$5,000',
+    free: false,
   },
   {
     id: '2',
@@ -23,6 +25,7 @@ export const events: Event[] = [
     date: 'October 22, 2024',
     status: 'Open',
     prize: '$10,000',
+    free: false,
   },
   {
     id: '3',
@@ -31,6 +34,7 @@ export const events: Event[] = [
     date: 'November 5, 2024',
     status: 'Open',
     prize: '$20,000',
+    free: false,
   },
   {
     id: '4',
@@ -39,6 +43,7 @@ export const events: Event[] = [
     date: 'November 12, 2024',
     status: 'Closed',
     prize: '$2,500',
+    free: true,
   },
   {
     id: '5',
@@ -47,6 +52,7 @@ export const events: Event[] = [
     date: 'December 1, 2024',
     status: 'Open',
     prize: '$7,500',
+    free: false,
   },
   {
     id: '6',
@@ -55,5 +61,6 @@ export const events: Event[] = [
     date: 'December 10, 2024',
     status: 'Live',
     prize: '$15,000',
+    free: true,
   },
 ];
