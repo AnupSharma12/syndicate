@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Users, Swords, ShieldCheck } from 'lucide-react';
 
-type AdminView = 'dashboard' | 'users';
+type AdminView = 'dashboard' | 'users' | 'tournaments';
 
 interface AdminDashboardProps {
   setView: (view: AdminView) => void;
@@ -48,7 +48,7 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
                 </p>
               </CardContent>
               <CardContent>
-                 <Button>View Tournaments</Button>
+                 <Button onClick={() => setView('tournaments')}>View Tournaments</Button>
               </CardContent>
             </Card>
             <Card className="bg-card border-border/60">
