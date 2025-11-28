@@ -1,7 +1,6 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { events, type Event } from '@/lib/data';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,22 +21,22 @@ import { Youtube, ArrowLeft } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Loader } from '@/components/loader';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { Event } from '@/lib/data';
 
 export default function RegisterEventPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
+  const firestore = useFirestore();
+  const eventId = params.id as string;
 
-  useEffect(() => {
-    const eventId = params.id as string;
-    const foundEvent = events.find((e) => e.id === eventId);
-    if (foundEvent) {
-      setEvent(foundEvent);
-    }
-    setLoading(false);
-  }, [params.id]);
+  const eventRef = useMemoFirebase(
+    () => (firestore && eventId ? doc(firestore, 'events', eventId) : null),
+    [firestore, eventId]
+  );
+  const { data: event, isLoading: loading } = useDoc<Event>(eventRef);
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,7 +85,7 @@ export default function RegisterEventPage() {
               </CardTitle>
               <CardDescription>
                 Complete the form below to compete. 
-                This is a <span className="font-semibold text-primary">{event.free ? 'free-to-enter' : 'paid'}</span> event.
+                This is a <span className="font-semibold text-primary">{event.fee > 0 ? 'paid' : 'free-to-enter'}</span> event.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -106,7 +105,7 @@ export default function RegisterEventPage() {
                   <Input id="teamLogo" type="file" required className="pt-2" />
                 </div>
                 
-                {!event.free && (
+                {event.fee > 0 && (
                   <>
                     <Separator />
                     <div className="space-y-4">
@@ -174,7 +173,7 @@ export default function RegisterEventPage() {
                   type="submit"
                   className="w-full font-bold text-lg py-6"
                 >
-                  {event.free ? 'Register Team' : 'Submit Application'}
+                  {event.fee > 0 ? 'Submit Application' : 'Register Team'}
                 </Button>
               </form>
             </CardContent>

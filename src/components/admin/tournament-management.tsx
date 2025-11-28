@@ -19,8 +19,11 @@ import {
 import { ArrowLeft, Loader2, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
-import { events as mockEvents, type Event } from '@/lib/data';
 import { Badge } from '../ui/badge';
+import { useFirestore, useCollection, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import type { Event } from '@/lib/data';
+import { TournamentForm } from './tournament-form';
 
 type AdminView = 'dashboard' | 'users' | 'tournaments';
 
@@ -29,13 +32,31 @@ interface TournamentManagementProps {
 }
 
 export function TournamentManagement({ setView }: TournamentManagementProps) {
-  // Using mock data for now. This will be replaced with Firestore data.
-  const [events, setEvents] = useState<Event[]>(mockEvents);
-  const [isLoading, setIsLoading] = useState(false);
+  const firestore = useFirestore();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+  const eventsRef = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'events') : null),
+    [firestore]
+  );
+  const { data: events, isLoading } = useCollection<Event>(eventsRef);
+
+  const handleAdd = () => {
+    setSelectedEvent(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEdit = (event: Event) => {
+    setSelectedEvent(event);
+    setIsFormOpen(true);
+  };
 
   const handleDelete = (eventId: string) => {
+    if (!firestore) return;
     if (confirm('Are you sure you want to delete this event?')) {
-        setEvents(events.filter(e => e.id !== eventId));
+      const eventDocRef = doc(firestore, 'events', eventId);
+      deleteDocumentNonBlocking(eventDocRef);
     }
   };
 
@@ -49,9 +70,9 @@ export function TournamentManagement({ setView }: TournamentManagementProps) {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
             </Button>
-            <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Tournament
+            <Button onClick={handleAdd}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Tournament
             </Button>
           </div>
           <Card>
@@ -81,19 +102,19 @@ export function TournamentManagement({ setView }: TournamentManagementProps) {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    events.map((event) => (
+                    events?.map((event) => (
                       <TableRow key={event.id}>
                         <TableCell className="font-medium">{event.name}</TableCell>
                         <TableCell>{event.game}</TableCell>
-                        <TableCell>{event.date}</TableCell>
+                        <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <Badge variant={
                             event.status === 'Open' ? 'default' : event.status === 'Live' ? 'destructive' : 'secondary'
                           }>{event.status}</Badge>
                         </TableCell>
-                        <TableCell>{event.prize}</TableCell>
+                        <TableCell>Rs{event.prize}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(event)}>
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDelete(event.id)}>
@@ -110,6 +131,11 @@ export function TournamentManagement({ setView }: TournamentManagementProps) {
         </div>
       </main>
       <Footer />
+      <TournamentForm 
+        isOpen={isFormOpen}
+        setIsOpen={setIsFormOpen}
+        event={selectedEvent}
+      />
     </div>
   );
 }

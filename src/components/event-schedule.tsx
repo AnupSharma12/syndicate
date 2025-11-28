@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import type { Event } from '@/lib/data';
-import { events } from '@/lib/data';
 import { Calendar, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,16 +15,26 @@ import {
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { Loader2 } from 'lucide-react';
 
 const gameFilters = ['All', 'Valorant', 'Apex Legends', 'League of Legends'];
 
 export function EventSchedule() {
   const [activeFilter, setActiveFilter] = useState('All');
+  const firestore = useFirestore();
+
+  const eventsRef = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'events') : null),
+    [firestore]
+  );
+  const { data: events, isLoading } = useCollection<Event>(eventsRef);
 
   const filteredEvents =
     activeFilter === 'All'
       ? events
-      : events.filter((event) => event.game === activeFilter);
+      : events?.filter((event) => event.game === activeFilter);
 
   const gameImages = PlaceHolderImages.filter((p) =>
     gameFilters.includes(p.id)
@@ -64,7 +73,8 @@ export function EventSchedule() {
           id="schedule"
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
-          {filteredEvents.map((event) => {
+          {isLoading && <div className="col-span-full text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto"/></div>}
+          {filteredEvents?.map((event) => {
             const gameImage = gameImages.find((img) => img.id === event.game);
             return (
               <Card
@@ -91,11 +101,11 @@ export function EventSchedule() {
                 <CardContent className="flex-grow space-y-3">
                   <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4 text-accent" />
-                    <span>{event.date}</span>
+                    <span>{new Date(event.date).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                     <Trophy className="h-4 w-4 text-accent" />
-                    <span>{event.prize} Prize Pool</span>
+                    <span>Rs{event.prize} Prize Pool</span>
                   </div>
                 </CardContent>
                 <CardFooter>
