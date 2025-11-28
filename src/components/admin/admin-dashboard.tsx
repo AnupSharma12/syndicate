@@ -10,7 +10,10 @@ import {
   CardContent
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Swords, ShieldCheck } from 'lucide-react';
+import { Users, Swords, ShieldCheck, Loader2 } from 'lucide-react';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { Event } from '@/lib/data';
 
 type AdminView = 'dashboard' | 'users' | 'tournaments';
 
@@ -19,6 +22,18 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({ setView }: AdminDashboardProps) {
+  const firestore = useFirestore();
+  const eventsRef = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'events') : null),
+    [firestore]
+  );
+  const { data: events, isLoading: eventsLoading } = useCollection<Event>(eventsRef);
+
+  const totalEvents = events?.length ?? 0;
+  const openEvents = events?.filter((e) => e.status === 'Open').length ?? 0;
+  const liveEvents = events?.filter((e) => e.status === 'Live').length ?? 0;
+  const closedEvents = events?.filter((e) => e.status === 'Closed').length ?? 0;
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <Header />
@@ -42,10 +57,16 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
                 <Swords className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">6</div>
-                <p className="text-xs text-muted-foreground">
-                  3 open, 1 live, 2 closed
-                </p>
+                {eventsLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold">{totalEvents}</div>
+                    <p className="text-xs text-muted-foreground">
+                      {openEvents} open, {liveEvents} live, {closedEvents} closed
+                    </p>
+                  </>
+                )}
               </CardContent>
               <CardContent>
                  <Button onClick={() => setView('tournaments')}>View Tournaments</Button>
