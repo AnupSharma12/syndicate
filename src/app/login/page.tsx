@@ -61,6 +61,7 @@ export default function LoginPage() {
 
         if (!userDoc.exists()) {
             const username = user.email?.split('@')[0] || 'new-user';
+             // The admin role is now handled by security rules, but we can still set the 'staff' flag
             const isStaff = user.email === 'anup34343@gmail.com';
             const userData = {
                 id: user.uid,
@@ -69,9 +70,10 @@ export default function LoginPage() {
                 staff: isStaff,
             };
             
-            // Use blocking setDoc here to ensure docs are created before redirect
             await setDoc(userDocRef, userData);
 
+            // If the user is the designated admin, we also create their staff role document
+            // to allow other staff members to see them in the user management list.
             if (isStaff) {
                 const staffRoleRef = doc(firestore, 'roles_staff', user.uid);
                 await setDoc(staffRoleRef, { email: user.email, username });
@@ -145,3 +147,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

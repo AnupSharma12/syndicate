@@ -22,8 +22,8 @@ service cloud.firestore {
      *
      * Key Security Decisions:
      * - Staff Authorization: A user is considered "staff" if a document with their UID
-     *   exists in the `/roles_staff` collection. This existence-based check is fast,
-     *   secure, and avoids relying on user-editable fields.
+     *   exists in the `/roles_staff` collection OR if their email is the super-admin email.
+     *   This provides a reliable fallback for the main administrator.
      * - Client-Side Immutability: The `/roles_staff` and `/logs` collections are made
      *   read-only for all clients to prevent unauthorized modification. Role grants and
      *   log creation must be handled by a trusted server environment.
@@ -72,11 +72,14 @@ service cloud.firestore {
     }
 
     /**
-     * Checks if the authenticated user is a staff member by verifying the existence
-     * of their UID in the /roles_staff collection. This is the primary role check.
+     * Checks if the authenticated user is a staff member. A user is staff if:
+     * 1. Their email is the designated super-admin email.
+     * 2. A document with their UID exists in the /roles_staff collection.
      */
     function isStaff() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_staff/$(request.auth.uid));
+      return isSignedIn() && 
+             (request.auth.token.email == 'anup34343@gmail.com' || 
+              exists(/databases/$(database)/documents/roles_staff/$(request.auth.uid)));
     }
 
     /**
@@ -187,3 +190,5 @@ service cloud.firestore {
 
   }
 }
+
+    
