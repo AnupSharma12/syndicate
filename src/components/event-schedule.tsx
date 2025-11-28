@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import type { Event } from '@/lib/data';
 import { Calendar, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,8 +18,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
-const gameFilters = [
-  'All',
+const gameImageIds = [
   'Valorant',
   'Apex Legends',
   'League of Legends',
@@ -30,8 +28,8 @@ const gameFilters = [
   'Call of Duty',
 ];
 
+
 export function EventSchedule() {
-  const [activeFilter, setActiveFilter] = useState('All');
   const firestore = useFirestore();
 
   const eventsRef = useMemoFirebase(
@@ -40,13 +38,8 @@ export function EventSchedule() {
   );
   const { data: events, isLoading } = useCollection<Event>(eventsRef);
 
-  const filteredEvents =
-    activeFilter === 'All'
-      ? events
-      : events?.filter((event) => event.game === activeFilter);
-
   const gameImages = PlaceHolderImages.filter((p) =>
-    gameFilters.includes(p.id)
+    gameImageIds.includes(p.id)
   );
 
   return (
@@ -57,25 +50,8 @@ export function EventSchedule() {
             Upcoming Tournaments
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            Filter by game and register your team to compete for glory and prizes.
+            Register your team to compete for glory and prizes.
           </p>
-        </div>
-
-        <div className="flex justify-center mb-10">
-          <div className="flex flex-wrap gap-2 rounded-lg bg-muted p-1.5">
-            {gameFilters.map((game) => (
-              <Button
-                key={game}
-                variant={activeFilter === game ? 'default' : 'ghost'}
-                onClick={() => setActiveFilter(game)}
-                className={`rounded-md px-4 py-2 transition-colors duration-200 ${
-                  activeFilter === game ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-primary/10'
-                }`}
-              >
-                {game}
-              </Button>
-            ))}
-          </div>
         </div>
 
         <div
@@ -83,7 +59,7 @@ export function EventSchedule() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
           {isLoading && <div className="col-span-full text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto"/></div>}
-          {filteredEvents?.map((event) => {
+          {events?.map((event) => {
             const gameImage = gameImages.find((img) => img.id === event.game);
             return (
               <Card
