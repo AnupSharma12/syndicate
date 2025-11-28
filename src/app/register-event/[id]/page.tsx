@@ -206,7 +206,7 @@ export default function RegisterEventPage() {
                   type="submit"
                   className="w-full font-bold text-lg py-6"
                 >
-                  {event.fee > 0 ? 'Submit Application' : 'Register Team'}
+                  {event.fee > 0 ? 'Submit Application' : 'Register Free'}
                 </Button>
               </form>
             </CardContent>

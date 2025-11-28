@@ -101,7 +101,11 @@ export function EventSchedule() {
                     disabled={event.status !== 'Open'}
                   >
                     <Link href={`/register-event/${event.id}`}>
-                      {event.status === 'Open' ? 'Register Now' : event.status}
+                      {event.status === 'Open'
+                        ? event.fee > 0
+                          ? 'Register Now'
+                          : 'Register Free'
+                        : event.status}
                     </Link>
                   </Button>
                 </CardFooter>
