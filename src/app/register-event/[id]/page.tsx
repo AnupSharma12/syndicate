@@ -24,6 +24,7 @@ import { Loader } from '@/components/loader';
 import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
 import type { Event, Registration } from '@/lib/data';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function RegisterEventPage() {
   const params = useParams();
@@ -41,6 +42,9 @@ export default function RegisterEventPage() {
     [firestore, eventId]
   );
   const { data: event, isLoading: eventLoading } = useDoc<Event>(eventRef);
+  
+  const qrCodeImage = PlaceHolderImages.find((p) => p.id === 'qr-code');
+
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -149,15 +153,17 @@ export default function RegisterEventPage() {
                           Scan the QR code to complete the payment.
                         </AlertDescription>
                       </Alert>
-                      <div className="flex justify-center p-4 bg-muted rounded-md">
-                        <Image
-                          src="https://picsum.photos/seed/qr/200/200"
-                          alt="Payment QR Code"
-                          width={200}
-                          height={200}
-                          data-ai-hint="QR code"
-                        />
-                      </div>
+                      {qrCodeImage && (
+                        <div className="flex justify-center p-4 bg-muted rounded-md">
+                          <Image
+                            src={qrCodeImage.imageUrl}
+                            alt={qrCodeImage.description}
+                            width={200}
+                            height={200}
+                            data-ai-hint={qrCodeImage.imageHint}
+                          />
+                        </div>
+                      )}
                       <div className="space-y-2">
                         <Label htmlFor="paymentProof">
                           Screenshot of Payment Proof

@@ -47,6 +47,12 @@
       "description": "Artwork representing the game Call of Duty.",
       "imageUrl": "https://images.unsplash.com/photo-1600248131696-d5c5fe996dfa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtb2Rlcm4lMjB3YXJmYXJlJTIwZ2FtZXxlbnwwfHx8fDE3NjQzMDMyOTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "modern warfare game"
+    },
+    {
+      "id": "qr-code",
+      "description": "A QR code for payment.",
+      "imageUrl": "https://images.unsplash.com/photo-1550482768-88b710a445fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8UVIlMjBjb2RlfGVufDB8fHx8MTc2NDM2Mzk1MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "QR code"
     }
   ]
 }
