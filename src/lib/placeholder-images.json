@@ -9,49 +9,31 @@
     {
       "id": "Valorant",
       "description": "Artwork representing the game Valorant.",
-      "imageUrl": "https://images.unsplash.com/photo-1738054040695-d6f1f0e161ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmdXR1cmlzdGljJTIwc29sZGllcnxlbnwwfHx8fDE3NjI2OTA0MTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "futuristic soldier"
-    },
-    {
-      "id": "Apex Legends",
-      "description": "Artwork representing the game Apex Legends.",
-      "imageUrl": "https://images.unsplash.com/photo-1760007418266-f08947dd3db9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzY2ktZmklMjBjaGFyYWN0ZXJzfGVufDB8fHx8MTc2Mjc3NTU2OXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "sci-fi characters"
-    },
-    {
-      "id": "League of Legends",
-      "description": "Artwork representing the game League of Legends.",
-      "imageUrl": "https://images.unsplash.com/photo-1761948244883-05a6a0454cc4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYW50YXN5JTIwYmF0dGxlfGVufDB8fHx8MTc2Mjc2OTYzNXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fantasy battle"
+      "imageUrl": "https://wallpapers.com/images/featured/valorant-logo-x0jet8s98hbbfi62.jpg",
+      "imageHint": "valorant logo"
     },
     {
       "id": "Free Fire",
       "description": "Artwork representing the game Free Fire.",
-      "imageUrl": "https://images.unsplash.com/photo-1760604359369-45675611f750?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxhY3Rpb24lMjBtb2JpbGUlMjBnYW1lfGVufDB8fHx8MTc2NDMwMzI5MXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "action mobile game"
+      "imageUrl": "https://wallpapers.com/images/hd/free-fire-banner-with-complete-cast-5vfv6tj9bc7x37rw.jpg",
+      "imageHint": "free fire action"
     },
     {
       "id": "Minecraft",
       "description": "Artwork representing the game Minecraft.",
-      "imageUrl": "https://images.unsplash.com/photo-1676988931715-d5adcf60e32e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxibG9jayUyMHdvcmxkJTIwZ2FtZXxlbnwwfHx8fDE3NjQzMDMyOTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "block world game"
+      "imageUrl": "https://logo.com/image-cdn/images/kts928pd/production/e1d61cc6d5f05c33c1cd0fbf96c51554671750ba-1140x620.png",
+      "imageHint": "minecraft logo"
     },
     {
       "id": "Pubg",
       "description": "Artwork representing the game Pubg.",
-      "imageUrl": "https://images.unsplash.com/photo-1616026609052-62d2868f3f90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxiYXR0bGUlMjByb3lhbGUlMjBnYW1lfGVufDB8fHx8MTc2NDI2MTU0MXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "battle royale game"
-    },
-    {
-      "id": "Call of Duty",
-      "description": "Artwork representing the game Call of Duty.",
-      "imageUrl": "https://images.unsplash.com/photo-1600248131696-d5c5fe996dfa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtb2Rlcm4lMjB3YXJmYXJlJTIwZ2FtZXxlbnwwfHx8fDE3NjQzMDMyOTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "modern warfare game"
+      "imageUrl": "https://wallpapers.com/images/hd/pubg-banner-2560-x-1440-background-mkjqexv25wrvf0m0.jpg",
+      "imageHint": "pubg battle"
     },
     {
       "id": "qr-code",
       "description": "A QR code for payment.",
-      "imageUrl": "https://images.unsplash.com/photo-1550482768-88b710a445fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8UVIlMjBjb2RlfGVufDB8fHx8MTc2NDM2Mzk1MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://lh7-rt.googleusercontent.com/formsz/AN7BsVC1jCRThRgMStl3MnuBISnFJxR8AUBydz2n99zfccEgWbXZeAxyyz_qgGnMYD5np8d8tfPqVOzd5y_TXV9yHC-FB70IQ6TK961FQ5SR5nGSzI_sIwIBiRcp8Z2t0EUWYPIiP7rC4R4alWY3Ob1NGv8ore6UWBaKy9fvVQHzhogJsnz6NF68C31JGaD2zD4910ym9qHKH7ml1xk=w260?key=Bz7h4Spq65fc_wx0PgXWgg",
       "imageHint": "QR code"
     }
   ]

@@ -20,12 +20,9 @@ import { Loader2 } from 'lucide-react';
 
 const gameImageIds = [
   'Valorant',
-  'Apex Legends',
-  'League of Legends',
   'Free Fire',
   'Minecraft',
   'Pubg',
-  'Call of Duty',
 ];
 
 
