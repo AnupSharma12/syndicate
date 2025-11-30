@@ -35,7 +35,7 @@ export default function RegisterEventPage() {
   const eventId = params.id as string;
 
   const [teamName, setTeamName] = useState('');
-  const [whatsAppNumber, setWhatsAppNumber] = useState('');
+  const [whatsAppNumber, setWhatsAppNumber]  = useState('');
   const [teamLogo, setTeamLogo] = useState<File | null>(null);
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [youtubeProofs, setYoutubeProofs] = useState<FileList | null>(null);
@@ -61,13 +61,12 @@ export default function RegisterEventPage() {
 
     // This is a simulation of file upload. In a real app, you would upload to a service like Firebase Storage.
     // We generate unique placeholder URLs for each "upload" to mimic this.
-    const generatePlaceholderUrl = (text: string, seed: string) => `https://placehold.co/600x400/22272F/9499A4?text=${encodeURIComponent(text)}&seed=${seed}`;
+    const generatePlaceholderUrl = () => `https://picsum.photos/seed/${Math.random()}/600/400`;
 
-    // Generate unique URLs for each file based on a random seed to simulate different images
-    const teamLogoUrl = teamLogo ? generatePlaceholderUrl('Team Logo', Math.random().toString()) : '';
-    const paymentProofUrl = paymentProof ? generatePlaceholderUrl('Payment Proof', Math.random().toString()) : '';
+    const teamLogoUrl = teamLogo ? generatePlaceholderUrl() : '';
+    const paymentProofUrl = paymentProof ? generatePlaceholderUrl() : '';
     const youtubeProofUrls = youtubeProofs
-      ? Array.from(youtubeProofs).map((_, i) => generatePlaceholderUrl(`YT Proof ${i + 1}`, Math.random().toString()))
+      ? Array.from(youtubeProofs).map(() => generatePlaceholderUrl())
       : [];
 
 
