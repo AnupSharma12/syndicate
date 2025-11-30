@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,12 +16,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Eye } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { useFirestore, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import { collectionGroup, doc, query } from 'firebase/firestore';
 import type { Registration, Event } from '@/lib/data';
+import { ApplicationDetailDialog } from './application-detail-dialog';
 
 
 type AdminView = 'dashboard' | 'applications';
@@ -29,7 +31,7 @@ interface ApplicationManagementProps {
   setView: (view: AdminView) => void;
 }
 
-function RegistrationRow({ registration }: { registration: Registration }) {
+function RegistrationRow({ registration, onSelect }: { registration: Registration, onSelect: (registration: Registration) => void }) {
   const firestore = useFirestore();
   const eventRef = useMemoFirebase(
     () => (firestore ? doc(firestore, 'events', registration.eventId) : null),
@@ -46,9 +48,8 @@ function RegistrationRow({ registration }: { registration: Registration }) {
         {new Date(registration.registrationDate).toLocaleDateString()}
       </TableCell>
       <TableCell className="text-right">
-        {/* Placeholder for actions */}
-        <Button variant="ghost" size="icon">
-          <ArrowLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" onClick={() => onSelect(registration)}>
+          <Eye className="h-4 w-4" />
         </Button>
       </TableCell>
     </TableRow>
@@ -57,6 +58,7 @@ function RegistrationRow({ registration }: { registration: Registration }) {
 
 export function ApplicationManagement({ setView }: ApplicationManagementProps) {
   const firestore = useFirestore();
+  const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
 
   const registrationsQuery = useMemoFirebase(
     () => (firestore ? query(collectionGroup(firestore, 'registrations')) : null),
@@ -104,7 +106,7 @@ export function ApplicationManagement({ setView }: ApplicationManagementProps) {
                     </TableRow>
                   ) : registrations && registrations.length > 0 ? (
                     registrations.map((reg) => (
-                      <RegistrationRow key={reg.id} registration={reg} />
+                      <RegistrationRow key={reg.id} registration={reg} onSelect={setSelectedRegistration} />
                     ))
                   ) : (
                      <TableRow>
@@ -120,6 +122,15 @@ export function ApplicationManagement({ setView }: ApplicationManagementProps) {
         </div>
       </main>
       <Footer />
+       <ApplicationDetailDialog
+        registration={selectedRegistration}
+        isOpen={!!selectedRegistration}
+        setIsOpen={(isOpen) => {
+          if (!isOpen) {
+            setSelectedRegistration(null);
+          }
+        }}
+      />
     </div>
   );
 }

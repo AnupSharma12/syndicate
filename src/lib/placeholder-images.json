@@ -35,6 +35,12 @@
       "description": "A QR code for payment.",
       "imageUrl": "https://lh7-rt.googleusercontent.com/formsz/AN7BsVC1jCRThRgMStl3MnuBISnFJxR8AUBydz2n99zfccEgWbXZeAxyyz_qgGnMYD5np8d8tfPqVOzd5y_TXV9yHC-FB70IQ6TK961FQ5SR5nGSzI_sIwIBiRcp8Z2t0EUWYPIiP7rC4R4alWY3Ob1NGv8ore6UWBaKy9fvVQHzhogJsnz6NF68C31JGaD2zD4910ym9qHKH7ml1xk=w260?key=Bz7h4Spq65fc_wx0PgXWgg",
       "imageHint": "QR code"
+    },
+    {
+      "id": "image-placeholder",
+      "description": "A generic placeholder for an image that could not be loaded.",
+      "imageUrl": "https://placehold.co/600x400/22272F/9499A4?text=No+Image",
+      "imageHint": "placeholder image"
     }
   ]
 }
