@@ -47,9 +47,8 @@ export default function RegisterEventPage() {
   const { data: event, isLoading: eventLoading } = useDoc<Event>(eventRef);
   
   const qrCodeImage = PlaceHolderImages.find((p) => p.id === 'qr-code');
-  const imagePlaceholder = PlaceHolderImages.find(p => p.id === 'image-placeholder');
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!event || !user || !firestore) {
       toast({
@@ -60,11 +59,15 @@ export default function RegisterEventPage() {
       return;
     }
 
-    // Simulate file URLs - in a real app, you'd upload to Firebase Storage and get URLs
-    const teamLogoUrl = teamLogo && imagePlaceholder ? imagePlaceholder.imageUrl.replace('No+Image', 'Team+Logo') : '';
-    const paymentProofUrl = paymentProof && imagePlaceholder ? imagePlaceholder.imageUrl.replace('No+Image', 'Payment+Proof') : '';
-    const youtubeProofUrls = youtubeProofs && imagePlaceholder
-      ? Array.from(youtubeProofs).map((_, i) => imagePlaceholder.imageUrl.replace('No+Image', `YT+Proof+${i + 1}`))
+    // This is a simulation of file upload. In a real app, you would upload to a service like Firebase Storage.
+    // We generate unique placeholder URLs for each "upload" to mimic this.
+    const generatePlaceholderUrl = (text: string, seed: string) => `https://placehold.co/600x400/22272F/9499A4?text=${encodeURIComponent(text)}&seed=${seed}`;
+
+    // Generate unique URLs for each file based on a random seed to simulate different images
+    const teamLogoUrl = teamLogo ? generatePlaceholderUrl('Team Logo', Math.random().toString()) : '';
+    const paymentProofUrl = paymentProof ? generatePlaceholderUrl('Payment Proof', Math.random().toString()) : '';
+    const youtubeProofUrls = youtubeProofs
+      ? Array.from(youtubeProofs).map((_, i) => generatePlaceholderUrl(`YT Proof ${i + 1}`, Math.random().toString()))
       : [];
 
 
@@ -80,13 +83,23 @@ export default function RegisterEventPage() {
     };
 
     const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
-    addDocumentNonBlocking(registrationsColRef, registrationData);
     
-    toast({
-      title: 'Registration Submitted!',
-      description: `Your team has been registered for the ${event.name}.`,
-    });
-    router.push('/');
+    try {
+        await addDocumentNonBlocking(registrationsColRef, registrationData);
+        
+        toast({
+          title: 'Registration Submitted!',
+          description: `Your team has been registered for the ${event.name}.`,
+        });
+        router.push('/');
+
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Submission Failed',
+            description: 'There was a problem submitting your registration.',
+        });
+    }
   };
 
   if (eventLoading || isUserLoading) {
@@ -152,7 +165,8 @@ export default function RegisterEventPage() {
                     id="teamLogo" 
                     type="file" 
                     required 
-                    className="pt-2" 
+                    className="pt-2"
+                    accept="image/*"
                     onChange={(e) => setTeamLogo(e.target.files ? e.target.files[0] : null)}
                     />
                 </div>
@@ -187,6 +201,7 @@ export default function RegisterEventPage() {
                           id="paymentProof" 
                           type="file" 
                           required 
+                          accept="image/*"
                           className="pt-2" 
                           onChange={(e) => setPaymentProof(e.target.files ? e.target.files[0] : null)}
                           />
@@ -224,8 +239,21 @@ export default function RegisterEventPage() {
                       type="file"
                       required
                       multiple
+                      accept="image/*"
                       className="pt-2"
-                      onChange={(e) => setYoutubeProofs(e.target.files)}
+                      onChange={(e) => {
+                          const files = e.target.files;
+                          if (files && files.length >= 4) {
+                            setYoutubeProofs(files);
+                          } else {
+                            toast({
+                                variant: 'destructive',
+                                title: 'Invalid File Count',
+                                description: 'Please upload at least 4 screenshots.'
+                            })
+                            e.target.value = ''; // Clear the input
+                          }
+                      }}
                     />
                   </div>
                 </div>
