@@ -20,7 +20,6 @@ export function Header() {
   );
   const { data: userDoc, isLoading: isRoleLoading } = useDoc(userDocRef);
   
-  // Client-side state to prevent hydration mismatch
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
@@ -66,7 +65,7 @@ export function Header() {
     }
 
     return (
-      <Button asChild className="hidden md:flex">
+      <Button asChild>
         <Link href="/login">Sign In / Register</Link>
       </Button>
     );
@@ -126,43 +125,45 @@ export function Header() {
           <div className="hidden md:flex">
             {renderAuthButtons()}
           </div>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <div className="grid gap-4 py-6">
-                 <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Homepage">
-                    <Image src="https://iili.io/fo18z3G.png" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
-                    <span className="font-headline text-xl font-bold">
-                      Syndicate ESP
-                    </span>
-                  </Link>
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="flex w-full items-center py-2 text-lg font-semibold"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                {isClient && !isCheckingAuth && isStaff && (
-                  <Link
-                    href="/admin"
-                    className="flex w-full items-center py-2 text-lg font-semibold"
-                  >
-                     <Shield className="mr-2 h-5 w-5" />
-                    Admin
-                  </Link>
-                )}
-                {renderMobileAuthButtons()}
-              </div>
-            </SheetContent>
-          </Sheet>
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right">
+                <div className="grid gap-4 py-6">
+                   <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Homepage">
+                      <Image src="https://iili.io/fo18z3G.png" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
+                      <span className="font-headline text-xl font-bold">
+                        Syndicate ESP
+                      </span>
+                    </Link>
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="flex w-full items-center py-2 text-lg font-semibold"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                  {isClient && !isCheckingAuth && isStaff && (
+                    <Link
+                      href="/admin"
+                      className="flex w-full items-center py-2 text-lg font-semibold"
+                    >
+                       <Shield className="mr-2 h-5 w-5" />
+                      Admin
+                    </Link>
+                  )}
+                  {renderMobileAuthButtons()}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
