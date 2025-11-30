@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useMemo, type ReactNode, useState, useEffect } from 'react';
+import React, { type ReactNode, useState, useEffect } from 'react';
 import { FirebaseProvider } from '@/firebase/provider';
-import { initializeFirebase, getSdks } from '@/firebase';
+import { initializeFirebase } from '@/firebase';
 import type { FirebaseApp } from 'firebase/app';
 import type { Auth } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
 import { Loader } from '@/components/loader';
+import { Toaster } from '@/components/ui/toaster';
 
 interface FirebaseClientProviderProps {
   children: ReactNode;
@@ -19,27 +20,34 @@ interface FirebaseServices {
 }
 
 export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
-  const [firebaseServices, setFirebaseServices] = useState<FirebaseServices | null>(null);
+  const [services, setServices] = useState<FirebaseServices | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // The initialization is asynchronous, so we use a state to track it.
-    const services = initializeFirebase();
-    setFirebaseServices(services);
+    setIsMounted(true);
+    const firebaseServices = initializeFirebase();
+    setServices(firebaseServices);
   }, []);
 
-  // While the services are being initialized, we show a loader.
-  // This prevents any child components from trying to access Firebase prematurely.
-  if (!firebaseServices) {
+  if (!isMounted) {
+    // On the server, and on the very first client render, render nothing.
+    // This guarantees that the server and client initial render match.
+    return null;
+  }
+
+  if (!services) {
+    // After mounting on the client, show a loader while Firebase initializes.
     return <Loader />;
   }
 
   return (
     <FirebaseProvider
-      firebaseApp={firebaseServices.firebaseApp}
-      auth={firebaseServices.auth}
-      firestore={firebaseServices.firestore}
+      firebaseApp={services.firebaseApp}
+      auth={services.auth}
+      firestore={services.firestore}
     >
       {children}
+      <Toaster />
     </FirebaseProvider>
   );
 }
