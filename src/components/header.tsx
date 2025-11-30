@@ -121,49 +121,51 @@ export function Header() {
             )}
           </nav>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="hidden md:flex">
-            {renderAuthButtons()}
-          </div>
-          <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle Menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <div className="grid gap-4 py-6">
-                   <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Homepage">
-                      <Image src="https://iili.io/fo18z3G.png" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
-                      <span className="font-headline text-xl font-bold">
-                        Syndicate ESP
-                      </span>
-                    </Link>
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="flex w-full items-center py-2 text-lg font-semibold"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                  {isClient && !isCheckingAuth && isStaff && (
-                    <Link
-                      href="/admin"
-                      className="flex w-full items-center py-2 text-lg font-semibold"
-                    >
-                       <Shield className="mr-2 h-5 w-5" />
-                      Admin
-                    </Link>
-                  )}
-                  {renderMobileAuthButtons()}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+
+        {/* Desktop Auth Buttons */}
+        <div className="hidden md:flex items-center">
+          {renderAuthButtons()}
+        </div>
+
+        {/* Mobile Menu */}
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <div className="grid gap-4 py-6">
+                  <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Homepage">
+                    <Image src="https://iili.io/fo18z3G.png" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
+                    <span className="font-headline text-xl font-bold">
+                      Syndicate ESP
+                    </span>
+                  </Link>
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="flex w-full items-center py-2 text-lg font-semibold"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                {isClient && !isCheckingAuth && isStaff && (
+                  <Link
+                    href="/admin"
+                    className="flex w-full items-center py-2 text-lg font-semibold"
+                  >
+                      <Shield className="mr-2 h-5 w-5" />
+                    Admin
+                  </Link>
+                )}
+                {renderMobileAuthButtons()}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
