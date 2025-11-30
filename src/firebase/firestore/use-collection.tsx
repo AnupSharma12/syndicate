@@ -91,9 +91,6 @@ export function useCollection<T = any>(
             path = memoizedTargetRefOrQuery.type === 'collection'
             ? (memoizedTargetRefOrQuery as CollectionReference).path
             : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString();
-        } else {
-             // This case should be rare due to the initial check, but it's a safeguard.
-            path = 'invalid-or-null-query-reference';
         }
 
 
