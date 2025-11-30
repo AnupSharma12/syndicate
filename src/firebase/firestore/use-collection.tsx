@@ -62,13 +62,13 @@ export function useCollection<T = any>(
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
   useEffect(() => {
+    // Definitive check: If the query is not ready, do not proceed.
+    // This prevents onSnapshot from being called with an invalid reference.
     if (!memoizedTargetRefOrQuery) {
-      // If the query is not ready, do not attempt to listen.
-      // Set loading to false and data to null.
       setData(null);
-      setIsLoading(false);
+      setIsLoading(false); // Not loading because we are not fetching.
       setError(null);
-      return;
+      return; // Stop execution of the effect.
     }
 
     // A valid query is present, set loading state and clear previous errors.
