@@ -22,7 +22,7 @@ export type Registration = {
   whatsAppNumber: string;
   teamLogoUrl: string; // Placeholder for file upload URL
   paymentProofUrl: string; // Placeholder for file upload URL
-  youtubeProofUrls: string[]; // Placeholder for file upload URLs
+  youtubeProofUrl?: string; // Placeholder for file upload URL
 };
 
 export type User = {

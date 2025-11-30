@@ -93,12 +93,8 @@ export function ApplicationDetailDialog({
               {event && event.fee > 0 && (
                 <ImagePreview label="Payment Proof" src={registration.paymentProofUrl} />
               )}
-              {registration.youtubeProofUrls && registration.youtubeProofUrls.length > 0 && (
-                <div className="grid grid-cols-2 gap-4">
-                  {registration.youtubeProofUrls.map((url, index) => (
-                      <ImagePreview key={index} label={`YouTube Proof ${index + 1}`} src={url} />
-                  ))}
-                </div>
+              {registration.youtubeProofUrl && (
+                <ImagePreview label="YouTube Proof" src={registration.youtubeProofUrl} />
               )}
           </div>
         </div>

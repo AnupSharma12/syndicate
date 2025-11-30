@@ -38,7 +38,7 @@ export default function RegisterEventPage() {
   const [whatsAppNumber, setWhatsAppNumber]  = useState('');
   const [teamLogo, setTeamLogo] = useState<File | null>(null);
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
-  const [youtubeProofs, setYoutubeProofs] = useState<FileList | null>(null);
+  const [youtubeProof, setYoutubeProof] = useState<File | null>(null);
 
   const eventRef = useMemoFirebase(
     () => (firestore && eventId ? doc(firestore, 'events', eventId) : null),
@@ -59,15 +59,11 @@ export default function RegisterEventPage() {
       return;
     }
 
-    // This is a simulation of file upload. In a real app, you would upload to a service like Firebase Storage.
-    // We generate unique placeholder URLs for each "upload" to mimic this.
     const generatePlaceholderUrl = () => `https://picsum.photos/seed/${Math.random()}/600/400`;
 
     const teamLogoUrl = teamLogo ? generatePlaceholderUrl() : '';
     const paymentProofUrl = paymentProof ? generatePlaceholderUrl() : '';
-    const youtubeProofUrls = youtubeProofs
-      ? Array.from(youtubeProofs).map(() => generatePlaceholderUrl())
-      : [];
+    const youtubeProofUrl = youtubeProof ? generatePlaceholderUrl() : '';
 
 
     const registrationData: Omit<Registration, 'id'> = {
@@ -78,7 +74,7 @@ export default function RegisterEventPage() {
       whatsAppNumber,
       teamLogoUrl,
       paymentProofUrl,
-      youtubeProofUrls,
+      youtubeProofUrl,
     };
 
     const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
@@ -106,7 +102,6 @@ export default function RegisterEventPage() {
   }
 
   if (!user) {
-    // Redirect to login if not authenticated
     router.push('/login');
     return <Loader />;
   }
@@ -219,7 +214,7 @@ export default function RegisterEventPage() {
                     <Youtube className="h-4 w-4" />
                     <AlertTitle>Subscribe on YouTube</AlertTitle>
                     <AlertDescription>
-                      Please subscribe to our channel and upload 4 screenshots
+                      Please subscribe to our channel and upload a screenshot
                       as proof.
                       <Button variant="link" asChild className="p-0 h-auto ml-1">
                         <Link
@@ -232,27 +227,13 @@ export default function RegisterEventPage() {
                     </AlertDescription>
                   </Alert>
                   <div className="space-y-2">
-                    <Label htmlFor="youtubeProof">Upload 4 Screenshots</Label>
+                    <Label htmlFor="youtubeProof">Upload Screenshot</Label>
                     <Input
                       id="youtubeProof"
                       type="file"
-                      required
-                      multiple
                       accept="image/*"
                       className="pt-2"
-                      onChange={(e) => {
-                          const files = e.target.files;
-                          if (files && files.length >= 4) {
-                            setYoutubeProofs(files);
-                          } else {
-                            toast({
-                                variant: 'destructive',
-                                title: 'Invalid File Count',
-                                description: 'Please upload at least 4 screenshots.'
-                            })
-                            e.target.value = ''; // Clear the input
-                          }
-                      }}
+                      onChange={(e) => setYoutubeProof(e.target.files ? e.target.files[0] : null)}
                     />
                   </div>
                 </div>
