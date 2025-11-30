@@ -122,11 +122,12 @@ service cloud.firestore {
 
     /**
      * @description Manages user profile documents. Users can create, read, and update their
-     *              own profile. Listing users is forbidden to prevent user enumeration.
+     *              own profile. Listing users is restricted to staff to prevent user enumeration,
+     *              but authenticated users can still read their own documents.
      * @path /users/{userId}
      * @allow (create) A new user creates their own user document for the first time.
      * @deny (get) User 'A' tries to read the user profile of user 'B'.
-     * @deny (list) Any user tries to get a list of all users in the application.
+     * @deny (list) Any non-staff user tries to get a list of all users in the application.
      * @principle Restricts access to a user's own data tree and prevents data leakage.
      */
     match /users/{userId} {
@@ -138,14 +139,14 @@ service cloud.firestore {
 
       /**
        * @description Manages a user's event registrations. A user has full control over their
-       *              own registrations, but cannot see or modify anyone else's.
+       *              own registrations, but staff can list all registrations across all users.
        * @path /users/{userId}/registrations/{registrationId}
-       * @allow (list) A user lists all of their own event registrations.
-       * @deny (get) A staff member tries to read a specific user's registration.
-       * @principle Enforces document ownership and relational integrity within a user's private data.
+       * @allow (list) A user lists all of their own event registrations, or staff lists all registrations.
+       * @allow (get) A user accesses their own registration, or staff accesses any registration.
+       * @principle Enforces document ownership for regular users while allowing staff access for administration.
        */
       match /registrations/{registrationId} {
-        allow get, list: if isOwner(userId);
+        allow get, list: if isOwner(userId) || isStaff();
         allow create: if isOwner(userId) && request.resource.data.userId == userId;
         allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('userId');
         allow delete: if isOwner(userId) && isExistingDoc();
@@ -175,17 +176,26 @@ service cloud.firestore {
      *              This collection is read-only for staff and completely inaccessible to others.
      *              Writes must be performed by a trusted admin via the Firebase Console or a backend process.
      * @path /roles_staff/{userId}
+     * @allow (get) Staff members and the super-admin can verify their own staff status.
      * @allow (list) An existing staff member lists all other staff members.
      * @deny (create) A staff member attempts to grant another user staff privileges from the client.
-     * @deny (get) A regular user attempts to check if another user is staff.
      * @principle Centralizes and secures role management, making it immutable from the client.
      */
     match /roles_staff/{userId} {
-      allow get: if isSignedIn();
+      allow get: if isSignedIn() && (request.auth.uid == userId || request.auth.token.email == 'anup34343@gmail.com');
       allow list: if isStaff();
       allow create: if false;
       allow update: if false;
       allow delete: if false;
+    }
+
+    /**
+     * @description Catch-all rule to prevent access to undefined collections.
+     * This prevents errors when the app tries to query root-level or undefined paths.
+     * @principle Default deny for security, but allows authenticated users to fail gracefully.
+     */
+    match /{document=**} {
+      allow read, write: if false;
     }
 
   }

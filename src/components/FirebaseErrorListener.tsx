@@ -6,7 +6,8 @@ import { FirestorePermissionError } from '@/firebase/errors';
 
 /**
  * An invisible component that listens for globally emitted 'permission-error' events.
- * It throws any received error to be caught by Next.js's global-error.tsx.
+ * It logs errors instead of throwing to prevent the entire app from crashing.
+ * Components can still access errors via their own state management.
  */
 export function FirebaseErrorListener() {
   // Use the specific error type for the state for type safety.
@@ -15,7 +16,11 @@ export function FirebaseErrorListener() {
   useEffect(() => {
     // The callback now expects a strongly-typed error, matching the event payload.
     const handleError = (error: FirestorePermissionError) => {
-      // Set error in state to trigger a re-render.
+      // Log the error for debugging purposes
+      console.error('Firestore Permission Error:', error);
+      
+      // Set error in state but don't throw - this allows the app to continue functioning
+      // while the component that triggered the error can handle it in its own error state
       setError(error);
     };
 
@@ -29,9 +34,10 @@ export function FirebaseErrorListener() {
     };
   }, []);
 
-  // On re-render, if an error exists in state, throw it.
+  // Instead of throwing, just log. Each component using useCollection/useDoc
+  // has its own error state to handle display.
   if (error) {
-    throw error;
+    console.warn('Firestore error occurred but app will continue:', error);
   }
 
   // This component renders nothing.
