@@ -19,7 +19,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collectionGroup, doc } from 'firebase/firestore';
+import { collectionGroup, doc, query } from 'firebase/firestore';
 import type { Registration, Event } from '@/lib/data';
 import { useDoc } from '@/firebase';
 
@@ -59,7 +59,7 @@ export function ApplicationManagement({ setView }: ApplicationManagementProps) {
   const firestore = useFirestore();
 
   const registrationsRef = useMemoFirebase(
-    () => (firestore ? collectionGroup(firestore, 'registrations') : null),
+    () => (firestore ? query(collectionGroup(firestore, 'registrations')) : null),
     [firestore]
   );
   const { data: registrations, isLoading } = useCollection<Registration>(registrationsRef);

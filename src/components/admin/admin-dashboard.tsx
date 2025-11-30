@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Users, Swords, ShieldCheck, Loader2, FileText } from 'lucide-react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, collectionGroup } from 'firebase/firestore';
+import { collection, collectionGroup, query } from 'firebase/firestore';
 import type { Event, Registration } from '@/lib/data';
 
 type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications';
@@ -31,7 +31,7 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
   const { data: events, isLoading: eventsLoading } = useCollection<Event>(eventsRef);
 
   const registrationsRef = useMemoFirebase(
-    () => (firestore ? collectionGroup(firestore, 'registrations') : null),
+    () => (firestore ? query(collectionGroup(firestore, 'registrations')) : null),
     [firestore]
   );
   const { data: registrations, isLoading: registrationsLoading } = useCollection<Registration>(registrationsRef);

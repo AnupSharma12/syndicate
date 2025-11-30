@@ -62,12 +62,11 @@ export function useCollection<T = any>(
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
   useEffect(() => {
-    // If the query is not ready, stop, clear state, and wait.
     if (!memoizedTargetRefOrQuery) {
       setData(null);
-      setIsLoading(true); // Keep loading until a valid ref is provided
+      setIsLoading(true);
       setError(null);
-      return; // Stop the effect here.
+      return;
     }
 
     setIsLoading(true);
@@ -86,10 +85,19 @@ export function useCollection<T = any>(
       },
       (error: FirestoreError) => {
         let path = 'unknown/path';
-        if (memoizedTargetRefOrQuery) {
-            path = memoizedTargetRefOrQuery.type === 'collection'
-            ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString();
+         if (memoizedTargetRefOrQuery) {
+            // Firestore queries can be a CollectionReference or a Query object.
+            // A CollectionReference has a `path` property.
+            if ('path' in memoizedTargetRefOrQuery) {
+                path = (memoizedTargetRefOrQuery as CollectionReference).path;
+            } else if ((memoizedTargetRefOrQuery as Query).type === 'query') {
+                // For a query, the path is on an internal property.
+                // This is not officially documented and might break, but it's the best we can do.
+                const internalQuery = memoizedTargetRefOrQuery as unknown as InternalQuery;
+                if (internalQuery._query?.path) {
+                    path = internalQuery._query.path.canonicalString();
+                }
+            }
         }
 
         const contextualError = new FirestorePermissionError({
@@ -101,7 +109,6 @@ export function useCollection<T = any>(
         setData(null);
         setIsLoading(false);
 
-        // trigger global error propagation
         errorEmitter.emit('permission-error', contextualError);
       }
     );
