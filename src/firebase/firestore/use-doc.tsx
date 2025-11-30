@@ -50,7 +50,7 @@ export function useDoc<T = any>(
   useEffect(() => {
     if (!memoizedDocRef) {
       setData(null);
-      setIsLoading(false); // Not loading because we have a definitive null reference
+      setIsLoading(true); // Keep loading until a valid ref is provided
       setError(null);
       return;
     }
@@ -67,7 +67,7 @@ export function useDoc<T = any>(
           // Document does not exist
           setData(null);
         }
-        setError(null); // Clear any previous error on successful snapshot (even if doc doesn't exist)
+        setError(null); 
         setIsLoading(false);
       },
       (error: FirestoreError) => {
@@ -86,7 +86,7 @@ export function useDoc<T = any>(
     );
 
     return () => unsubscribe();
-  }, [memoizedDocRef]); // Re-run if the memoizedDocRef changes.
+  }, [memoizedDocRef]);
 
   return { data, isLoading, error };
 }
