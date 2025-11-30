@@ -16,7 +16,6 @@ const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
-// Custom SVG for Facebook
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     {...props}
@@ -26,6 +25,28 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
   >
     <path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7v4h3V22h4v-8.5z" />
   </svg>
+);
+
+const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.73-.21.51-.15 1.21.17 1.62.98 1.22 2.62 1.72 4.25 1.19v-4.03c-1.11.29-2.29.12-3.3-.7-.63-.52-1.04-1.3-1.08-2.08-.02-.93.48-1.97 1.32-2.58.42-.31.9-.52 1.41-.64.48-.11 1.03-.1 1.52-.06z"/>
+  </svg>
+);
+
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.93-.656-5.597-1.84L.057 24zm6.597-3.807c1.479.97 3.262 1.498 5.093 1.498 5.46 0 9.9-4.438 9.9-9.9 0-2.694-1.094-5.14-2.894-6.944-1.8-1.8-4.25-2.894-6.944-2.894-5.459 0-9.9 4.44-9.9 9.9.001 2.021.64 3.965 1.83 5.597l-1.157 4.224 4.33-1.157z"/>
+    </svg>
 );
 
 export function Footer() {
@@ -40,14 +61,31 @@ export function Footer() {
         </div>
         <div className="flex items-center gap-4">
           <Link
-            href="#"
+            href="https://chat.whatsapp.com/C0TJa4JV6dUHED8nsUCDMQ?mode=hqrt1"
+            aria-label="WhatsApp"
+            target="_blank"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <WhatsAppIcon className="h-5 w-5" />
+          </Link>
+          <Link
+            href="https://www.tiktok.com/@syndicate_official1?_r=1&_t=ZS-91ph3eRBt2N"
+            aria-label="TikTok"
+            target="_blank"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <TikTokIcon className="h-5 w-5" />
+          </Link>
+           <Link
+            href="https://discord.gg/DcdgvjUk"
             aria-label="Discord"
+            target="_blank"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             <DiscordIcon className="h-5 w-5" />
           </Link>
           <Link
-            href="https://www.youtube.com/@syndicateesp1"
+            href="https://youtube.com/@syndicateesp0?si=w_q5kwtltLg3aYuA"
             aria-label="YouTube"
             target="_blank"
             className="text-muted-foreground transition-colors hover:text-foreground"
@@ -55,8 +93,9 @@ export function Footer() {
             <Youtube className="h-5 w-5" />
           </Link>
           <Link
-            href="#"
+            href="https://www.facebook.com/profile.php?id=61582985680061"
             aria-label="Facebook"
+            target="_blank"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             <FacebookIcon className="h-5 w-5" />
