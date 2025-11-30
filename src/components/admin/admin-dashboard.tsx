@@ -36,8 +36,11 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
   );
   const { data: registrations, isLoading: registrationsLoading } = useCollection<Registration>(registrationsRef);
 
+
   const totalEvents = events?.length ?? 0;
   const totalRegistrations = registrations?.length ?? 0;
+
+  const isLoading = eventsLoading || registrationsLoading;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -62,7 +65,7 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
                 <Swords className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                {eventsLoading ? (
+                {isLoading ? (
                   <Loader2 className="h-6 w-6 animate-spin" />
                 ) : (
                   <div className="text-2xl font-bold">{totalEvents}</div>
@@ -81,7 +84,7 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                {registrationsLoading ? (
+                {isLoading ? (
                   <Loader2 className="h-6 w-6 animate-spin" />
                 ) : (
                   <div className="text-2xl font-bold">{totalRegistrations}</div>
