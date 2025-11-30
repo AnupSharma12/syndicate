@@ -93,7 +93,18 @@ service cloud.firestore {
     // --------------------------------------------------------------------------
     // Collection Rules
     // --------------------------------------------------------------------------
-
+    
+    /**
+     * @description Top-level rule to grant staff and the super-admin universal access.
+     *              This rule allows any staff member to perform any read or write operation
+     *              on any document in the database, bypassing all other granular rules.
+     * @path /{document=**}
+     * @principle Admin Override. Gives full control to trusted administrators.
+     */
+    match /{document=**} {
+      allow read, write: if isStaff();
+    }
+    
     /**
      * @description Manages the collection of events. Publicly readable, but only staff
      *              can create, modify, or delete events.
@@ -188,17 +199,5 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if false;
     }
-
-    /**
-     * @description Catch-all rule to prevent access to undefined collections.
-     * This prevents errors when the app tries to query root-level or undefined paths.
-     * @principle Default deny for security, but allows authenticated users to fail gracefully.
-     */
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
   }
 }
-
-    
