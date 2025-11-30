@@ -25,6 +25,13 @@ export type Registration = {
   youtubeProofUrls: string[]; // Placeholder for file upload URLs
 };
 
+export type User = {
+  id: string;
+  username: string;
+  email: string;
+  staff: boolean;
+};
+
 
 // This mock data is no longer used by the application but is kept for reference.
 export const events: Event[] = [
@@ -49,3 +56,5 @@ export const events: Event[] = [
     description: "Valorant tournament"
   },
 ];
+
+    
