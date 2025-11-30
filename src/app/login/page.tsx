@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Logo } from '@/components/logo';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -102,7 +102,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
            <div className="flex justify-center mb-4">
-            <Logo className="h-12 w-12" />
+            <Image src="/logo.png" alt="Syndicate ESP Logo" width={48} height={48} className="h-12 w-12" />
           </div>
           <CardTitle className="font-headline text-2xl">Sign In</CardTitle>
           <CardDescription>
@@ -147,5 +147,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    

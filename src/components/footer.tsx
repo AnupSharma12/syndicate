@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Logo } from '@/components/logo';
 import { Youtube } from 'lucide-react';
+import Image from 'next/image';
 
 const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -33,7 +33,7 @@ export function Footer() {
     <footer id="about" className="border-t border-border/40 bg-background/95">
       <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 py-8 sm:flex-row">
         <div className="flex items-center gap-2">
-          <Logo className="h-6 w-6" />
+          <Image src="/logo.png" alt="Syndicate ESP Logo" width={24} height={24} className="h-6 w-6" />
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Syndicate ESP. All rights reserved.
           </p>

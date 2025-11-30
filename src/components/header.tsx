@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Menu, LogOut, Shield, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { useAuth, useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 export function Header() {
   const { user, isUserLoading } = useUser();
@@ -96,7 +96,7 @@ export function Header() {
       <div className="container flex h-16 max-w-7xl items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2" aria-label="Homepage">
-            <Logo className="h-8 w-8" />
+            <Image src="/logo.png" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
             <span className="hidden font-headline text-xl font-bold sm:inline-block">
               Syndicate ESP
             </span>
@@ -136,7 +136,7 @@ export function Header() {
             <SheetContent side="right">
               <div className="grid gap-4 py-6">
                  <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Homepage">
-                    <Logo className="h-8 w-8" />
+                    <Image src="/logo.png" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
                     <span className="font-headline text-xl font-bold">
                       Syndicate ESP
                     </span>
