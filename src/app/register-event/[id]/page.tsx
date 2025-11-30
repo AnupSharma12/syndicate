@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
-import { Youtube, ArrowLeft } from 'lucide-react';
+import { Youtube, ArrowLeft, Loader2 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Loader } from '@/components/loader';
@@ -25,6 +25,8 @@ import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking 
 import { doc, collection } from 'firebase/firestore';
 import type { Event, Registration } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+const IMGBB_API_KEY = '828e7300541739226abfc621193150d3';
 
 export default function RegisterEventPage() {
   const params = useParams();
@@ -35,10 +37,11 @@ export default function RegisterEventPage() {
   const eventId = params.id as string;
 
   const [teamName, setTeamName] = useState('');
-  const [whatsAppNumber, setWhatsAppNumber]  = useState('');
+  const [whatsAppNumber, setWhatsAppNumber] = useState('');
   const [teamLogo, setTeamLogo] = useState<File | null>(null);
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [youtubeProof, setYoutubeProof] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const eventRef = useMemoFirebase(
     () => (firestore && eventId ? doc(firestore, 'events', eventId) : null),
@@ -48,52 +51,90 @@ export default function RegisterEventPage() {
   
   const qrCodeImage = PlaceHolderImages.find((p) => p.id === 'qr-code');
 
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!event || !user || !firestore) {
+  const uploadImage = async (imageFile: File | null): Promise<string | null> => {
+    if (!imageFile) return null;
+    
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    try {
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        return result.data.url;
+      } else {
+        throw new Error(result.error?.message || 'Image upload failed');
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Could not submit registration. Please try again.',
+        title: 'Image Upload Failed',
+        description: 'Could not upload one of the images. Please try again.',
       });
-      return;
+      return null;
     }
+  };
 
-    const generatePlaceholderUrl = (seed: string) => `https://picsum.photos/seed/${seed}/600/400`;
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!event || !user || !firestore || isSubmitting) return;
 
-    const teamLogoUrl = teamLogo ? generatePlaceholderUrl(`${eventId}-${user.uid}-logo`) : '';
-    const paymentProofUrl = paymentProof ? generatePlaceholderUrl(`${eventId}-${user.uid}-payment`) : '';
-    const youtubeProofUrl = youtubeProof ? generatePlaceholderUrl(`${eventId}-${user.uid}-youtube`) : '';
+    setIsSubmitting(true);
 
-
-    const registrationData: Omit<Registration, 'id'> = {
-      userId: user.uid,
-      eventId: event.id,
-      registrationDate: new Date().toISOString(),
-      teamName,
-      whatsAppNumber,
-      teamLogoUrl,
-      paymentProofUrl,
-      youtubeProofUrl,
-    };
-
-    const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
-    
     try {
-        await addDocumentNonBlocking(registrationsColRef, registrationData);
-        
+      // Upload images in parallel
+      const [teamLogoUrl, paymentProofUrl, youtubeProofUrl] = await Promise.all([
+        uploadImage(teamLogo),
+        uploadImage(paymentProof),
+        uploadImage(youtubeProof),
+      ]);
+
+      // Check if required uploads were successful
+      if (!teamLogoUrl || (event.fee > 0 && !paymentProofUrl)) {
         toast({
-          title: 'Registration Submitted!',
-          description: `Your team has been registered for the ${event.name}.`,
+            variant: "destructive",
+            title: "Upload Error",
+            description: "Required image uploads failed. Please try again.",
         });
-        router.push('/');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const registrationData: Omit<Registration, 'id'> = {
+        userId: user.uid,
+        eventId: event.id,
+        registrationDate: new Date().toISOString(),
+        teamName,
+        whatsAppNumber,
+        teamLogoUrl: teamLogoUrl,
+        paymentProofUrl: paymentProofUrl ?? '', // Use empty string if null
+        youtubeProofUrl: youtubeProofUrl ?? '', // Use empty string if null
+      };
+
+      const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
+      
+      addDocumentNonBlocking(registrationsColRef, registrationData);
+      
+      toast({
+        title: 'Registration Submitted!',
+        description: `Your team has been registered for the ${event.name}.`,
+      });
+      router.push('/');
 
     } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Submission Failed',
-            description: 'There was a problem submitting your registration.',
-        });
+      console.error("Submission error:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Submission Failed',
+        description: 'There was a problem submitting your registration. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -241,8 +282,10 @@ export default function RegisterEventPage() {
                 <Button
                   type="submit"
                   className="w-full font-bold text-lg py-6"
+                  disabled={isSubmitting}
                 >
-                  {event.fee > 0 ? 'Submit Application' : 'Register Free'}
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isSubmitting ? 'Submitting...' : (event.fee > 0 ? 'Submit Application' : 'Register Free')}
                 </Button>
               </form>
             </CardContent>
