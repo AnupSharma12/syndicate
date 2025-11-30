@@ -10,12 +10,12 @@ import {
   CardContent
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Swords, ShieldCheck, Loader2 } from 'lucide-react';
+import { Users, Swords, ShieldCheck, Loader2, FileText } from 'lucide-react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import type { Event } from '@/lib/data';
+import { collection, collectionGroup } from 'firebase/firestore';
+import type { Event, Registration } from '@/lib/data';
 
-type AdminView = 'dashboard' | 'users' | 'tournaments';
+type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications';
 
 interface AdminDashboardProps {
   setView: (view: AdminView) => void;
@@ -23,16 +23,21 @@ interface AdminDashboardProps {
 
 export function AdminDashboard({ setView }: AdminDashboardProps) {
   const firestore = useFirestore();
+
   const eventsRef = useMemoFirebase(
     () => (firestore ? collection(firestore, 'events') : null),
     [firestore]
   );
   const { data: events, isLoading: eventsLoading } = useCollection<Event>(eventsRef);
 
+  const registrationsRef = useMemoFirebase(
+    () => (firestore ? collectionGroup(firestore, 'registrations') : null),
+    [firestore]
+  );
+  const { data: registrations, isLoading: registrationsLoading } = useCollection<Registration>(registrationsRef);
+
   const totalEvents = events?.length ?? 0;
-  const openEvents = events?.filter((e) => e.status === 'Open').length ?? 0;
-  const liveEvents = events?.filter((e) => e.status === 'Live').length ?? 0;
-  const closedEvents = events?.filter((e) => e.status === 'Closed').length ?? 0;
+  const totalRegistrations = registrations?.length ?? 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -60,16 +65,31 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
                 {eventsLoading ? (
                   <Loader2 className="h-6 w-6 animate-spin" />
                 ) : (
-                  <>
-                    <div className="text-2xl font-bold">{totalEvents}</div>
-                    <p className="text-xs text-muted-foreground">
-                      {openEvents} open, {liveEvents} live, {closedEvents} closed
-                    </p>
-                  </>
+                  <div className="text-2xl font-bold">{totalEvents}</div>
                 )}
+                 <p className="text-xs text-muted-foreground">Total tournaments</p>
               </CardContent>
               <CardContent>
                  <Button onClick={() => setView('tournaments')}>View Tournaments</Button>
+              </CardContent>
+            </Card>
+             <Card className="bg-card border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
+                  View Applications
+                </CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                {registrationsLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  <div className="text-2xl font-bold">{totalRegistrations}</div>
+                )}
+                 <p className="text-xs text-muted-foreground">Total applications</p>
+              </CardContent>
+              <CardContent>
+                 <Button onClick={() => setView('applications')}>View Applications</Button>
               </CardContent>
             </Card>
             <Card className="bg-card border-border/60">
