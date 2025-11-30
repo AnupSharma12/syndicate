@@ -12,7 +12,6 @@ import type { Registration, Event } from '@/lib/data';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface ApplicationDetailDialogProps {
   registration: Registration | null;
@@ -29,20 +28,23 @@ function DetailItem({ label, value }: { label: string; value: React.ReactNode })
   );
 }
 
-function ImagePreview({ label, src }: { label:string, src: string | undefined }) {
-  const placeholder = PlaceHolderImages.find(p => p.id === 'image-placeholder')?.imageUrl || "https://placehold.co/600x400/22272F/9499A4?text=No+Image";
+function ImagePreview({ label, src }: { label:string, src: string | undefined | null }) {
+  const placeholder = "https://placehold.co/600x400/22272F/9499A4?text=No+Image+Provided";
+  const imageUrl = src || placeholder;
+  const hint = src ? 'proof image' : 'placeholder image';
+
   return (
     <div className="space-y-2">
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <div className="relative aspect-video w-full rounded-md overflow-hidden border">
+        <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-full rounded-md overflow-hidden border">
              <Image
-                src={src || placeholder}
+                src={imageUrl}
                 alt={label}
                 fill
                 className="object-contain"
-                data-ai-hint="proof image"
+                data-ai-hint={hint}
              />
-        </div>
+        </a>
     </div>
   )
 }
@@ -91,12 +93,13 @@ export function ApplicationDetailDialog({
               {event && event.fee > 0 && (
                 <ImagePreview label="Payment Proof" src={registration.paymentProofUrl} />
               )}
-              {/* Note: This assumes up to 4 URLs, adjust if needed */}
-              <div className="grid grid-cols-2 gap-4">
-                {registration.youtubeProofUrls.map((url, index) => (
-                    <ImagePreview key={index} label={`YouTube Proof ${index + 1}`} src={url} />
-                ))}
-              </div>
+              {registration.youtubeProofUrls && registration.youtubeProofUrls.length > 0 && (
+                <div className="grid grid-cols-2 gap-4">
+                  {registration.youtubeProofUrls.map((url, index) => (
+                      <ImagePreview key={index} label={`YouTube Proof ${index + 1}`} src={url} />
+                  ))}
+                </div>
+              )}
           </div>
         </div>
       </DialogContent>
