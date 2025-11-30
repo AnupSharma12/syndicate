@@ -6,7 +6,6 @@ import { Menu, LogOut, Shield, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { useAuth, useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 export function Header() {
@@ -19,12 +18,6 @@ export function Header() {
     [user, firestore]
   );
   const { data: userDoc, isLoading: isRoleLoading } = useDoc(userDocRef);
-  
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
 
   const navLinks = [
     { href: '#tournaments', label: 'Tournaments' },
@@ -43,9 +36,6 @@ export function Header() {
   const isStaff = userDoc?.staff || user?.email === 'anup34343@gmail.com';
 
   const renderAuthButtons = () => {
-    if (!isClient) {
-       return <div className="h-10 w-36" />;
-    }
     if (isCheckingAuth) {
       return (
         <div className="flex items-center gap-2">
@@ -72,7 +62,7 @@ export function Header() {
   };
   
   const renderMobileAuthButtons = () => {
-    if (!isClient || isCheckingAuth) {
+    if (isCheckingAuth) {
       return <div className="h-10" />
     }
     if (user) {
@@ -110,7 +100,7 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            {isClient && !isCheckingAuth && isStaff && (
+            {!isCheckingAuth && isStaff && (
               <Link
                 href="/admin"
                 className="flex items-center font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -153,7 +143,7 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                {isClient && !isCheckingAuth && isStaff && (
+                {!isCheckingAuth && isStaff && (
                   <Link
                     href="/admin"
                     className="flex w-full items-center py-2 text-lg font-semibold"
