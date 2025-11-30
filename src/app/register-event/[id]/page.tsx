@@ -59,11 +59,11 @@ export default function RegisterEventPage() {
       return;
     }
 
-    const generatePlaceholderUrl = () => `https://picsum.photos/seed/${Math.random()}/600/400`;
+    const generatePlaceholderUrl = (seed: string) => `https://picsum.photos/seed/${seed}/600/400`;
 
-    const teamLogoUrl = teamLogo ? generatePlaceholderUrl() : '';
-    const paymentProofUrl = paymentProof ? generatePlaceholderUrl() : '';
-    const youtubeProofUrl = youtubeProof ? generatePlaceholderUrl() : '';
+    const teamLogoUrl = teamLogo ? generatePlaceholderUrl(`${eventId}-${user.uid}-logo`) : '';
+    const paymentProofUrl = paymentProof ? generatePlaceholderUrl(`${eventId}-${user.uid}-payment`) : '';
+    const youtubeProofUrl = youtubeProof ? generatePlaceholderUrl(`${eventId}-${user.uid}-youtube`) : '';
 
 
     const registrationData: Omit<Registration, 'id'> = {
