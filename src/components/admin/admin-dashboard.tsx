@@ -30,11 +30,11 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
   );
   const { data: events, isLoading: eventsLoading } = useCollection<Event>(eventsRef);
 
-  const registrationsRef = useMemoFirebase(
+  const registrationsQuery = useMemoFirebase(
     () => (firestore ? query(collectionGroup(firestore, 'registrations')) : null),
     [firestore]
   );
-  const { data: registrations, isLoading: registrationsLoading } = useCollection<Registration>(registrationsRef);
+  const { data: registrations, isLoading: registrationsLoading } = useCollection<Registration>(registrationsQuery);
 
 
   const totalEvents = events?.length ?? 0;

@@ -18,10 +18,10 @@ import {
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import { collectionGroup, doc, query } from 'firebase/firestore';
 import type { Registration, Event } from '@/lib/data';
-import { useDoc } from '@/firebase';
+
 
 type AdminView = 'dashboard' | 'applications';
 
@@ -58,11 +58,11 @@ function RegistrationRow({ registration }: { registration: Registration }) {
 export function ApplicationManagement({ setView }: ApplicationManagementProps) {
   const firestore = useFirestore();
 
-  const registrationsRef = useMemoFirebase(
+  const registrationsQuery = useMemoFirebase(
     () => (firestore ? query(collectionGroup(firestore, 'registrations')) : null),
     [firestore]
   );
-  const { data: registrations, isLoading } = useCollection<Registration>(registrationsRef);
+  const { data: registrations, isLoading } = useCollection<Registration>(registrationsQuery);
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
