@@ -36,6 +36,9 @@ export default function RegisterEventPage() {
 
   const [teamName, setTeamName] = useState('');
   const [whatsAppNumber, setWhatsAppNumber] = useState('');
+  const [teamLogo, setTeamLogo] = useState<File | null>(null);
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [youtubeProofs, setYoutubeProofs] = useState<FileList | null>(null);
 
   const eventRef = useMemoFirebase(
     () => (firestore && eventId ? doc(firestore, 'events', eventId) : null),
@@ -44,7 +47,7 @@ export default function RegisterEventPage() {
   const { data: event, isLoading: eventLoading } = useDoc<Event>(eventRef);
   
   const qrCodeImage = PlaceHolderImages.find((p) => p.id === 'qr-code');
-
+  const imagePlaceholder = PlaceHolderImages.find(p => p.id === 'image-placeholder');
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,17 +60,23 @@ export default function RegisterEventPage() {
       return;
     }
 
+    // Simulate file URLs - in a real app, you'd upload to Firebase Storage and get URLs
+    const teamLogoUrl = teamLogo && imagePlaceholder ? imagePlaceholder.imageUrl.replace('No+Image', 'Team+Logo') : '';
+    const paymentProofUrl = paymentProof && imagePlaceholder ? imagePlaceholder.imageUrl.replace('No+Image', 'Payment+Proof') : '';
+    const youtubeProofUrls = youtubeProofs && imagePlaceholder
+      ? Array.from(youtubeProofs).map((_, i) => imagePlaceholder.imageUrl.replace('No+Image', `YT+Proof+${i + 1}`))
+      : [];
+
+
     const registrationData: Omit<Registration, 'id'> = {
       userId: user.uid,
       eventId: event.id,
       registrationDate: new Date().toISOString(),
       teamName,
       whatsAppNumber,
-      // NOTE: File upload fields are placeholders.
-      // A full implementation requires a service like Firebase Storage.
-      teamLogoUrl: '', 
-      paymentProofUrl: '',
-      youtubeProofUrls: [],
+      teamLogoUrl,
+      paymentProofUrl,
+      youtubeProofUrls,
     };
 
     const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
@@ -139,7 +148,13 @@ export default function RegisterEventPage() {
                 </div>
                  <div className="space-y-2">
                   <Label htmlFor="teamLogo">Team Logo</Label>
-                  <Input id="teamLogo" type="file" required className="pt-2" />
+                  <Input 
+                    id="teamLogo" 
+                    type="file" 
+                    required 
+                    className="pt-2" 
+                    onChange={(e) => setTeamLogo(e.target.files ? e.target.files[0] : null)}
+                    />
                 </div>
                 
                 {event.fee > 0 && (
@@ -168,7 +183,13 @@ export default function RegisterEventPage() {
                         <Label htmlFor="paymentProof">
                           Screenshot of Payment Proof
                         </Label>
-                        <Input id="paymentProof" type="file" required className="pt-2" />
+                        <Input 
+                          id="paymentProof" 
+                          type="file" 
+                          required 
+                          className="pt-2" 
+                          onChange={(e) => setPaymentProof(e.target.files ? e.target.files[0] : null)}
+                          />
                       </div>
                     </div>
                   </>
@@ -204,6 +225,7 @@ export default function RegisterEventPage() {
                       required
                       multiple
                       className="pt-2"
+                      onChange={(e) => setYoutubeProofs(e.target.files)}
                     />
                   </div>
                 </div>
