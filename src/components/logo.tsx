@@ -1,10 +1,14 @@
+import Image from 'next/image';
+
 export function Logo(props: { className?: string }) {
   return (
-    <img
+    <Image
       src="/logo.jpg"
       alt="Syndicate ESP Logo"
       className={props.className}
-      data-ai-hint="logo placeholder"
-    ></img>
+      width={500}
+      height={500}
+      data-ai-hint="logo"
+    />
   );
 }
