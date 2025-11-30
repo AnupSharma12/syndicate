@@ -86,12 +86,14 @@ export function useCollection<T = any>(
         setIsLoading(false);
       },
       (error: FirestoreError) => {
-        // This logic extracts the path from either a ref or a query
-        let path = 'unknown/path'; // Default path if extraction fails
+        let path = 'unknown/path';
         if (memoizedTargetRefOrQuery) {
             path = memoizedTargetRefOrQuery.type === 'collection'
             ? (memoizedTargetRefOrQuery as CollectionReference).path
             : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString();
+        } else {
+             // This case should be rare due to the initial check, but it's a safeguard.
+            path = 'invalid-or-null-query-reference';
         }
 
 
