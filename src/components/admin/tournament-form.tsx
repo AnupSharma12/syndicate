@@ -43,6 +43,7 @@ const eventSchema = z.object({
   registeredTeams: z.coerce.number().min(0, 'Registered teams cannot be negative'),
   gameMode: z.string().optional(),
   map: z.string().optional(),
+  releaseDate: z.string().optional(),
 });
 
 type EventFormData = z.infer<typeof eventSchema>;
@@ -88,12 +89,14 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
   });
 
   const selectedGame = watch('game');
+  const selectedStatus = watch('status');
 
   useEffect(() => {
     if (event) {
       reset({
         ...event,
-        date: new Date(event.date).toISOString().split('T')[0], // Format for input type="date"
+        date: new Date(event.date).toISOString().split('T')[0],
+        releaseDate: event.releaseDate ? new Date(event.releaseDate).toISOString().split('T')[0] : '',
       });
     } else {
       reset({
@@ -108,6 +111,7 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
         registeredTeams: 0,
         gameMode: '',
         map: '',
+        releaseDate: '',
       });
     }
   }, [event, reset]);
@@ -115,11 +119,18 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
   const onSubmit = (data: EventFormData) => {
     if (!firestore) return;
 
-    const eventData = {
+    const eventData: Partial<Event> = {
         ...data,
         description: '', // Add a default empty description
         date: new Date(data.date).toISOString(),
     };
+    
+    if (data.status === 'Coming Soon' && data.releaseDate) {
+        eventData.releaseDate = new Date(data.releaseDate).toISOString();
+    } else {
+        eventData.releaseDate = undefined;
+    }
+
 
     if (event) {
       // Update existing event
@@ -201,6 +212,13 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
               />
               {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
             </div>
+            {selectedStatus === 'Coming Soon' && (
+                <div className="space-y-2">
+                    <Label htmlFor="releaseDate">Auto-Open Date</Label>
+                    <Input id="releaseDate" type="date" {...register('releaseDate')} />
+                    {errors.releaseDate && <p className="text-red-500 text-xs mt-1">{errors.releaseDate.message}</p>}
+                </div>
+            )}
              <div className="space-y-2">
               <Label htmlFor="prize">Prize (RS)</Label>
               <Input id="prize" type="number" {...register('prize')} />

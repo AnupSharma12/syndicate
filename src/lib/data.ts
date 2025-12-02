@@ -16,6 +16,7 @@ export type Event = {
   registeredTeams: number;
   gameMode?: string;
   map?: string;
+  releaseDate?: string; // Optional ISO string for scheduled release
 };
 
 export type SquadMember = {

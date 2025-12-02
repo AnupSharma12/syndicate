@@ -59,6 +59,11 @@
         "map": {
           "type": "string",
           "description": "The map the event will be played on."
+        },
+        "releaseDate": {
+            "type": "string",
+            "description": "The date when a 'Coming Soon' event should automatically open.",
+            "format": "date-time"
         }
       },
       "required": [

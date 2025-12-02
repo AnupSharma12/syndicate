@@ -12,11 +12,12 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useEffect } from 'react';
 
 export function EventSchedule() {
   const firestore = useFirestore();
@@ -26,6 +27,23 @@ export function EventSchedule() {
     [firestore]
   );
   const { data: events, isLoading } = useCollection<Event>(eventsRef);
+  
+  useEffect(() => {
+    if (events && firestore) {
+      const now = new Date();
+      events.forEach(event => {
+        if (
+          event.status === 'Coming Soon' &&
+          event.releaseDate &&
+          new Date(event.releaseDate) <= now
+        ) {
+          console.log(`Updating event ${event.id} from "Coming Soon" to "Open"`);
+          const eventDocRef = doc(firestore, 'events', event.id);
+          updateDocumentNonBlocking(eventDocRef, { status: 'Open' });
+        }
+      });
+    }
+  }, [events, firestore]);
 
   const getStatusVariant = (status: Event['status']) => {
     switch (status) {
