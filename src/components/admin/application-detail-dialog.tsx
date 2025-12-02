@@ -111,7 +111,7 @@ export function ApplicationDetailDialog({
                         <div className="space-y-4">
                             {registration.squadMembers.map((member, index) => (
                                 <div key={index} className="p-3 border rounded-md">
-                                    <p className="font-medium text-foreground">Player {index + 2}: {member.name}</p>
+                                    <p className="font-medium text-foreground">Player {index + 1}: {member.name}</p>
                                     <p className="text-sm text-muted-foreground">{`${event?.game ?? 'Game'} ID: ${member.gameId}`}</p>
                                 </div>
                             ))}

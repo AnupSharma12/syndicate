@@ -260,7 +260,7 @@ export default function RegisterEventPage() {
                     <h3 className="text-xl font-semibold text-primary">Squad Members</h3>
                     {squadMembers.map((member, index) => (
                         <div key={index} className="p-4 border rounded-md relative space-y-4">
-                            <h4 className="font-medium">Player {index + 2}</h4>
+                            <h4 className="font-medium">Player {index + 1}</h4>
                              {squadMembers.length > 1 && (
                                 <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSquadMember(index)}>
                                     <Trash2 className="h-4 w-4 text-destructive"/>
@@ -268,12 +268,12 @@ export default function RegisterEventPage() {
                              )}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor={`player-name-${index}`}>Player {index + 2} Name</Label>
+                                    <Label htmlFor={`player-name-${index}`}>Player {index + 1} Name</Label>
                                     <Input id={`player-name-${index}`} placeholder="Player in-game name" required value={member.name} onChange={(e) => handleSquadMemberChange(index, 'name', e.target.value)} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor={`player-gameid-${index}`}>{gameIdLabel}</Label>
-                                    <Input id={`player-gameid-${index}`} placeholder={`Player ${index + 2} ${event.game} ID`} required value={member.gameId} onChange={(e) => handleSquadMemberChange(index, 'gameId', e.target.value)} />
+                                    <Input id={`player-gameid-${index}`} placeholder={`Player ${index + 1} ${event.game} ID`} required value={member.gameId} onChange={(e) => handleSquadMemberChange(index, 'gameId', e.target.value)} />
                                 </div>
                             </div>
                         </div>
