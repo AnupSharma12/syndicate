@@ -202,12 +202,12 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
               {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
             </div>
              <div className="space-y-2">
-              <Label htmlFor="prize">Prize (₹)</Label>
+              <Label htmlFor="prize">Prize (RS)</Label>
               <Input id="prize" type="number" {...register('prize')} />
               {errors.prize && <p className="text-red-500 text-xs mt-1">{errors.prize.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="fee">Fee (₹)</Label>
+              <Label htmlFor="fee">Fee (RS)</Label>
               <Input id="fee" type="number" {...register('fee')} />
               {errors.fee && <p className="text-red-500 text-xs mt-1">{errors.fee.message}</p>}
             </div>

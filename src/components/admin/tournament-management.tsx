@@ -113,7 +113,7 @@ export function TournamentManagement({ setView }: TournamentManagementProps) {
                             event.status === 'Open' ? 'default' : event.status === 'Live' ? 'destructive' : 'secondary'
                           }>{event.status}</Badge>
                         </TableCell>
-                        <TableCell>रु{event.prize}</TableCell>
+                        <TableCell>RS{event.prize}</TableCell>
                          <TableCell>{event.registeredTeams}/{event.maxTeams}</TableCell>
                         <TableCell className="text-right">
                           <Button variant="ghost" size="icon" onClick={() => handleEdit(event)}>
