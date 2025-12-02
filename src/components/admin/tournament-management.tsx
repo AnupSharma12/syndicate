@@ -91,13 +91,14 @@ export function TournamentManagement({ setView }: TournamentManagementProps) {
                     <TableHead>Date</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Prize</TableHead>
+                    <TableHead>Teams</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center">
+                      <TableCell colSpan={7} className="text-center">
                         <Loader2 className="mx-auto h-8 w-8 animate-spin" />
                       </TableCell>
                     </TableRow>
@@ -113,6 +114,7 @@ export function TournamentManagement({ setView }: TournamentManagementProps) {
                           }>{event.status}</Badge>
                         </TableCell>
                         <TableCell>रु{event.prize}</TableCell>
+                         <TableCell>{event.registeredTeams}/{event.maxTeams}</TableCell>
                         <TableCell className="text-right">
                           <Button variant="ghost" size="icon" onClick={() => handleEdit(event)}>
                             <Edit className="h-4 w-4" />

@@ -7,10 +7,15 @@ export type Event = {
     | 'Pubg';
   name: string;
   date: string; // Should be ISO string
-  status: 'Open' | 'Closed' | 'Live';
+  time: string;
+  status: 'Open' | 'Closed' | 'Live' | 'Coming Soon';
   prize: number;
   fee: number;
   description: string;
+  maxTeams: number;
+  registeredTeams: number;
+  gameMode?: string;
+  map?: string;
 };
 
 export type Registration = {
@@ -21,7 +26,7 @@ export type Registration = {
   teamName: string;
   whatsAppNumber: string;
   teamLogoUrl: string; // Placeholder for file upload URL
-  paymentProofUrl: string; // Placeholder for file upload URL
+  paymentProofUrl?: string; // Placeholder for file upload URL
   youtubeProofUrl?: string; // Placeholder for file upload URL
 };
 
@@ -40,20 +45,26 @@ export const events: Event[] = [
     game: 'Valorant',
     name: 'Syndicate Showdown: Valorant Series',
     date: '2024-10-15T12:00:00.000Z',
+    time: '6:00 PM IST',
     status: 'Open',
     prize: 5000,
     fee: 25,
-    description: "Valorant tournament"
+    description: "Valorant tournament",
+    maxTeams: 128,
+    registeredTeams: 64,
   },
   {
     id: '4',
     game: 'Valorant',
     name: 'Valorant Champions Tour: Stage 3',
     date: '2024-11-12T12:00:00.000Z',
+    time: '7:00 PM IST',
     status: 'Closed',
     prize: 2500,
     fee: 0,
-    description: "Valorant tournament"
+    description: "Valorant tournament",
+    maxTeams: 64,
+    registeredTeams: 32,
   },
 ];
 

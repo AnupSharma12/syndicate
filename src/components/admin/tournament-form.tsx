@@ -33,19 +33,38 @@ interface TournamentFormProps {
 
 const eventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  game: z.enum([
-    'Valorant',
-    'Free Fire',
-    'Minecraft',
-    'Pubg',
-  ]),
+  game: z.enum(['Valorant', 'Free Fire', 'Minecraft', 'Pubg']),
   date: z.string().min(1, 'Date is required'),
-  status: z.enum(['Open', 'Closed', 'Live']),
+  time: z.string().min(1, 'Time is required'),
+  status: z.enum(['Open', 'Closed', 'Live', 'Coming Soon']),
   prize: z.coerce.number().min(0, 'Prize must be a positive number'),
   fee: z.coerce.number().min(0, 'Fee must be a positive number'),
+  maxTeams: z.coerce.number().positive('Max teams must be positive'),
+  registeredTeams: z.coerce.number().min(0, 'Registered teams cannot be negative'),
+  gameMode: z.string().optional(),
+  map: z.string().optional(),
 });
 
 type EventFormData = z.infer<typeof eventSchema>;
+
+const gameSpecificOptions = {
+    'Free Fire': {
+        maps: ['Bermuda', 'Purgatory', 'Kalahari', 'Alpine', 'NeXTerra'],
+        gameModes: ['Squad', 'Solo', 'Duo'],
+    },
+    'Valorant': {
+        maps: ['Bind', 'Haven', 'Split', 'Ascent', 'Icebox', 'Breeze', 'Fracture', 'Pearl', 'Lotus', 'Sunset'],
+        gameModes: ['Standard', 'Spike Rush', 'Deathmatch'],
+    },
+    'Pubg': {
+        maps: ['Erangel', 'Miramar', 'Sanhok', 'Vikendi', 'Karakin', 'Taego', 'Deston'],
+        gameModes: ['Classic', 'Arcade', 'EvoGround'],
+    },
+    'Minecraft': {
+        maps: ['Overworld', 'The Nether', 'The End'],
+        gameModes: ['Survival', 'Creative', 'Adventure', 'Hardcore'],
+    }
+}
 
 export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps) {
   const firestore = useFirestore();
@@ -54,6 +73,7 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
     handleSubmit,
     reset,
     control,
+    watch,
     formState: { errors },
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -62,8 +82,12 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
         fee: 0,
         status: 'Open',
         game: 'Valorant',
+        maxTeams: 0,
+        registeredTeams: 0,
     }
   });
+
+  const selectedGame = watch('game');
 
   useEffect(() => {
     if (event) {
@@ -76,9 +100,14 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
         name: '',
         game: 'Valorant',
         date: '',
+        time: '',
         status: 'Open',
         prize: 0,
         fee: 0,
+        maxTeams: 0,
+        registeredTeams: 0,
+        gameMode: '',
+        map: '',
       });
     }
   }, [event, reset]);
@@ -106,28 +135,22 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{event ? 'Edit Tournament' : 'Add Tournament'}</DialogTitle>
           <DialogDescription>
             {event ? 'Update the details of the tournament.' : 'Fill in the details for the new tournament.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <div className="col-span-3">
-              <Input id="name" {...register('name')} className="w-full" />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" {...register('name')} />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="game" className="text-right">
-              Game
-            </Label>
-            <div className="col-span-3">
+            <div className="space-y-2">
+              <Label htmlFor="game">Game</Label>
               <Controller
                 name="game"
                 control={control}
@@ -147,21 +170,18 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
               />
                {errors.game && <p className="text-red-500 text-xs mt-1">{errors.game.message}</p>}
             </div>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="date" className="text-right">
-              Date
-            </Label>
-             <div className="col-span-3">
-              <Input id="date" type="date" {...register('date')} className="w-full" />
+             <div className="space-y-2">
+              <Label htmlFor="date">Date</Label>
+              <Input id="date" type="date" {...register('date')} />
                {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>}
             </div>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="status" className="text-right">
-              Status
-            </Label>
-            <div className="col-span-3">
+             <div className="space-y-2">
+              <Label htmlFor="time">Time</Label>
+              <Input id="time" type="text" {...register('time')} placeholder="e.g. 6:00 PM IST" />
+               {errors.time && <p className="text-red-500 text-xs mt-1">{errors.time.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
               <Controller
                 name="status"
                 control={control}
@@ -174,32 +194,79 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
                       <SelectItem value="Open">Open</SelectItem>
                       <SelectItem value="Closed">Closed</SelectItem>
                       <SelectItem value="Live">Live</SelectItem>
+                      <SelectItem value="Coming Soon">Coming Soon</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
               {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
             </div>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="prize" className="text-right">
-              Prize
-            </Label>
-             <div className="col-span-3">
-              <Input id="prize" type="number" {...register('prize')} className="w-full" />
+             <div className="space-y-2">
+              <Label htmlFor="prize">Prize (₹)</Label>
+              <Input id="prize" type="number" {...register('prize')} />
               {errors.prize && <p className="text-red-500 text-xs mt-1">{errors.prize.message}</p>}
             </div>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="fee" className="text-right">
-              Fee
-            </Label>
-             <div className="col-span-3">
-              <Input id="fee" type="number" {...register('fee')} className="w-full" />
+            <div className="space-y-2">
+              <Label htmlFor="fee">Fee (₹)</Label>
+              <Input id="fee" type="number" {...register('fee')} />
               {errors.fee && <p className="text-red-500 text-xs mt-1">{errors.fee.message}</p>}
             </div>
+             <div className="space-y-2">
+              <Label htmlFor="maxTeams">Max Teams</Label>
+              <Input id="maxTeams" type="number" {...register('maxTeams')} />
+              {errors.maxTeams && <p className="text-red-500 text-xs mt-1">{errors.maxTeams.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="registeredTeams">Registered Teams</Label>
+              <Input id="registeredTeams" type="number" {...register('registeredTeams')} />
+              {errors.registeredTeams && <p className="text-red-500 text-xs mt-1">{errors.registeredTeams.message}</p>}
+            </div>
           </div>
-          <DialogFooter>
+          
+            {selectedGame && gameSpecificOptions[selectedGame] && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="gameMode">Game Mode</Label>
+                         <Controller
+                            name="gameMode"
+                            control={control}
+                            render={({ field }) => (
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a game mode" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {gameSpecificOptions[selectedGame].gameModes.map(mode => (
+                                            <SelectItem key={mode} value={mode}>{mode}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="map">Map</Label>
+                         <Controller
+                            name="map"
+                            control={control}
+                            render={({ field }) => (
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a map" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {gameSpecificOptions[selectedGame].maps.map(map => (
+                                            <SelectItem key={map} value={map}>{map}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
+                </div>
+            )}
+          
+          <DialogFooter className="pt-4">
             <Button type="submit">Save changes</Button>
           </DialogFooter>
         </form>

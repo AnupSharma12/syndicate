@@ -20,8 +20,12 @@
         },
         "date": {
           "type": "string",
-          "description": "Date and time of the event.",
+          "description": "Date of the event.",
           "format": "date-time"
+        },
+        "time": {
+          "type": "string",
+          "description": "Time of the event."
         },
         "prize": {
           "type": "number",
@@ -38,7 +42,23 @@
         "status": {
           "type": "string",
           "description": "The current status of the event registration.",
-          "enum": ["Open", "Closed", "Live"]
+          "enum": ["Open", "Closed", "Live", "Coming Soon"]
+        },
+        "maxTeams": {
+          "type": "number",
+          "description": "Maximum number of teams allowed."
+        },
+        "registeredTeams": {
+          "type": "number",
+          "description": "Number of teams currently registered."
+        },
+        "gameMode": {
+          "type": "string",
+          "description": "The game mode for the event (e.g., Squad, Solo)."
+        },
+        "map": {
+          "type": "string",
+          "description": "The map the event will be played on."
         }
       },
       "required": [
@@ -46,10 +66,13 @@
         "name",
         "description",
         "date",
+        "time",
         "prize",
         "fee",
         "game",
-        "status"
+        "status",
+        "maxTeams",
+        "registeredTeams"
       ]
     },
     "Game": {

@@ -1,30 +1,20 @@
 'use client';
 
 import type { Event } from '@/lib/data';
-import { Calendar, Trophy, Ticket } from 'lucide-react';
+import { Calendar, Trophy, Users, Clock, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
-
-const gameImageIds = [
-  'Valorant',
-  'Free Fire',
-  'Minecraft',
-  'Pubg',
-];
-
 
 export function EventSchedule() {
   const firestore = useFirestore();
@@ -35,19 +25,47 @@ export function EventSchedule() {
   );
   const { data: events, isLoading } = useCollection<Event>(eventsRef);
 
-  const gameImages = PlaceHolderImages.filter((p) =>
-    gameImageIds.includes(p.id)
-  );
+  const getStatusVariant = (status: Event['status']) => {
+    switch (status) {
+      case 'Open':
+        return 'destructive';
+      case 'Coming Soon':
+        return 'secondary';
+      case 'Live':
+        return 'default';
+      case 'Closed':
+        return 'outline';
+      default:
+        return 'secondary';
+    }
+  };
+
+  const getStatusText = (status: Event['status']) => {
+    switch (status) {
+      case 'Open':
+        return 'Registration Open';
+      default:
+        return status;
+    }
+  };
+  
+  const formatPrize = (prize: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(prize);
+  }
 
   return (
     <section id="tournaments" className="py-16 md:py-24 bg-background">
       <div className="container max-w-7xl px-4">
         <div className="text-center mb-12">
           <h2 className="font-headline text-3xl md:text-5xl font-bold tracking-tighter">
-            Upcoming Tournaments
+            Active Tournaments
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            Register your team to compete for glory and prizes.
+            Join the competition and prove your skills.
           </p>
         </div>
 
@@ -56,63 +74,59 @@ export function EventSchedule() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
           {isLoading && <div className="col-span-full text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto"/></div>}
-          {events?.map((event) => {
-            const gameImage = gameImages.find((img) => img.id === event.game);
-            return (
+          {events?.map((event) => (
               <Card
                 key={event.id}
-                className="group flex flex-col bg-card border-border/60 overflow-hidden transition-all duration-300 hover:shadow-primary/20 hover:border-primary/50 hover:shadow-xl hover:-translate-y-2"
+                className="group flex flex-col bg-card border-border/60 overflow-hidden"
               >
-                {gameImage && (
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={gameImage.imageUrl}
-                      alt={event.game}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      data-ai-hint={gameImage.imageHint}
-                    />
-                  </div>
-                )}
                 <CardHeader>
-                  <CardTitle className="font-headline text-xl">
-                    {event.name}
-                  </CardTitle>
-                  <CardDescription className="text-primary font-semibold pt-1">{event.game}</CardDescription>
+                    <div className="flex justify-between items-start">
+                        <CardTitle className="font-headline text-2xl leading-tight">
+                            {event.name}
+                        </CardTitle>
+                        <Badge variant={getStatusVariant(event.status)} className="whitespace-nowrap">
+                            {getStatusText(event.status)}
+                        </Badge>
+                    </div>
                 </CardHeader>
-                <CardContent className="flex-grow space-y-3">
-                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4 text-accent" />
-                    <span>{new Date(event.date).toLocaleDateString()}</span>
+                <CardContent className="flex-grow space-y-3 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2.5">
+                    <Calendar className="h-4 w-4" />
+                    <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric'})}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                    <Trophy className="h-4 w-4 text-accent" />
-                    <span>रु{event.prize} Prize Pool</span>
+                  <div className="flex items-center gap-2.5">
+                    <Clock className="h-4 w-4" />
+                    <span>{event.time}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                    <Ticket className="h-4 w-4 text-accent" />
-                    <span>{event.fee > 0 ? `रु${event.fee} Entry Fee` : 'Free to Enter'}</span>
+                  <div className="flex items-center gap-2.5">
+                    <Users className="h-4 w-4" />
+                    <span>{event.registeredTeams}/{event.maxTeams} Teams</span>
+                  </div>
+                   <div className="flex items-center gap-2.5 font-bold text-foreground">
+                    <Trophy className="h-4 w-4 text-amber-400" />
+                    <span>{formatPrize(event.prize)}</span>
                   </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col items-start gap-4">
+                   <div className="flex items-center gap-2">
+                        {event.gameMode && <Badge variant="outline">{event.gameMode}</Badge>}
+                        {event.map && <Badge variant="outline">{event.map}</Badge>}
+                    </div>
                   <Button
                     asChild
-                    className="w-full font-bold"
-                    variant={event.status === 'Open' ? 'default' : 'secondary'}
+                    className="w-full font-bold text-lg h-12"
+                    variant={event.status === 'Open' ? 'destructive' : 'secondary'}
                     disabled={event.status !== 'Open'}
                   >
                     <Link href={`/register-event/${event.id}`}>
                       {event.status === 'Open'
-                        ? event.fee > 0
-                          ? 'Register Now'
-                          : 'Register Free'
+                        ? 'Register Now'
                         : event.status}
                     </Link>
                   </Button>
                 </CardFooter>
               </Card>
-            );
-          })}
+            ))}
         </div>
       </div>
     </section>
