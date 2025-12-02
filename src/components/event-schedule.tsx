@@ -52,11 +52,7 @@ export function EventSchedule() {
   };
   
   const formatPrize = (prize: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-    }).format(prize);
+    return `RS${prize.toLocaleString('en-IN')}`;
   }
 
   const getGameImage = (gameName: Event['game']) => {
