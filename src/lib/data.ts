@@ -18,13 +18,22 @@ export type Event = {
   map?: string;
 };
 
+export type SquadMember = {
+  name: string;
+  gameId: string;
+};
+
 export type Registration = {
   id: string;
   userId: string;
   eventId: string;
   registrationDate: string; // ISO string
   teamName: string;
+  teamLeaderFullName: string;
+  teamLeaderGameId: string;
+  teamLeaderEmail: string;
   whatsAppNumber: string;
+  squadMembers: SquadMember[];
   teamLogoUrl: string; // Placeholder for file upload URL
   paymentProofUrl?: string; // Placeholder for file upload URL
   youtubeProofUrl?: string; // Placeholder for file upload URL
@@ -67,5 +76,3 @@ export const events: Event[] = [
     registeredTeams: 32,
   },
 ];
-
-    

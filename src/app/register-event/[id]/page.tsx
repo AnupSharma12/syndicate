@@ -17,13 +17,13 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
-import { Youtube, ArrowLeft, Loader2 } from 'lucide-react';
+import { Youtube, ArrowLeft, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Loader } from '@/components/loader';
 import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
-import type { Event, Registration } from '@/lib/data';
+import type { Event, Registration, SquadMember } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const IMGBB_API_KEY = '828e7300541739226abfc621193150d3';
@@ -36,8 +36,15 @@ export default function RegisterEventPage() {
   const { user, isUserLoading } = useUser();
   const eventId = params.id as string;
 
+  // Form state
   const [teamName, setTeamName] = useState('');
+  const [teamLeaderFullName, setTeamLeaderFullName] = useState('');
+  const [teamLeaderGameId, setTeamLeaderGameId] = useState('');
+  const [teamLeaderEmail, setTeamLeaderEmail] = useState('');
   const [whatsAppNumber, setWhatsAppNumber] = useState('');
+  const [squadMembers, setSquadMembers] = useState<SquadMember[]>([{ name: '', gameId: '' }]);
+
+  // File state
   const [teamLogo, setTeamLogo] = useState<File | null>(null);
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [youtubeProof, setYoutubeProof] = useState<File | null>(null);
@@ -48,8 +55,30 @@ export default function RegisterEventPage() {
     [firestore, eventId]
   );
   const { data: event, isLoading: eventLoading } = useDoc<Event>(eventRef);
+
+  useEffect(() => {
+    if (user?.email) {
+      setTeamLeaderEmail(user.email);
+    }
+  }, [user]);
   
   const qrCodeImage = PlaceHolderImages.find((p) => p.id === 'qr-code');
+
+  const handleSquadMemberChange = (index: number, field: keyof SquadMember, value: string) => {
+    const newSquadMembers = [...squadMembers];
+    newSquadMembers[index][field] = value;
+    setSquadMembers(newSquadMembers);
+  };
+
+  const addSquadMember = () => {
+    setSquadMembers([...squadMembers, { name: '', gameId: '' }]);
+  };
+
+  const removeSquadMember = (index: number) => {
+    if (squadMembers.length <= 1) return;
+    const newSquadMembers = squadMembers.filter((_, i) => i !== index);
+    setSquadMembers(newSquadMembers);
+  };
 
   const uploadImage = async (imageFile: File | null): Promise<string | null> => {
     if (!imageFile) return null;
@@ -74,7 +103,7 @@ export default function RegisterEventPage() {
       toast({
         variant: 'destructive',
         title: 'Image Upload Failed',
-        description: 'Could not upload one of the images. Please try again.',
+        description: (error as Error).message || 'Could not upload an image.',
       });
       return null;
     }
@@ -87,20 +116,19 @@ export default function RegisterEventPage() {
     setIsSubmitting(true);
 
     try {
-      // Upload images in parallel
       const [teamLogoUrl, paymentProofUrl, youtubeProofUrl] = await Promise.all([
         uploadImage(teamLogo),
         uploadImage(paymentProof),
         uploadImage(youtubeProof),
       ]);
 
-      // Check if required uploads were successful
-      if (!teamLogoUrl || (event.fee > 0 && !paymentProofUrl)) {
-        toast({
-            variant: "destructive",
-            title: "Upload Error",
-            description: "Required image uploads failed. Please try again.",
-        });
+      if (!teamLogoUrl) {
+        toast({ variant: "destructive", title: "Missing Logo", description: "Please upload a team logo." });
+        setIsSubmitting(false);
+        return;
+      }
+      if (event.fee > 0 && !paymentProofUrl) {
+        toast({ variant: "destructive", title: "Missing Payment Proof", description: "Please upload proof of payment." });
         setIsSubmitting(false);
         return;
       }
@@ -110,10 +138,14 @@ export default function RegisterEventPage() {
         eventId: event.id,
         registrationDate: new Date().toISOString(),
         teamName,
+        teamLeaderFullName,
+        teamLeaderGameId,
+        teamLeaderEmail,
         whatsAppNumber,
-        teamLogoUrl: teamLogoUrl,
-        paymentProofUrl: paymentProofUrl ?? '', // Use empty string if null
-        youtubeProofUrl: youtubeProofUrl ?? '', // Use empty string if null
+        squadMembers: squadMembers.filter(m => m.name && m.gameId), // Filter out empty entries
+        teamLogoUrl,
+        paymentProofUrl: paymentProofUrl ?? undefined,
+        youtubeProofUrl: youtubeProofUrl ?? undefined,
       };
 
       const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
@@ -122,7 +154,7 @@ export default function RegisterEventPage() {
       
       toast({
         title: 'Registration Submitted!',
-        description: `Your team has been registered for the ${event.name}.`,
+        description: `Your team has been registered for ${event.name}.`,
       });
       router.push('/');
 
@@ -159,6 +191,8 @@ export default function RegisterEventPage() {
     );
   }
 
+  const gameIdLabel = `${event.game} ID`;
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <Header />
@@ -183,27 +217,70 @@ export default function RegisterEventPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleFormSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleFormSubmit} className="space-y-8">
+                
+                {/* Team Information */}
+                <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-primary">Team Information</h3>
                     <div className="space-y-2">
                         <Label htmlFor="teamName">Team Name</Label>
-                        <Input id="teamName" placeholder="e.g., The Dragons" required value={teamName} onChange={(e) => setTeamName(e.target.value)} />
+                        <Input id="teamName" placeholder="Enter your team name" required value={teamName} onChange={(e) => setTeamName(e.target.value)} />
                     </div>
                      <div className="space-y-2">
-                      <Label htmlFor="whatsapp">WhatsApp Number</Label>
-                      <Input id="whatsapp" type="tel" placeholder="+977..." required value={whatsAppNumber} onChange={(e) => setWhatsAppNumber(e.target.value)} />
+                        <Label htmlFor="teamLogo">Team Logo</Label>
+                        <Input id="teamLogo" type="file" required className="pt-2" accept="image/*" onChange={(e) => setTeamLogo(e.target.files ? e.target.files[0] : null)} />
                     </div>
                 </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="teamLogo">Team Logo</Label>
-                  <Input 
-                    id="teamLogo" 
-                    type="file" 
-                    required 
-                    className="pt-2"
-                    accept="image/*"
-                    onChange={(e) => setTeamLogo(e.target.files ? e.target.files[0] : null)}
-                    />
+
+                {/* Team Leader Details */}
+                 <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-primary">Team Leader Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="teamLeaderFullName">Full Name</Label>
+                            <Input id="teamLeaderFullName" placeholder="Leader's full name" required value={teamLeaderFullName} onChange={(e) => setTeamLeaderFullName(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="teamLeaderGameId">{gameIdLabel}</Label>
+                            <Input id="teamLeaderGameId" placeholder={`Your ${event.game} ID`} required value={teamLeaderGameId} onChange={(e) => setTeamLeaderGameId(e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="teamLeaderEmail">Email</Label>
+                            <Input id="teamLeaderEmail" type="email" placeholder="leader@example.com" required value={teamLeaderEmail} onChange={(e) => setTeamLeaderEmail(e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="whatsAppNumber">Phone Number</Label>
+                            <Input id="whatsAppNumber" type="tel" placeholder="+1234567890" required value={whatsAppNumber} onChange={(e) => setWhatsAppNumber(e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Squad Members */}
+                <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-primary">Squad Members</h3>
+                    {squadMembers.map((member, index) => (
+                        <div key={index} className="p-4 border rounded-md relative space-y-4">
+                            <h4 className="font-medium">Player {index + 2}</h4>
+                             {squadMembers.length > 1 && (
+                                <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSquadMember(index)}>
+                                    <Trash2 className="h-4 w-4 text-destructive"/>
+                                </Button>
+                             )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor={`player-name-${index}`}>Player {index + 2} Name</Label>
+                                    <Input id={`player-name-${index}`} placeholder="Player in-game name" required value={member.name} onChange={(e) => handleSquadMemberChange(index, 'name', e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor={`player-gameid-${index}`}>{gameIdLabel}</Label>
+                                    <Input id={`player-gameid-${index}`} placeholder={`Player ${index + 2} ${event.game} ID`} required value={member.gameId} onChange={(e) => handleSquadMemberChange(index, 'gameId', e.target.value)} />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <Button type="button" variant="outline" onClick={addSquadMember}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Player
+                    </Button>
                 </div>
                 
                 {event.fee > 0 && (

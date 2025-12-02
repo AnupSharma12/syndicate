@@ -12,6 +12,8 @@ import type { Registration, Event } from '@/lib/data';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import Image from 'next/image';
+import { Badge } from '../ui/badge';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface ApplicationDetailDialogProps {
   registration: Registration | null;
@@ -21,9 +23,9 @@ interface ApplicationDetailDialogProps {
 
 function DetailItem({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex flex-col space-y-1">
-      <p className="text-sm font-medium text-muted-foreground">{label}</p>
-      <p className="text-base">{value}</p>
+    <div className="grid grid-cols-3 gap-2">
+      <p className="text-sm font-medium text-muted-foreground col-span-1">{label}</p>
+      <p className="text-base col-span-2">{value}</p>
     </div>
   );
 }
@@ -68,36 +70,73 @@ export function ApplicationDetailDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Application Details</DialogTitle>
-          <DialogDescription>
-            Viewing registration for{' '}
-            <span className="font-semibold text-foreground">{registration.teamName}</span>.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <DetailItem label="Event" value={event?.name ?? 'Loading...'} />
-          <DetailItem label="Team Name" value={registration.teamName} />
-          <DetailItem label="WhatsApp Number" value={registration.whatsAppNumber} />
-          <DetailItem
-            label="Registration Date"
-            value={new Date(registration.registrationDate).toLocaleString()}
-          />
-          
-          <Separator />
+      <DialogContent className="sm:max-w-2xl">
+         <ScrollArea className="max-h-[90vh]">
+            <div className='p-6'>
+                <DialogHeader>
+                <DialogTitle>Application for: <span className='text-primary'>{event?.name}</span></DialogTitle>
+                <DialogDescription>
+                    Viewing registration for team: <span className="font-semibold text-foreground">{registration.teamName}</span>.
+                </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-6 py-6">
+                    {/* Team Details */}
+                    <div>
+                        <h4 className="text-lg font-semibold mb-4">Team Details</h4>
+                        <div className="space-y-2">
+                            <DetailItem label="Team Name" value={registration.teamName} />
+                            <DetailItem label="Registration Date" value={new Date(registration.registrationDate).toLocaleString()} />
+                            <ImagePreview label="Team Logo" src={registration.teamLogoUrl} />
+                        </div>
+                    </div>
 
-          <h4 className="text-md font-semibold pt-2">Submitted Proofs</h4>
-          <div className="space-y-4">
-              <ImagePreview label="Team Logo" src={registration.teamLogoUrl} />
-              {event && event.fee > 0 && (
-                <ImagePreview label="Payment Proof" src={registration.paymentProofUrl} />
-              )}
-              {registration.youtubeProofUrl && (
-                <ImagePreview label="YouTube Proof" src={registration.youtubeProofUrl} />
-              )}
-          </div>
-        </div>
+                    <Separator />
+                    
+                    {/* Team Leader Details */}
+                    <div>
+                        <h4 className="text-lg font-semibold mb-4">Team Leader</h4>
+                        <div className="space-y-2">
+                            <DetailItem label="Full Name" value={registration.teamLeaderFullName} />
+                            <DetailItem label="Email" value={registration.teamLeaderEmail} />
+                            <DetailItem label={`${event?.game ?? 'Game'} ID`} value={registration.teamLeaderGameId} />
+                            <DetailItem label="Phone Number" value={registration.whatsAppNumber} />
+                        </div>
+                    </div>
+                    
+                    <Separator />
+
+                    {/* Squad Members */}
+                    <div>
+                        <h4 className="text-lg font-semibold mb-4">Squad Members</h4>
+                        <div className="space-y-4">
+                            {registration.squadMembers.map((member, index) => (
+                                <div key={index} className="p-3 border rounded-md">
+                                    <p className="font-medium text-foreground">Player {index + 2}: {member.name}</p>
+                                    <p className="text-sm text-muted-foreground">{`${event?.game ?? 'Game'} ID: ${member.gameId}`}</p>
+                                </div>
+                            ))}
+                            {registration.squadMembers.length === 0 && <p className="text-sm text-muted-foreground">No additional squad members listed.</p>}
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Submitted Proofs */}
+                     <div>
+                        <h4 className="text-lg font-semibold mb-4">Submitted Proofs</h4>
+                        <div className="grid gap-4">
+                            {event && event.fee > 0 && (
+                                <ImagePreview label="Payment Proof" src={registration.paymentProofUrl} />
+                            )}
+                            {registration.youtubeProofUrl && (
+                                <ImagePreview label="YouTube Proof" src={registration.youtubeProofUrl} />
+                            )}
+                             {!registration.paymentProofUrl && !registration.youtubeProofUrl && <p className="text-sm text-muted-foreground">No additional proofs submitted.</p>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </ScrollArea>
       </DialogContent>
     </Dialog>
   );

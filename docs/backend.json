@@ -122,9 +122,38 @@
           "type": "string",
           "description": "The name of the registered team."
         },
+        "teamLeaderFullName": {
+          "type": "string",
+          "description": "The full name of the team leader."
+        },
+        "teamLeaderGameId": {
+          "type": "string",
+          "description": "The in-game ID for the team leader."
+        },
+        "teamLeaderEmail": {
+          "type": "string",
+          "description": "The email address of the team leader.",
+          "format": "email"
+        },
         "whatsAppNumber": {
           "type": "string",
           "description": "The user's WhatsApp contact number."
+        },
+        "squadMembers": {
+          "type": "array",
+          "description": "A list of squad members in the team.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "gameId": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "gameId"]
+          }
         },
         "teamLogoUrl": {
           "type": "string",
@@ -145,7 +174,11 @@
         "eventId",
         "registrationDate",
         "teamName",
-        "whatsAppNumber"
+        "teamLeaderFullName",
+        "teamLeaderGameId",
+        "teamLeaderEmail",
+        "whatsAppNumber",
+        "squadMembers"
       ]
     },
     "User": {
