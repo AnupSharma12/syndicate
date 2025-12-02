@@ -1,7 +1,7 @@
 'use client';
 
 import type { Event } from '@/lib/data';
-import { Calendar, Trophy, Users, Clock, MapPin } from 'lucide-react';
+import { Calendar, Trophy, Users, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,6 +15,8 @@ import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export function EventSchedule() {
   const firestore = useFirestore();
@@ -57,6 +59,10 @@ export function EventSchedule() {
     }).format(prize);
   }
 
+  const getGameImage = (gameName: Event['game']) => {
+    return PlaceHolderImages.find((p) => p.id === gameName) ?? PlaceHolderImages.find((p) => p.id === 'image-placeholder');
+  };
+
   return (
     <section id="tournaments" className="py-16 md:py-24 bg-background">
       <div className="container max-w-7xl px-4">
@@ -74,11 +80,28 @@ export function EventSchedule() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
           {isLoading && <div className="col-span-full text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto"/></div>}
-          {events?.map((event) => (
+          {events?.map((event) => {
+            const gameImage = getGameImage(event.game);
+            return (
               <Card
                 key={event.id}
                 className="group flex flex-col bg-card border-border/60 overflow-hidden"
               >
+                <div className="relative aspect-video">
+                  {gameImage && (
+                     <Image
+                      src={gameImage.imageUrl}
+                      alt={gameImage.description}
+                      fill
+                      className="object-cover"
+                      data-ai-hint={gameImage.imageHint}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                  <div className="absolute bottom-4 left-4">
+                    <h3 className="font-headline text-2xl text-white drop-shadow-md">{event.game}</h3>
+                  </div>
+                </div>
                 <CardHeader>
                     <div className="flex justify-between items-start">
                         <CardTitle className="font-headline text-2xl leading-tight">
@@ -126,7 +149,8 @@ export function EventSchedule() {
                   </Button>
                 </CardFooter>
               </Card>
-            ))}
+            )
+          })}
         </div>
       </div>
     </section>
