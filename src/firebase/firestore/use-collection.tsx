@@ -33,7 +33,8 @@ export interface InternalQuery extends Query<DocumentData> {
     path: {
       canonicalString(): string;
       toString(): string;
-    }
+    } | null;
+    collectionGroup: string | null;
   }
 }
 
@@ -89,17 +90,16 @@ export function useCollection<T = any>(
       (error: FirestoreError) => {
         let path = 'unknown/path';
          if (memoizedTargetRefOrQuery) {
-            // Firestore queries can be a CollectionReference or a Query object.
-            // A CollectionReference has a `path` property.
-            if ('path' in memoizedTargetRefOrQuery) {
+            const internalQuery = memoizedTargetRefOrQuery as unknown as InternalQuery;
+            if (internalQuery._query?.collectionGroup) {
+                // This is a collectionGroup query. The path is the group name.
+                path = `*/${internalQuery._query.collectionGroup}`;
+            } else if (internalQuery._query?.path) {
+                // This is a collection query.
+                path = internalQuery._query.path.canonicalString();
+            } else if ('path' in memoizedTargetRefOrQuery) {
+                 // Fallback for simple CollectionReference
                 path = (memoizedTargetRefOrQuery as CollectionReference).path;
-            } else if ((memoizedTargetRefOrQuery as Query).type === 'query') {
-                // For a query, the path is on an internal property.
-                // This is not officially documented and might break, but it's the best we can do.
-                const internalQuery = memoizedTargetRefOrQuery as unknown as InternalQuery;
-                if (internalQuery._query?.path) {
-                    path = internalQuery._query.path.canonicalString();
-                }
             }
         }
 
