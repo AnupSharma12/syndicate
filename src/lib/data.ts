@@ -47,6 +47,17 @@ export type User = {
   staff: boolean;
 };
 
+export type Team = {
+    id: string;
+    name: string;
+    logoUrl: string;
+    captainName: string;
+    squadMembers: SquadMember[];
+    wins: number;
+    rank: 'Pro' | 'Elite' | 'Champion' | 'Unranked';
+    tournamentsWon: string[]; // Array of event IDs
+};
+
 
 // This mock data is no longer used by the application but is kept for reference.
 export const events: Event[] = [

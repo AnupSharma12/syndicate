@@ -21,9 +21,9 @@ import { Youtube, ArrowLeft, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Loader } from '@/components/loader';
-import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
-import { doc, collection } from 'firebase/firestore';
-import type { Event, Registration, SquadMember } from '@/lib/data';
+import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase';
+import { doc, collection, query, where, getDocs } from 'firebase/firestore';
+import type { Event, Registration, SquadMember, Team } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const IMGBB_API_KEY = '828e7300541739226abfc621193150d3';
@@ -149,8 +149,35 @@ export default function RegisterEventPage() {
       };
 
       const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
-      
       addDocumentNonBlocking(registrationsColRef, registrationData);
+
+      // Create or update the team in the /teams collection
+      const teamsColRef = collection(firestore, 'teams');
+      const teamQuery = query(teamsColRef, where("name", "==", teamName));
+      const teamSnapshot = await getDocs(teamQuery);
+
+      if (teamSnapshot.empty) {
+        // Team doesn't exist, create it
+        const newTeamData: Omit<Team, 'id'> = {
+            name: teamName,
+            logoUrl: teamLogoUrl,
+            captainName: teamLeaderFullName,
+            squadMembers: squadMembers.filter(m => m.name && m.gameId),
+            wins: 0,
+            rank: 'Unranked',
+            tournamentsWon: [],
+        };
+        addDocumentNonBlocking(teamsColRef, newTeamData);
+      } else {
+        // Team exists, update it (optional, could just let it be)
+        const teamDocRef = teamSnapshot.docs[0].ref;
+        const updatedTeamData = {
+          logoUrl: teamLogoUrl,
+          captainName: teamLeaderFullName,
+          squadMembers: squadMembers.filter(m => m.name && m.gameId),
+        };
+        setDocumentNonBlocking(teamDocRef, updatedTeamData, { merge: true });
+      }
       
       toast({
         title: 'Registration Submitted!',
@@ -169,6 +196,7 @@ export default function RegisterEventPage() {
       setIsSubmitting(false);
     }
   };
+
 
   if (eventLoading || isUserLoading) {
     return <Loader />;

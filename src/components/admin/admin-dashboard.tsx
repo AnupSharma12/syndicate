@@ -10,12 +10,12 @@ import {
   CardContent
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Swords, ShieldCheck, Loader2, FileText } from 'lucide-react';
+import { Users, Swords, ShieldCheck, Loader2, FileText, Trophy } from 'lucide-react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, collectionGroup, query } from 'firebase/firestore';
-import type { Event, Registration } from '@/lib/data';
+import type { Event, Registration, Team } from '@/lib/data';
 
-type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications';
+type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams';
 
 interface AdminDashboardProps {
   setView: (view: AdminView) => void;
@@ -36,11 +36,17 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
   );
   const { data: registrations, isLoading: registrationsLoading } = useCollection<Registration>(registrationsQuery);
 
+  const teamsRef = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'teams') : null),
+    [firestore]
+  );
+  const { data: teams, isLoading: teamsLoading } = useCollection<Team>(teamsRef);
 
   const totalEvents = events?.length ?? 0;
   const totalRegistrations = registrations?.length ?? 0;
+  const totalTeams = teams?.length ?? 0;
 
-  const isLoading = eventsLoading || registrationsLoading;
+  const isLoading = eventsLoading || registrationsLoading || teamsLoading;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -93,6 +99,27 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
               </CardContent>
               <CardContent>
                  <Button onClick={() => setView('applications')}>View Applications</Button>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Manage Teams
+                </CardTitle>
+                <Trophy className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                 {isLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  <div className="text-2xl font-bold">{totalTeams}</div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Total teams in leaderboard
+                </p>
+              </CardContent>
+               <CardContent>
+                 <Button onClick={() => setView('teams')}>Manage Teams</Button>
               </CardContent>
             </Card>
             <Card className="bg-card border-border/60">

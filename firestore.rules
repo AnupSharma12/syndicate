@@ -13,6 +13,7 @@ service cloud.firestore {
      * Data Structure:
      * - /events/{eventId}: Publicly readable content managed by staff.
      * - /games/{gameId}: Publicly readable content managed by staff.
+     * - /teams/{teamId}: Publicly readable leaderboard data managed by staff.
      * - /users/{userId}: Private user profiles, only accessible by the owner.
      * - /users/{userId}/registrations/{registrationId}: User-specific private data.
      * - /roles_staff/{userId}: A secure, admin-only collection where the existence of a
@@ -130,6 +131,20 @@ service cloud.firestore {
       allow get, list: if true;
       allow create, update, delete: if isStaff();
     }
+
+    /**
+     * @description Manages the collection of teams for the leaderboard. Publicly readable,
+     *              but only staff can create, update, or delete teams. Authenticated users
+     *              can create a team document via the registration form.
+     * @path /teams/{teamId}
+     * @principle Public Read with Role-Based Writes.
+     */
+    match /teams/{teamId} {
+        allow get, list: if true;
+        allow create: if isSignedIn(); // Allow creation during registration
+        allow update, delete: if isStaff();
+    }
+
 
     /**
      * @description Manages user profile documents. Users can create, read, and update their

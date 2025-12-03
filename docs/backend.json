@@ -1,5 +1,56 @@
 {
   "entities": {
+    "Team": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Team",
+      "type": "object",
+      "description": "Represents a competitive team in the leaderboard.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Team entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the team."
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL to the team's logo."
+        },
+        "captainName": {
+          "type": "string",
+          "description": "The name of the team captain."
+        },
+        "squadMembers": {
+          "type": "array",
+          "description": "A list of squad members in the team.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "gameId": { "type": "string" }
+            },
+            "required": ["name", "gameId"]
+          }
+        },
+        "wins": {
+          "type": "number",
+          "description": "The total number of tournaments won by the team."
+        },
+        "rank": {
+          "type": "string",
+          "description": "The rank or tier of the team.",
+          "enum": ["Pro", "Elite", "Champion", "Unranked"]
+        },
+        "tournamentsWon": {
+          "type": "array",
+          "description": "A list of event IDs that the team has won.",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["id", "name", "logoUrl", "captainName", "squadMembers", "wins", "rank", "tournamentsWon"]
+    },
     "Event": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Event",
@@ -329,6 +380,20 @@
           ]
         }
       },
+       {
+        "path": "/teams/{teamId}",
+        "definition": {
+          "entityName": "Team",
+          "schema": { "$ref": "#/backend/entities/Team" },
+          "description": "Collection of all competitive teams.",
+          "params": [
+            {
+              "name": "teamId",
+              "description": "The unique identifier for the team."
+            }
+          ]
+        }
+      },
       {
         "path": "/logs/{logId}",
         "definition": {
@@ -362,6 +427,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support the Syndicate ESP application, focusing on secure access to admin functionalities, event management, user registrations, and activity logging. Key considerations include authorization independence, clear security intent, and the ability to perform secure list operations. The design incorporates Structural Segregation to ensure that collections contain documents with similar security requirements. The structure is optimised for the application requirements and is as follows:\n\n1.  **Staff Roles:** The `/roles_staff/{userId}` collection is used to manage staff privileges. The existence of a document for a given user ID in this collection indicates that the user is a staff member. This approach simplifies the security rules and avoids relying on custom claims (DBAC).\n\n2.  **Events:** Events are stored in a top-level `/events` collection to simplify queries. This is more efficient than nesting them under games, especially for fetching all upcoming events.\n\n3.  **Registrations:** Registrations are stored under the `/users/{userId}/registrations/{registrationId}` collection. This hierarchical structure ensures that each user's registrations are scoped to their user ID. This approach is secure and efficient for querying registrations for a specific user.\n\n4.  **Logs:** The `/logs/{logId}` collection stores log entries. Since admin access is required, there is no need to associate logs with user; this collection can exist at the root level.\n\n**Authorization Independence (Denormalization):**\n\n*   To ensure Authorization Independence, the `staff` field is denormalized into the `User` document. This eliminates the need for security rules to perform `get()` operations to verify staff status. For accessing admin-related functions, the security rules check for the existence of the `staff` field in the user's document, adhering to the existence-over-content principle.\n\n**QAPs (Rules are not Filters):**\n\n*   The structure enables secure `list` operations. Public data (e.g., events) and private data (e.g., user registrations) are stored in separate collections, each with its own security rules. This segregation makes it easy to write rules that allow listing public data while restricting access to private data.\n\n*   The `/roles_staff` collection allows administrators to list the staff roles collection."
+    "reasoning": "The Firestore structure is designed to support the Syndicate ESP application, focusing on secure access to admin functionalities, event management, user registrations, and activity logging. Key considerations include authorization independence, clear security intent, and the ability to perform secure list operations. The design incorporates Structural Segregation to ensure that collections contain documents with similar security requirements. The structure is optimised for the application requirements and is as follows:\n\n1.  **Staff Roles:** The `/roles_staff/{userId}` collection is used to manage staff privileges. The existence of a document for a given user ID in this collection indicates that the user is a staff member. This approach simplifies the security rules and avoids relying on custom claims (DBAC).\n\n2.  **Events:** Events are stored in a top-level `/events` collection to simplify queries. This is more efficient than nesting them under games, especially for fetching all upcoming events.\n\n3.  **Registrations:** Registrations are stored under the `/users/{userId}/registrations/{registrationId}` collection. This hierarchical structure ensures that each user's registrations are scoped to their user ID. This approach is secure and efficient for querying registrations for a specific user.\n\n4.  **Teams:** A new top-level `/teams` collection is introduced to store information about each competitive team. This centralizes team data, making it easy to manage leaderboards and team profiles. When a user registers a team for an event, a corresponding document is created or updated in this collection.\n\n5.  **Logs:** The `/logs/{logId}` collection stores log entries. Since admin access is required, there is no need to associate logs with user; this collection can exist at the root level.\n\n**Authorization Independence (Denormalization):**\n\n*   To ensure Authorization Independence, the `staff` field is denormalized into the `User` document. This eliminates the need for security rules to perform `get()` operations to verify staff status. For accessing admin-related functions, the security rules check for the existence of the `staff` field in the user's document, adhering to the existence-over-content principle.\n\n**QAPs (Rules are not Filters):**\n\n*   The structure enables secure `list` operations. Public data (e.g., events) and private data (e.g., user registrations) are stored in separate collections, each with its own security rules. This segregation makes it easy to write rules that allow listing public data while restricting access to private data.\n\n*   The `/roles_staff` collection allows administrators to list the staff roles collection."
   }
 }

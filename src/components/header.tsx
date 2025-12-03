@@ -20,9 +20,9 @@ export function Header() {
   const { data: userDoc, isLoading: isRoleLoading } = useDoc(userDocRef);
 
   const navLinks = [
-    { href: '#tournaments', label: 'Tournaments' },
-    { href: '#schedule', label: 'Schedule' },
-    { href: '#about', label: 'About' },
+    { href: '/#tournaments', label: 'Tournaments' },
+    { href: '/teams', label: 'Teams' },
+    { href: '/#about', label: 'About' },
   ];
 
   const handleSignOut = () => {
