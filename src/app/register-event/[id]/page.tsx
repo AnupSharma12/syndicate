@@ -145,12 +145,17 @@ export default function RegisterEventPage() {
         teamLeaderGameId,
         teamLeaderEmail,
         whatsAppNumber,
-        squadMembers: squadMembers.filter(m => m.name && m.gameId), // Filter out empty entries
+        squadMembers: squadMembers.filter(m => m.name && m.gameId),
         teamLogoUrl,
-        paymentProofUrl: paymentProofUrl ?? undefined,
-        youtubeProofUrl: youtubeProofUrl ?? undefined,
-        isTeamCreated: false, // New flag
+        isTeamCreated: false,
       };
+      
+      if (paymentProofUrl) {
+        registrationData.paymentProofUrl = paymentProofUrl;
+      }
+      if (youtubeProofUrl) {
+          registrationData.youtubeProofUrl = youtubeProofUrl;
+      }
 
       const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
       addDocumentNonBlocking(registrationsColRef, registrationData);
