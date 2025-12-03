@@ -163,20 +163,36 @@ service cloud.firestore {
       allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('id') && isFieldImmutable('staff');
       allow delete: if isOwner(userId) && isExistingDoc();
 
-      /**
-       * @description Manages a user's event registrations. A user has full control over their
-       *              own registrations, but staff can list all registrations across all users.
-       * @path /users/{userId}/registrations/{registrationId}
-       * @allow (list) A user lists all of their own event registrations, or staff lists all registrations.
-       * @allow (get) A user accesses their own registration, or staff accesses any registration.
-       * @principle Enforces document ownership for regular users while allowing staff access for administration.
-       */
+    /**
+     * @description Manages a user's event registrations. A user has full control over their
+     *              own registrations, but staff can list all registrations across all users.
+     * @path /users/{userId}/registrations/{registrationId}
+     * @allow (list) A user lists all of their own event registrations, or staff lists all registrations.
+     * @allow (get) A user accesses their own registration, or staff accesses any registration.
+     * @principle Enforces document ownership for regular users while allowing staff access for administration.
+     */
       match /registrations/{registrationId} {
         allow get, list: if isOwner(userId) || isStaff();
         allow create: if isOwner(userId) && request.resource.data.userId == userId;
         allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('userId');
         allow delete: if isOwner(userId) && isExistingDoc();
       }
+    }
+
+    /**
+     * @description Manages collection group queries for registrations across all users.
+     *              Staff members can query all registrations using collectionGroup queries.
+     *              This enables efficient admin operations without knowing specific user IDs.
+     * @path /*/registrations/{registrationId}
+     * @allow (list) Staff members can list all registrations across all users via collectionGroup query.
+     * @principle Allows staff to efficiently manage and view all registrations system-wide.
+     */
+    match /{userId}/registrations/{registrationId} {
+      allow get, list: if isStaff();
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('userId');
+      allow delete: if isOwner(userId) && isExistingDoc();
+    }
     }
     
     /**

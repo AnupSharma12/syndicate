@@ -6,6 +6,7 @@ import { FirebaseClientProvider } from '@/firebase';
 export const metadata: Metadata = {
   title: 'Syndicate ESP',
   description: 'The ultimate destination for competitive gaming.',
+  viewport: 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes',
 };
 
 export default function RootLayout({
