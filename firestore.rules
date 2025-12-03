@@ -178,6 +178,18 @@ service cloud.firestore {
         allow delete: if isOwner(userId) && isExistingDoc();
       }
     }
+
+    /**
+     * @description Manages collection group queries for registrations across all users.
+     *              Staff members can query all registrations using collectionGroup queries.
+     *              This enables efficient admin operations for team creation and applications.
+     * @path /*/registrations/{registrationId} (via collectionGroup query)
+     * @allow (list) Staff members can list all registrations across all users.
+     * @principle Allows staff to efficiently manage and view all applications system-wide.
+     */
+    match /{userId}/registrations/{registrationId} {
+      allow get, list: if isStaff();
+    }
     
     /**
      * @description Stores system logs. This collection is read-only for staff members.
