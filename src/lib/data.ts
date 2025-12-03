@@ -38,6 +38,7 @@ export type Registration = {
   teamLogoUrl: string; // Placeholder for file upload URL
   paymentProofUrl?: string; // Placeholder for file upload URL
   youtubeProofUrl?: string; // Placeholder for file upload URL
+  isTeamCreated: boolean; // Flag to check if a team has been created from this app
 };
 
 export type User = {

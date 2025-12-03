@@ -21,8 +21,8 @@ import {
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Team, SquadMember } from '@/lib/data';
-import { useFirestore, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
+import type { Team, SquadMember, Registration } from '@/lib/data';
+import { useFirestore, setDocumentNonBlocking, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Textarea } from '../ui/textarea';
@@ -31,11 +31,11 @@ import { useToast } from '@/hooks/use-toast';
 
 const IMGBB_API_KEY = '828e7300541739226abfc621193150d3';
 
-
 interface TeamFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   team: Team | null;
+  application?: Registration | null; // Optional application data
 }
 
 const squadMemberSchema = z.object({
@@ -55,7 +55,7 @@ const teamSchema = z.object({
 
 type TeamFormData = z.infer<typeof teamSchema>;
 
-export function TeamForm({ isOpen, setIsOpen, team }: TeamFormProps) {
+export function TeamForm({ isOpen, setIsOpen, team, application }: TeamFormProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -66,7 +66,6 @@ export function TeamForm({ isOpen, setIsOpen, team }: TeamFormProps) {
     handleSubmit,
     reset,
     control,
-    setValue,
     formState: { errors },
   } = useForm<TeamFormData>({
     resolver: zodResolver(teamSchema),
@@ -87,12 +86,26 @@ export function TeamForm({ isOpen, setIsOpen, team }: TeamFormProps) {
   });
 
   useEffect(() => {
-    if (team) {
+    if (team) { // Editing existing team
       reset({
         ...team,
         tournamentsWon: team.tournamentsWon.join(', '),
       });
-    } else {
+    } else if (application) { // Creating team from application
+      const squad = [
+          { name: application.teamLeaderFullName, gameId: application.teamLeaderGameId },
+          ...application.squadMembers
+      ];
+      reset({
+        name: application.teamName,
+        logoUrl: application.teamLogoUrl,
+        captainName: application.teamLeaderFullName,
+        squadMembers: squad,
+        rank: 'Unranked',
+        wins: 0,
+        tournamentsWon: [],
+      });
+    } else { // Creating new team manually
       reset({
         name: '',
         logoUrl: '',
@@ -104,7 +117,7 @@ export function TeamForm({ isOpen, setIsOpen, team }: TeamFormProps) {
       });
     }
     setLogoFile(null);
-  }, [team, reset]);
+  }, [team, application, reset]);
 
   const uploadImage = async (imageFile: File): Promise<string> => {
     setIsUploading(true);
@@ -146,8 +159,7 @@ export function TeamForm({ isOpen, setIsOpen, team }: TeamFormProps) {
         if (uploadedUrl) {
             finalLogoUrl = uploadedUrl;
         } else {
-            // Upload failed, stop submission
-            return;
+            return; // Upload failed, stop submission
         }
     }
     
@@ -171,6 +183,12 @@ export function TeamForm({ isOpen, setIsOpen, team }: TeamFormProps) {
       const teamsColRef = collection(firestore, 'teams');
       addDocumentNonBlocking(teamsColRef, teamData);
       toast({ title: "Team Added", description: `${data.name} has been added to the leaderboard.` });
+      
+      // If team was created from an application, mark it as processed
+      if (application) {
+        const appRef = doc(firestore, 'users', application.userId, 'registrations', application.id);
+        updateDocumentNonBlocking(appRef, { isTeamCreated: true });
+      }
     }
     setIsOpen(false);
   };
@@ -181,7 +199,7 @@ export function TeamForm({ isOpen, setIsOpen, team }: TeamFormProps) {
         <DialogHeader>
           <DialogTitle>{team ? 'Edit Team' : 'Add Team'}</DialogTitle>
           <DialogDescription>
-            {team ? 'Update the details for this team.' : 'Fill in the details for a new team.'}
+            {application ? `Creating team from application for '${application.teamName}'.` : team ? 'Update the details for this team.' : 'Fill in the details for a new team.'}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -232,8 +250,8 @@ export function TeamForm({ isOpen, setIsOpen, team }: TeamFormProps) {
               {errors.rank && <p className="text-red-500 text-xs mt-1">{errors.rank.message}</p>}
             </div>
             <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="tournamentsWon">Tournaments Won (comma-separated event names)</Label>
-                <Textarea id="tournamentsWon" {...register('tournamentsWon')} placeholder="e.g. Valorant Series 1, Pubg Masters"/>
+                <Label htmlFor="tournamentsWon">Tournaments Won (comma-separated event IDs)</Label>
+                <Textarea id="tournamentsWon" {...register('tournamentsWon')} placeholder="e.g. valorant-series-1, pubg-masters-2"/>
             </div>
           </div>
           

@@ -23,8 +23,9 @@ import { Footer } from '@/components/footer';
 import { Badge } from '../ui/badge';
 import { useFirestore, useCollection, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import type { Team } from '@/lib/data';
-import { TeamForm } from './team-form'; // We will create this component next
+import type { Registration, Team } from '@/lib/data';
+import { TeamForm } from './team-form';
+import { AddTeamDialog } from './add-team-dialog';
 
 type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams';
 
@@ -34,8 +35,10 @@ interface TeamManagementProps {
 
 export function TeamManagement({ setView }: TeamManagementProps) {
   const firestore = useFirestore();
+  const [isAddTeamDialogOpen, setIsAddTeamDialogOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<Registration | null>(null);
 
   const teamsRef = useMemoFirebase(
     () => (firestore ? collection(firestore, 'teams') : null),
@@ -44,12 +47,26 @@ export function TeamManagement({ setView }: TeamManagementProps) {
   const { data: teams, isLoading } = useCollection<Team>(teamsRef);
 
   const handleAdd = () => {
+    setIsAddTeamDialogOpen(true);
+  };
+
+  const handleAddManually = () => {
     setSelectedTeam(null);
+    setSelectedApplication(null);
+    setIsAddTeamDialogOpen(false);
+    setIsFormOpen(true);
+  };
+
+  const handleSelectApplication = (application: Registration) => {
+    setSelectedTeam(null);
+    setSelectedApplication(application);
+    setIsAddTeamDialogOpen(false);
     setIsFormOpen(true);
   };
 
   const handleEdit = (team: Team) => {
     setSelectedTeam(team);
+    setSelectedApplication(null);
     setIsFormOpen(true);
   };
 
@@ -128,7 +145,7 @@ export function TeamManagement({ setView }: TeamManagementProps) {
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDelete(team.id)}>
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -141,10 +158,17 @@ export function TeamManagement({ setView }: TeamManagementProps) {
         </div>
       </main>
       <Footer />
+      <AddTeamDialog
+        isOpen={isAddTeamDialogOpen}
+        setIsOpen={setIsAddTeamDialogOpen}
+        onSelectApplication={handleSelectApplication}
+        onAddManually={handleAddManually}
+      />
       <TeamForm 
         isOpen={isFormOpen}
         setIsOpen={setIsFormOpen}
         team={selectedTeam}
+        application={selectedApplication}
       />
     </div>
   );

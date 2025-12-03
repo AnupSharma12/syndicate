@@ -21,9 +21,9 @@ import { Youtube, ArrowLeft, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Loader } from '@/components/loader';
-import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase';
-import { doc, collection, query, where, getDocs } from 'firebase/firestore';
-import type { Event, Registration, SquadMember, Team } from '@/lib/data';
+import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
+import { doc, collection } from 'firebase/firestore';
+import type { Event, Registration, SquadMember } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const IMGBB_API_KEY = '828e7300541739226abfc621193150d3';
@@ -149,45 +149,15 @@ export default function RegisterEventPage() {
         teamLogoUrl,
         paymentProofUrl: paymentProofUrl ?? undefined,
         youtubeProofUrl: youtubeProofUrl ?? undefined,
+        isTeamCreated: false, // New flag
       };
 
       const registrationsColRef = collection(firestore, 'users', user.uid, 'registrations');
       addDocumentNonBlocking(registrationsColRef, registrationData);
 
-      // Create or update the team in the /teams collection
-      const teamsColRef = collection(firestore, 'teams');
-      const teamQuery = query(teamsColRef, where("name", "==", teamName));
-      const teamSnapshot = await getDocs(teamQuery);
-      
-      const filteredSquadMembers = squadMembers.filter(m => m.name && m.gameId);
-
-      if (teamSnapshot.empty) {
-        // Team doesn't exist, create it with all details from the registration
-        const newTeamData: Omit<Team, 'id'> = {
-            name: teamName,
-            logoUrl: teamLogoUrl,
-            captainName: teamLeaderFullName,
-            squadMembers: filteredSquadMembers,
-            wins: 0,
-            rank: 'Unranked',
-            tournamentsWon: [],
-        };
-        addDocumentNonBlocking(teamsColRef, newTeamData);
-      } else {
-        // Team exists, update it with the latest registration info
-        const teamDocRef = teamSnapshot.docs[0].ref;
-        const updatedTeamData = {
-          logoUrl: teamLogoUrl,
-          captainName: teamLeaderFullName,
-          squadMembers: filteredSquadMembers,
-          // We don't overwrite wins, rank, or tournamentsWon here
-        };
-        setDocumentNonBlocking(teamDocRef, updatedTeamData, { merge: true });
-      }
-      
       toast({
         title: 'Registration Submitted!',
-        description: `Your team has been registered for ${event.name}.`,
+        description: `Your team application for ${event.name} has been received.`,
       });
       router.push('/');
 
@@ -405,5 +375,3 @@ export default function RegisterEventPage() {
     </div>
   );
 }
-
-    
