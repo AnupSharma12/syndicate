@@ -8,7 +8,7 @@ export function Hero() {
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero');
 
   return (
-    <section className="relative h-[75vh] w-full min-h-[400px] sm:h-[80vh] md:h-[90vh]">
+    <section className="relative h-[75vh] w-screen max-w-full min-h-[400px] sm:h-[80vh] md:h-[90vh] overflow-hidden">
       {heroImage && (
         <Image
           src={heroImage.imageUrl}
@@ -22,7 +22,7 @@ export function Hero() {
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
       <div className="absolute inset-0 bg-black/30" />
 
-      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4">
+      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4 sm:px-6 md:px-8">
         <h1 className="font-headline text-4xl font-bold tracking-tighter text-white sm:text-6xl md:text-7xl lg:text-8xl animate-fade-in-down drop-shadow-2xl">
           Enter The Arena
         </h1>

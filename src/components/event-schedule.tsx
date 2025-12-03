@@ -78,8 +78,8 @@ export function EventSchedule() {
   };
 
   return (
-    <section id="tournaments" className="py-16 md:py-24 bg-background">
-      <div className="container max-w-7xl px-4">
+    <section id="tournaments" className="py-16 md:py-24 bg-background w-full overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-12">
           <h2 className="font-headline text-3xl md:text-5xl font-bold tracking-tighter">
             Active Tournaments
