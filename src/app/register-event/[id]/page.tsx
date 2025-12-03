@@ -75,9 +75,12 @@ export default function RegisterEventPage() {
   };
 
   const removeSquadMember = (index: number) => {
-    if (squadMembers.length <= 1) return;
+    if (squadMembers.length <= 1 && index === 0) {
+        setSquadMembers([{ name: '', gameId: '' }]); // Reset the first player instead of removing
+        return;
+    }
     const newSquadMembers = squadMembers.filter((_, i) => i !== index);
-    setSquadMembers(newSquadMembers);
+    setSquadMembers(newSquadMembers.length > 0 ? newSquadMembers : [{ name: '', gameId: '' }]);
   };
 
   const uploadImage = async (imageFile: File | null): Promise<string | null> => {
@@ -155,26 +158,29 @@ export default function RegisterEventPage() {
       const teamsColRef = collection(firestore, 'teams');
       const teamQuery = query(teamsColRef, where("name", "==", teamName));
       const teamSnapshot = await getDocs(teamQuery);
+      
+      const filteredSquadMembers = squadMembers.filter(m => m.name && m.gameId);
 
       if (teamSnapshot.empty) {
-        // Team doesn't exist, create it
+        // Team doesn't exist, create it with all details from the registration
         const newTeamData: Omit<Team, 'id'> = {
             name: teamName,
             logoUrl: teamLogoUrl,
             captainName: teamLeaderFullName,
-            squadMembers: squadMembers.filter(m => m.name && m.gameId),
+            squadMembers: filteredSquadMembers,
             wins: 0,
             rank: 'Unranked',
             tournamentsWon: [],
         };
         addDocumentNonBlocking(teamsColRef, newTeamData);
       } else {
-        // Team exists, update it (optional, could just let it be)
+        // Team exists, update it with the latest registration info
         const teamDocRef = teamSnapshot.docs[0].ref;
         const updatedTeamData = {
           logoUrl: teamLogoUrl,
           captainName: teamLeaderFullName,
-          squadMembers: squadMembers.filter(m => m.name && m.gameId),
+          squadMembers: filteredSquadMembers,
+          // We don't overwrite wins, rank, or tournamentsWon here
         };
         setDocumentNonBlocking(teamDocRef, updatedTeamData, { merge: true });
       }
@@ -289,19 +295,17 @@ export default function RegisterEventPage() {
                     {squadMembers.map((member, index) => (
                         <div key={index} className="p-4 border rounded-md relative space-y-4">
                             <h4 className="font-medium">Player {index + 1}</h4>
-                             {squadMembers.length > 1 && (
-                                <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSquadMember(index)}>
-                                    <Trash2 className="h-4 w-4 text-destructive"/>
-                                </Button>
-                             )}
+                            <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSquadMember(index)}>
+                                <Trash2 className="h-4 w-4 text-destructive"/>
+                            </Button>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor={`player-name-${index}`}>Player {index + 1} Name</Label>
-                                    <Input id={`player-name-${index}`} placeholder="Player in-game name" required value={member.name} onChange={(e) => handleSquadMemberChange(index, 'name', e.target.value)} />
+                                    <Input id={`player-name-${index}`} placeholder="Player in-game name" required={index === 0} value={member.name} onChange={(e) => handleSquadMemberChange(index, 'name', e.target.value)} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor={`player-gameid-${index}`}>{gameIdLabel}</Label>
-                                    <Input id={`player-gameid-${index}`} placeholder={`Player ${index + 1} ${event.game} ID`} required value={member.gameId} onChange={(e) => handleSquadMemberChange(index, 'gameId', e.target.value)} />
+                                    <Input id={`player-gameid-${index}`} placeholder={`Player ${index + 1} ${event.game} ID`} required={index === 0} value={member.gameId} onChange={(e) => handleSquadMemberChange(index, 'gameId', e.target.value)} />
                                 </div>
                             </div>
                         </div>
@@ -401,3 +405,5 @@ export default function RegisterEventPage() {
     </div>
   );
 }
+
+    
