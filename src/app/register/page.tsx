@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, initiateEmailSignUp } from '@/firebase';
+import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,6 +23,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -37,8 +39,22 @@ export default function RegisterPage() {
     }
     
     try {
-      // Create user without blocking
-      await initiateEmailSignUp(auth, email, password);
+      // Create user in Firebase Authentication
+      const userCredential = await initiateEmailSignUp(auth, email, password);
+      const user = userCredential.user;
+
+      // Create user document in Firestore if firestore is available
+      if (user && firestore) {
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userData = {
+          id: user.uid,
+          username: username || user.email?.split('@')[0] || 'new-user',
+          email: user.email,
+          staff: false,
+        };
+        setDocumentNonBlocking(userDocRef, userData, { merge: true });
+      }
+
       toast({
         title: 'Registration Successful!',
         description: 'Please sign in with your new account.',

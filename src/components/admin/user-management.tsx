@@ -56,7 +56,9 @@ export function UserManagement({ setView }: UserManagementProps) {
     if (usersError) {
       console.error('Error fetching users:', usersError);
     }
-  }, [usersError]);
+    console.log('Users data:', users);
+    console.log('Users loading:', usersLoading);
+  }, [usersError, users, usersLoading]);
 
   const handleRoleChange = async (user: User, isStaff: boolean) => {
     if (!firestore) return;
