@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: 'Syndicate ESP',
   description: 'The ultimate destination for competitive gaming.',
   viewport: 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes',
+  icons: {
+    icon: '/logo.jpg',
+    apple: '/logo.jpg',
+  },
 };
 
 export default function RootLayout({
@@ -18,6 +22,14 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         <link rel="icon" href="/logo.jpg" />
+        <link rel="apple-touch-icon" href="/logo.jpg" />
+        <style>{`
+          /* Make favicon appear round */
+          link[rel="icon"],
+          link[rel="apple-touch-icon"] {
+            border-radius: 50%;
+          }
+        `}</style>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
