@@ -134,6 +134,13 @@ export function UserManagement({ setView }: UserManagementProps) {
                       </TableCell>
                     </TableRow>
                   )}
+                  {!isLoading && (!users || users.length === 0) && (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center text-muted-foreground">
+                        No users found. Users will appear here once they register.
+                      </TableCell>
+                    </TableRow>
+                  )}
                   {users &&
                     users.map((user) => (
                       <TableRow key={user.id}>
