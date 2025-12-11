@@ -85,7 +85,7 @@ export function Header() {
       <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2" aria-label="Homepage">
-            <Image src="https://iili.io/fo18z3G.png" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
+            <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
             <span className="hidden font-headline text-xl font-bold sm:inline-block">
               Syndicate ESP
             </span>
@@ -129,7 +129,7 @@ export function Header() {
             <SheetContent side="right">
               <div className="grid gap-4 py-6">
                   <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Homepage">
-                    <Image src="https://iili.io/fo18z3G.png" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
+                    <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8" />
                     <span className="font-headline text-xl font-bold">
                       Syndicate ESP
                     </span>

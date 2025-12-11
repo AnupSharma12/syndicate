@@ -58,7 +58,7 @@ export default function RegisterPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
            <div className="flex justify-center mb-4">
-            <Image src="https://iili.io/fo18z3G.png" alt="Syndicate ESP Logo" width={48} height={48} className="h-12 w-12" />
+            <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={48} height={48} className="h-12 w-12" />
           </div>
           <CardTitle className="font-headline text-2xl">Register</CardTitle>
           <CardDescription>
