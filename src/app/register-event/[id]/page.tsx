@@ -55,6 +55,13 @@ export default function RegisterEventPage() {
     [firestore, eventId]
   );
   const { data: event, isLoading: eventLoading } = useDoc<Event>(eventRef);
+  
+  useEffect(() => {
+    // Redirect if not logged in after checks are complete
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [isUserLoading, user, router]);
 
   useEffect(() => {
     if (user?.email) {
@@ -179,12 +186,7 @@ export default function RegisterEventPage() {
   };
 
 
-  if (eventLoading || isUserLoading) {
-    return <Loader />;
-  }
-
-  if (!user) {
-    router.push('/login');
+  if (eventLoading || isUserLoading || !user) {
     return <Loader />;
   }
   
