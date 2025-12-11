@@ -103,23 +103,22 @@ export function useCollection<T = any>(
             }
         }
 
-        // Only emit permission errors for specific collections, not root-level errors
-        // Root-level errors indicate a problem with the subscription setup
-        const isRootLevelError = path === 'unknown/path' || path.includes('/databases/');
-        
-        const contextualError = new FirestorePermissionError({
-          operation: 'list',
-          path,
-        });
+        // Create the contextual error but only emit it if it's a clear permission denied error
+        if (error.code === 'permission-denied') {
+            const contextualError = new FirestorePermissionError({
+              operation: 'list',
+              path,
+            });
 
-        setError(contextualError);
+            setError(contextualError);
+             errorEmitter.emit('permission-error', contextualError);
+        } else {
+            // For other types of errors (e.g., network, invalid query), just set the original error
+            setError(error);
+        }
+
         setData(null);
         setIsLoading(false);
-
-        // Only emit permission errors for actual collection operations
-        if (!isRootLevelError) {
-          errorEmitter.emit('permission-error', contextualError);
-        }
       }
     );
 
