@@ -54,7 +54,7 @@ export function Footer() {
     <footer id="about" className="border-t border-border/40 bg-background/95 w-full overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-between gap-6 py-8 sm:flex-row px-4 sm:px-6 md:px-8">
         <div className="flex items-center gap-2">
-          <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={24} height={24} className="h-6 w-6" />
+          <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={24} height={24} className="h-6 w-6 rounded-full" />
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Syndicate ESP. All rights reserved.
           </p>
