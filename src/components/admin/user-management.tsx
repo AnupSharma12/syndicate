@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   collection,
   doc,
@@ -49,7 +49,14 @@ export function UserManagement({ setView }: UserManagementProps) {
     () => (firestore ? collection(firestore, 'users') : null),
     [firestore]
   );
-  const { data: users, isLoading: usersLoading } = useCollection<User>(usersRef);
+  const { data: users, isLoading: usersLoading, error: usersError } = useCollection<User>(usersRef);
+
+  // Log for debugging
+  useEffect(() => {
+    if (usersError) {
+      console.error('Error fetching users:', usersError);
+    }
+  }, [usersError]);
 
   const handleRoleChange = async (user: User, isStaff: boolean) => {
     if (!firestore) return;
@@ -118,6 +125,12 @@ export function UserManagement({ setView }: UserManagementProps) {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {usersError && (
+                <div className="mb-4 p-4 bg-destructive/10 border border-destructive/50 rounded text-sm text-destructive">
+                  <p className="font-semibold">Error loading users:</p>
+                  <p>{usersError.message}</p>
+                </div>
+              )}
               <Table>
                 <TableHeader>
                   <TableRow>
