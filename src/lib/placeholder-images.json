@@ -31,6 +31,18 @@
       "imageHint": "pubg battle"
     },
     {
+      "id": "CS:GO",
+      "description": "Artwork representing the game Counter-Strike: Global Offensive.",
+      "imageUrl": "https://images.unsplash.com/photo-1620887179047-353272b7f942?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxDUyUyMEdPfGVufDB8fHx8MTcxMTExMTExMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "CS GO"
+    },
+    {
+      "id": "Apex Legends",
+      "description": "Artwork representing the game Apex Legends.",
+      "imageUrl": "https://images.unsplash.com/photo-1616781296068-f29791483a9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxBUEVYJTIwTEVHRU5EU3xlbnwwfHx8fDE3MTExMTExMTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "apex legends"
+    },
+    {
       "id": "qr-code",
       "description": "A QR code for payment.",
       "imageUrl": "https://lh7-rt.googleusercontent.com/formsz/AN7BsVC1jCRThRgMStl3MnuBISnFJxR8AUBydz2n99zfccEgWbXZeAxyyz_qgGnMYD5np8d8tfPqVOzd5y_TXV9yHC-FB70IQ6TK961FQ5SR5nGSzI_sIwIBiRcp8Z2t0EUWYPIiP7rC4R4alWY3Ob1NGv8ore6UWBaKy9fvVQHzhogJsnz6NF68C31JGaD2zD4910ym9qHKH7ml1xk=w260?key=Bz7h4Spq65fc_wx0PgXWgg",

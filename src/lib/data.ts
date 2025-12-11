@@ -4,7 +4,9 @@ export type Event = {
     | 'Valorant'
     | 'Free Fire'
     | 'Minecraft'
-    | 'Pubg';
+    | 'Pubg'
+    | 'CS:GO'
+    | 'Apex Legends';
   name: string;
   date: string; // Should be ISO string
   time: string;

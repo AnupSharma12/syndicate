@@ -33,7 +33,7 @@ interface TournamentFormProps {
 
 const eventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  game: z.enum(['Valorant', 'Free Fire', 'Minecraft', 'Pubg']),
+  game: z.enum(['Valorant', 'Free Fire', 'Minecraft', 'Pubg', 'CS:GO', 'Apex Legends']),
   date: z.string().min(1, 'Date is required'),
   time: z.string().min(1, 'Time is required'),
   status: z.enum(['Open', 'Closed', 'Live', 'Coming Soon']),
@@ -64,6 +64,14 @@ const gameSpecificOptions = {
     'Minecraft': {
         maps: ['Overworld', 'The Nether', 'The End'],
         gameModes: ['Survival', 'Creative', 'Adventure', 'Hardcore'],
+    },
+    'CS:GO': {
+        maps: ['Dust II', 'Mirage', 'Inferno', 'Nuke', 'Overpass', 'Vertigo', 'Ancient'],
+        gameModes: ['Competitive', 'Wingman', 'Casual', 'Deathmatch'],
+    },
+    'Apex Legends': {
+        maps: ["King's Canyon", 'Worlds Edge', 'Olympus', 'Storm Point', 'Broken Moon'],
+        gameModes: ['Trios', 'Duos', 'Ranked'],
     }
 }
 
@@ -175,6 +183,8 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
                       <SelectItem value="Free Fire">Free Fire</SelectItem>
                       <SelectItem value="Minecraft">Minecraft</SelectItem>
                       <SelectItem value="Pubg">Pubg</SelectItem>
+                      <SelectItem value="CS:GO">CS:GO</SelectItem>
+                      <SelectItem value="Apex Legends">Apex Legends</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
