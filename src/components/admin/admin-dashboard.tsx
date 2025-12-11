@@ -49,10 +49,10 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
   const isLoading = eventsLoading || registrationsLoading || teamsLoading;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="w-full overflow-x-hidden flex min-h-screen flex-col bg-background text-foreground">
       <Header />
       <main className="flex-1 bg-muted/20">
-        <div className="container max-w-7xl px-4 py-12 md:py-16">
+        <div className="w-full max-w-7xl mx-auto px-4 py-12 md:py-16">
           <div className="mb-10">
             <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tighter">
               Admin Dashboard

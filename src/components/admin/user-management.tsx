@@ -98,10 +98,10 @@ export function UserManagement({ setView }: UserManagementProps) {
   const isLoading = usersLoading;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="w-full overflow-x-hidden flex min-h-screen flex-col bg-background text-foreground">
       <Header />
       <main className="flex-1 bg-muted/20">
-        <div className="container max-w-7xl px-4 py-12 md:py-16">
+        <div className="w-full max-w-7xl mx-auto px-4 py-12 md:py-16">
           <Button
             variant="ghost"
             onClick={() => setView('dashboard')}
