@@ -172,7 +172,7 @@ service cloud.firestore {
        * @principle Enforces document ownership for regular users while allowing staff access for administration.
        */
       match /registrations/{registrationId} {
-        allow get, list: if isOwner(userId) || isStaff();
+        allow get, list: if isOwner(userId);
         allow create: if isOwner(userId) && request.resource.data.userId == userId;
         allow update: if isOwner(userId) && isExistingDoc() && isFieldImmutable('userId');
         allow delete: if isOwner(userId) && isExistingDoc();
@@ -220,8 +220,7 @@ service cloud.firestore {
      * @principle Centralizes and secures role management, making it immutable from the client.
      */
     match /roles_staff/{userId} {
-      allow get: if isSignedIn() && (request.auth.uid == userId || request.auth.token.email == 'anup34343@gmail.com');
-      allow list: if isStaff();
+      allow get, list: if isStaff();
       allow create: if false;
       allow update: if false;
       allow delete: if false;
