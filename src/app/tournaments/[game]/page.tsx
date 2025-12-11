@@ -86,9 +86,9 @@ export default function TournamentsByGamePage() {
   const pageTitle = game ? decodeURIComponent(game) : "Tournaments";
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col w-full bg-background text-foreground overflow-x-hidden">
       <Header />
-      <main className="flex-1 py-16 md:py-24 w-full overflow-x-hidden">
+      <main className="flex-1 py-16 md:py-24 w-full">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <Button
               variant="ghost"

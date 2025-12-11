@@ -205,10 +205,10 @@ export default function RegisterEventPage() {
   const gameIdLabel = `${event.game} ID`;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col w-full bg-background text-foreground overflow-x-hidden">
       <Header />
-      <main className="flex-1 py-16 md:py-24">
-        <div className="container max-w-4xl px-4">
+      <main className="flex-1 w-full py-16 md:py-24">
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
            <Button
               variant="ghost"
               onClick={() => router.back()}
