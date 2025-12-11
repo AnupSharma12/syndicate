@@ -26,7 +26,7 @@ import { Footer } from '@/components/footer';
 export default function TournamentsByGamePage() {
   const params = useParams();
   const firestore = useFirestore();
-  const game = params.game as string;
+  const game = typeof params.game === 'string' ? decodeURIComponent(params.game) : '';
 
   const eventsQuery = useMemoFirebase(
     () => (firestore && game ? query(collection(firestore, 'events'), where('game', '==', game)) : null),
