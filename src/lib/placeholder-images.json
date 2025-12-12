@@ -33,13 +33,13 @@
     {
       "id": "CS:GO",
       "description": "Artwork representing the game Counter-Strike: Global Offensive.",
-      "imageUrl": "https://images.unsplash.com/photo-1620887179047-353272b7f942?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxDUyUyMEdPfGVufDB8fHx8MTcxMTExMTExMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://store.steampowered.com/app/730/CounterStrike_2/",
       "imageHint": "CS GO"
     },
     {
       "id": "Apex Legends",
       "description": "Artwork representing the game Apex Legends.",
-      "imageUrl": "https://images.unsplash.com/photo-1616781296068-f29791483a9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxBUEVYJTIwTEVHRU5EU3xlbnwwfHx8fDE3MTExMTExMTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://www.nintendo.com/us/whatsnew/check-out-whats-new-this-season-with-apex-legends-showdown/?srsltid=AfmBOorLG_hqzgzolkIKLjuWyDD8iNVTjBd5vZFBkzxF7kSgee8Q7ODd",
       "imageHint": "apex legends"
     },
     {
