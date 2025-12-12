@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <!-- Background circle -->
-  <circle cx="96" cy="96" r="96" fill="#1a1a1a"/>
+  <circle cx="256" cy="256" r="256" fill="#1a1a1a"/>
   
   <!-- Outer ring -->
-  <circle cx="96" cy="96" r="90" fill="none" stroke="#ff6b00" stroke-width="3"/>
+  <circle cx="256" cy="256" r="240" fill="none" stroke="#ff6b00" stroke-width="8"/>
   
   <!-- Inner circle with gradient effect -->
-  <circle cx="96" cy="96" r="75" fill="#2d2d2d"/>
+  <circle cx="256" cy="256" r="200" fill="#2d2d2d"/>
   
   <!-- Syndicate text or logo -->
-  <text x="96" y="110" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#ff6b00" text-anchor="middle" letter-spacing="2">S</text>
+  <text x="256" y="310" font-family="Arial, sans-serif" font-size="140" font-weight="bold" fill="#ff6b00" text-anchor="middle" letter-spacing="4">S</text>
 </svg>
