@@ -22,7 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Event } from '@/lib/data';
 import { useFirestore, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, deleteField } from 'firebase/firestore';
 import { useEffect } from 'react';
 
 interface TournamentFormProps {
@@ -135,17 +135,18 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
     
     if (data.status === 'Coming Soon' && data.releaseDate) {
         eventData.releaseDate = new Date(data.releaseDate).toISOString();
-    } else {
-        eventData.releaseDate = undefined;
     }
 
-
     if (event) {
-      // Update existing event
+      // Update existing event - use deleteField() to remove releaseDate if not needed
+      if (!(data.status === 'Coming Soon' && data.releaseDate)) {
+        (eventData as Record<string, unknown>).releaseDate = deleteField();
+      }
       const eventDocRef = doc(firestore, 'events', event.id);
       setDocumentNonBlocking(eventDocRef, eventData, { merge: true });
     } else {
-      // Add new event
+      // Add new event - simply don't include releaseDate if not set
+      // (it's already not included since we only set it above when needed)
       const eventsColRef = collection(firestore, 'events');
       addDocumentNonBlocking(eventsColRef, eventData);
     }

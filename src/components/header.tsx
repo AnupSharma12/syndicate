@@ -22,7 +22,7 @@ export function Header() {
   const navLinks = [
     { href: '/#tournaments', label: 'Tournaments' },
     { href: '/teams', label: 'Teams' },
-    { href: '/#about', label: 'About' },
+    { href: '/about', label: 'About' },
   ];
 
   const handleSignOut = () => {

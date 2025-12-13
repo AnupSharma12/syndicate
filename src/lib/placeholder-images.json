@@ -21,7 +21,7 @@
     {
       "id": "Minecraft",
       "description": "Artwork representing the game Minecraft.",
-      "imageUrl": "https://logo.com/image-cdn/images/kts928pd/production/e1d61cc6d5f05c33c1cd0fbf96c51554671750ba-1140x620.png",
+      "imageUrl": "https://cdn2.steamgriddb.com/grid/7344bcd24a4a0393f45cad1a212c62e7.png",
       "imageHint": "minecraft logo"
     },
     {
@@ -33,13 +33,13 @@
     {
       "id": "CS:GO",
       "description": "Artwork representing the game Counter-Strike: Global Offensive.",
-      "imageUrl": "https://store.steampowered.com/app/730/CounterStrike_2/",
+      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR59hrF1HN2YQEBS0moX02X2GufpY2lAgIIkw&s",
       "imageHint": "CS GO"
     },
     {
       "id": "Apex Legends",
       "description": "Artwork representing the game Apex Legends.",
-      "imageUrl": "https://www.nintendo.com/us/whatsnew/check-out-whats-new-this-season-with-apex-legends-showdown/?srsltid=AfmBOorLG_hqzgzolkIKLjuWyDD8iNVTjBd5vZFBkzxF7kSgee8Q7ODd",
+      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXIPt1QVpEDgLi8z7l8wKF4qJj84vFS2HSxg&s",
       "imageHint": "apex legends"
     },
     {

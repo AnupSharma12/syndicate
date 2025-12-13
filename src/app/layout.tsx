@@ -1,12 +1,18 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase';
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1.0,
+  maximumScale: 5.0,
+  userScalable: true,
+};
+
 export const metadata: Metadata = {
   title: 'Syndicate ESP',
   description: 'The ultimate destination for competitive gaming.',
-  viewport: 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes',
   icons: {
     icon: '/favicon.svg',
     apple: '/favicon.svg',
@@ -19,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/favicon.svg" />

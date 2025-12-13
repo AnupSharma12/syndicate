@@ -92,9 +92,13 @@ export function TeamForm({ isOpen, setIsOpen, team, application }: TeamFormProps
         tournamentsWon: team.tournamentsWon.join(', '),
       });
     } else if (application) { // Creating team from application
+      // Filter out the team leader from squad members to avoid duplicates, then add them at the start
+      const filteredSquadMembers = (application.squadMembers || []).filter(
+        m => m.gameId.toLowerCase() !== application.teamLeaderGameId.toLowerCase()
+      );
       const squad = [
           { name: application.teamLeaderFullName, gameId: application.teamLeaderGameId },
-          ...application.squadMembers
+          ...filteredSquadMembers
       ];
       reset({
         name: application.teamName,
@@ -168,8 +172,14 @@ export function TeamForm({ isOpen, setIsOpen, team, application }: TeamFormProps
         return;
     }
 
+    // Filter out the captain from squad members to avoid duplicates
+    const filteredSquadMembers = data.squadMembers.filter(
+      member => member.name?.toLowerCase() !== data.captainName?.toLowerCase()
+    );
+
     const teamData: Omit<Team, 'id'> = {
       ...data,
+      squadMembers: filteredSquadMembers,
       logoUrl: finalLogoUrl,
     };
 

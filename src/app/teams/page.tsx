@@ -59,7 +59,13 @@ export default function TeamsPage() {
               {teams.map((team) => (
                 <Card key={team.id} className="flex flex-col bg-card border-border/60">
                    <div className="relative h-24 bg-muted flex items-center justify-center rounded-t-lg overflow-hidden">
-                        <Image src={team.logoUrl} alt={`${team.name} logo`} width={80} height={80} className="h-20 w-20 object-contain rounded-md" />
+                        {team.logoUrl ? (
+                          <Image src={team.logoUrl} alt={`${team.name} logo`} width={80} height={80} className="h-20 w-20 object-contain rounded-md" />
+                        ) : (
+                          <div className="h-20 w-20 bg-primary/10 rounded-md flex items-center justify-center">
+                            <span className="text-3xl font-bold text-primary">{team.name?.charAt(0) ?? 'T'}</span>
+                          </div>
+                        )}
                    </div>
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -82,9 +88,16 @@ export default function TeamsPage() {
                      <div>
                         <h4 className="text-sm text-muted-foreground mb-1">Squad Members</h4>
                         <ul className="list-disc list-inside text-foreground/90 space-y-1">
-                            {team.squadMembers.map(member => (
+                            {team.squadMembers?.filter(member => 
+                              member.name?.toLowerCase() !== team.captainName?.toLowerCase()
+                            ).map(member => (
                                 <li key={member.gameId}>{member.name}</li>
-                            ))}
+                            )) ?? <li className="text-muted-foreground">No squad members listed</li>}
+                            {team.squadMembers?.filter(member => 
+                              member.name?.toLowerCase() !== team.captainName?.toLowerCase()
+                            ).length === 0 && (
+                              <li className="text-muted-foreground">No additional squad members</li>
+                            )}
                         </ul>
                      </div>
                   </CardContent>

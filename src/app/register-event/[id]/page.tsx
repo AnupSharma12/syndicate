@@ -152,7 +152,10 @@ export default function RegisterEventPage() {
         teamLeaderGameId,
         teamLeaderEmail,
         whatsAppNumber,
-        squadMembers: squadMembers.filter(m => m.name && m.gameId),
+        // Filter out empty entries and remove the team leader from squad members to avoid duplicates
+        squadMembers: squadMembers
+          .filter(m => m.name && m.gameId)
+          .filter(m => m.gameId.toLowerCase() !== teamLeaderGameId.toLowerCase()),
         teamLogoUrl,
         isTeamCreated: false,
       };

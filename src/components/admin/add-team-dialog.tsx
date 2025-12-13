@@ -41,12 +41,18 @@ export function AddTeamDialog({
   const registrationsQuery = useMemoFirebase(
     () =>
       firestore
-        ? query(collectionGroup(firestore, 'registrations'), where('isTeamCreated', '==', false))
+        ? query(collectionGroup(firestore, 'registrations'))
         : null,
     [firestore]
   );
-  const { data: applications, isLoading: registrationsLoading } =
+  const { data: allRegistrations, isLoading: registrationsLoading } =
     useCollection<Registration>(registrationsQuery);
+
+  // Filter to only show registrations where team hasn't been created yet
+  const applications = useMemo(() => {
+    if (!allRegistrations) return [];
+    return allRegistrations.filter(reg => !reg.isTeamCreated);
+  }, [allRegistrations]);
 
   const eventsRef = useMemoFirebase(
     () => (firestore ? collection(firestore, 'events') : null),
