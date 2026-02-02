@@ -54,6 +54,16 @@ export default function LoginPage() {
       const userCredential = await initiateEmailSignIn(auth, email, password);
       const user = userCredential.user;
 
+      // Check if email is verified
+      if (user && !user.emailVerified) {
+        toast({
+          variant: 'destructive',
+          title: 'Email Not Verified',
+          description: 'Please verify your email before signing in. Check your inbox for the verification link.',
+        });
+        return;
+      }
+
       // After successful sign-in, check and set user/admin documents
       if (user) {
         const userDocRef = doc(firestore, 'users', user.uid);
@@ -67,6 +77,7 @@ export default function LoginPage() {
                 username,
                 email: user.email,
                 staff: isStaff,
+                emailVerified: user.emailVerified,
             };
             
             // Use non-blocking set which handles errors via global emitter

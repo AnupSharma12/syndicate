@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking, sendVerificationEmail } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +22,7 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!auth) {
         toast({
             variant: 'destructive',
@@ -37,6 +39,8 @@ export default function RegisterPage() {
         });
         return;
     }
+    
+    setIsLoading(true);
     
     try {
       // Create user in Firebase Authentication
@@ -51,21 +55,39 @@ export default function RegisterPage() {
           username: username || user.email?.split('@')[0] || 'new-user',
           email: user.email,
           staff: false,
+          emailVerified: false,
         };
         setDocumentNonBlocking(userDocRef, userData, { merge: true });
       }
 
-      toast({
-        title: 'Registration Successful!',
-        description: 'Please sign in with your new account.',
-      });
-      router.push('/login');
+      // Send verification email
+      if (user) {
+        try {
+          await sendVerificationEmail(user);
+          toast({
+            title: 'Verification Email Sent!',
+            description: 'Please check your email to verify your account before logging in.',
+          });
+        } catch (emailError: any) {
+          console.warn('Warning: Could not send verification email', emailError);
+          toast({
+            title: 'Account Created!',
+            description: 'Your account has been created. Please check your email to verify it.',
+            variant: 'default',
+          });
+        }
+      }
+
+      // Redirect to check email page
+      router.push('/check-email?email=' + encodeURIComponent(email));
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Registration Failed',
         description: error.message,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,6 +114,7 @@ export default function RegisterPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -103,6 +126,7 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -113,10 +137,11 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Create Account
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
