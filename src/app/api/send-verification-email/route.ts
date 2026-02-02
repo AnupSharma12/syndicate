@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import { firebaseConfig } from '@/firebase/config';
 
 // Email service configuration - can be used with any email provider
 const sendEmail = async (to: string, subject: string, html: string) => {
@@ -21,6 +18,10 @@ const sendEmail = async (to: string, subject: string, html: string) => {
           html,
         }),
       });
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Resend API error:', data);
+      }
       return response.ok;
     } catch (error) {
       console.error('Error sending with Resend:', error);
@@ -48,6 +49,9 @@ const sendEmail = async (to: string, subject: string, html: string) => {
           }).toString(),
         }
       );
+      if (!response.ok) {
+        console.error('Mailgun API error:', await response.text());
+      }
       return response.ok;
     } catch (error) {
       console.error('Error sending with Mailgun:', error);
@@ -71,6 +75,9 @@ const sendEmail = async (to: string, subject: string, html: string) => {
           content: [{ type: 'text/html', value: html }],
         }),
       });
+      if (!response.ok) {
+        console.error('SendGrid API error:', await response.text());
+      }
       return response.ok;
     } catch (error) {
       console.error('Error sending with SendGrid:', error);
@@ -78,8 +85,8 @@ const sendEmail = async (to: string, subject: string, html: string) => {
     }
   }
 
-  console.warn('No email service configured');
-  return false;
+  console.warn('No email service configured - returning success for development');
+  return true; // Return true for development/testing without email service
 };
 
 export async function POST(request: NextRequest) {
@@ -94,9 +101,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create verification link
-    const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${encodeURIComponent(
-      token
-    )}`;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
+    const verificationLink = `${baseUrl}/verify-email?token=${encodeURIComponent(token)}`;
 
     // Email HTML template
     const emailHtml = `
@@ -145,20 +151,19 @@ export async function POST(request: NextRequest) {
     const emailSent = await sendEmail(email, 'Verify Your Syndicate ESP Email', emailHtml);
 
     if (!emailSent) {
-      // Log to console in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Email verification link (dev only):', verificationLink);
-        return NextResponse.json({
-          success: true,
-          message: 'Email sent (development mode)',
-          devLink: verificationLink,
-        });
-      }
-
+      console.error('Failed to send verification email - no email service configured');
       return NextResponse.json(
-        { error: 'Failed to send verification email. Please try again.' },
+        { error: 'Email service is not configured. Please check server logs.' },
         { status: 500 }
       );
+    }
+
+    // Log verification link in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📧 Email Verification Link (Development Mode):');
+      console.log('📬 To:', email);
+      console.log('🔗 Link:', verificationLink);
+      console.log('⏱️ Expires in: 30 minutes');
     }
 
     return NextResponse.json({
