@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking, createVerificationToken } from '@/firebase';
+import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking } from '@/firebase';
+import { sendEmailVerification } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
@@ -60,33 +61,24 @@ export default function RegisterPage() {
         setDocumentNonBlocking(userDocRef, userData, { merge: true });
       }
 
-      // Create verification token
-      if (user && firestore) {
+      // Send verification email using Firebase's built-in service
+      if (user) {
         try {
-          const token = await createVerificationToken(firestore, user.uid, email);
-
-          // Send verification email
-          const response = await fetch('/api/send-verification-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, token, userId: user.uid }),
+          await sendEmailVerification(user, {
+            url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002'}/login?emailVerified=true`,
+            handleCodeInApp: true,
           });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to send verification email');
-          }
 
           toast({
             title: 'Verification Email Sent!',
-            description: 'Please check your email to verify your account. The link expires in 30 minutes.',
+            description: 'Please check your email to verify your account.',
           });
 
           // Redirect to check email page
           localStorage.setItem('lastRegisteredEmail', email);
           router.push('/check-email?email=' + encodeURIComponent(email));
         } catch (emailError: any) {
-          console.error('Error during email verification:', emailError);
+          console.error('Error sending verification email:', emailError);
           toast({
             title: 'Registration Successful!',
             description: 'Your account has been created. Please check your email to verify it.',

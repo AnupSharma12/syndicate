@@ -7,14 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Image from 'next/image';
 import { Mail, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth, useFirestore, createVerificationToken } from '@/firebase';
+import { useAuth } from '@/firebase';
+import { sendEmailVerification } from 'firebase/auth';
 
 export default function CheckEmailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
   const auth = useAuth();
-  const firestore = useFirestore();
   const email = searchParams.get('email') || 'your email';
   const [isResending, setIsResending] = useState(false);
   const [resendCount, setResendCount] = useState(0);
@@ -42,7 +42,7 @@ export default function CheckEmailPage() {
     setIsResending(true);
 
     try {
-      if (!auth || !firestore) {
+      if (!auth) {
         throw new Error('Firebase not initialized');
       }
 
@@ -51,20 +51,11 @@ export default function CheckEmailPage() {
         throw new Error('User not found. Please register again.');
       }
 
-      // Create a new verification token
-      const token = await createVerificationToken(firestore, currentUser.uid, email);
-
-      // Send verification email
-      const response = await fetch('/api/send-verification-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, token, userId: currentUser.uid }),
+      // Resend verification email using Firebase's built-in service
+      await sendEmailVerification(currentUser, {
+        url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002'}/login?emailVerified=true`,
+        handleCodeInApp: true,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send verification email');
-      }
 
       setResendCount(resendCount + 1);
       setCooldown(60);
@@ -124,7 +115,7 @@ export default function CheckEmailPage() {
               {decodeURIComponent(email)}
             </p>
             <p className="text-sm text-muted-foreground">
-              ⏱️ Click the link in the email to verify your account. The link will expire in 30 minutes.
+              Click the link in the email to verify your account.
             </p>
           </div>
 

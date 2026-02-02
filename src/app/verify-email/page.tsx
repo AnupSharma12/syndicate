@@ -1,56 +1,46 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useAuth, useFirestore, verifyToken, markTokenAsUsed } from '@/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/firebase';
+import { applyActionCode, checkActionCode } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 
 export default function VerifyEmailPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const auth = useAuth();
-  const firestore = useFirestore();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verifying your email...');
 
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const token = searchParams.get('token');
-
-        if (!token) {
-          throw new Error('No verification token provided');
-        }
-
-        if (!firestore) {
+        if (!auth) {
           throw new Error('Firebase not initialized');
         }
 
-        // Verify the token
-        const result = await verifyToken(firestore, token);
+        // Get the action code from URL
+        const url = new URL(window.location.href);
+        const oobCode = url.searchParams.get('oobCode');
+        const mode = url.searchParams.get('mode');
 
-        if (!result.valid) {
-          throw new Error(result.error || 'Invalid verification token');
+        // If no oobCode, it might be from the email verification link
+        if (!oobCode) {
+          // Firebase email verification redirects with oobCode parameter
+          throw new Error('No verification code found in URL');
         }
 
-        const { userId, email } = result;
+        // Check the action code
+        const info = await checkActionCode(auth, oobCode);
+        
+        if (info.operation !== 'VERIFY_EMAIL') {
+          throw new Error('Invalid verification code');
+        }
 
-        // Mark token as used
-        await markTokenAsUsed(firestore, token);
-
-        // Update user document to mark email as verified
-        const userDocRef = doc(firestore, 'users', userId!);
-        await setDoc(
-          userDocRef,
-          {
-            emailVerified: true,
-            emailVerifiedAt: new Date(),
-          },
-          { merge: true }
-        );
+        // Apply the action code to verify the email
+        await applyActionCode(auth, oobCode);
 
         setStatus('success');
         setMessage('Email verified successfully! Redirecting to login...');
@@ -67,7 +57,7 @@ export default function VerifyEmailPage() {
     };
 
     verifyEmail();
-  }, [searchParams, firestore, router]);
+  }, [auth, router]);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background p-4 overflow-x-hidden">
