@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking } from '@/firebase';
-import { sendEmailVerification } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,36 +55,16 @@ export default function RegisterPage() {
           username: username || user.email?.split('@')[0] || 'new-user',
           email: user.email,
           staff: false,
-          emailVerified: false,
         };
         setDocumentNonBlocking(userDocRef, userData, { merge: true });
       }
 
-      // Send verification email using Firebase's built-in service
-      if (user) {
-        try {
-          await sendEmailVerification(user, {
-            url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002'}/login?emailVerified=true`,
-            handleCodeInApp: true,
-          });
-
-          toast({
-            title: 'Verification Email Sent!',
-            description: 'Please check your email to verify your account.',
-          });
-
-          // Redirect to check email page
-          localStorage.setItem('lastRegisteredEmail', email);
-          router.push('/check-email?email=' + encodeURIComponent(email));
-        } catch (emailError: any) {
-          console.error('Error sending verification email:', emailError);
-          toast({
-            title: 'Registration Successful!',
-            description: 'Your account has been created. Please check your email to verify it.',
-          });
-          router.push('/check-email?email=' + encodeURIComponent(email));
-        }
-      }
+      toast({
+        title: 'Registration Successful!',
+        description: 'You can now log in with your credentials.',
+      });
+      
+      router.push('/login');
     } catch (error: any) {
       toast({
         variant: 'destructive',
