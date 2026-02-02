@@ -156,6 +156,36 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* Creator Section */}
+        <section className="py-16 bg-muted/30">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 text-center">
+            <h2 className="font-headline text-3xl md:text-4xl font-bold tracking-tighter mb-6">
+              Made by <span className="text-primary">Anup</span>
+            </h2>
+            <p className="text-muted-foreground mb-8">
+              Discover more about the creator and explore additional projects
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <a 
+                href="https://anupsharma12.com.np" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                Portfolio
+              </a>
+              <a 
+                href="https://github.com/AnupSharma12" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                GitHub
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
