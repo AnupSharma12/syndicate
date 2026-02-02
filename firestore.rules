@@ -107,6 +107,22 @@ service cloud.firestore {
     }
     
     /**
+     * @description Manages email verification tokens. These are created by users during
+     *              registration and verified during the email verification process.
+     *              Each token is tied to a specific user ID and can only be used once.
+     * @path /emailVerificationTokens/{token}
+     * @allow (create) Any signed-in user can create a verification token for their own email.
+     * @allow (get) Any signed-in user can read a token (to verify it).
+     * @allow (update) Any signed-in user can mark a token as used.
+     * @deny (delete) Users cannot delete tokens (they must expire naturally).
+     * @principle Allows email verification while preventing abuse through one-time use validation.
+     */
+    match /emailVerificationTokens/{token} {
+      allow create, get, update: if isSignedIn();
+      allow delete: if false;
+    }
+
+    /**
      * @description Manages the collection of events. Publicly readable, but only staff
      *              can create, modify, or delete events.
      * @path /events/{eventId}

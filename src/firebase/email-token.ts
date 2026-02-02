@@ -1,13 +1,14 @@
 'use client';
 
-import { Firestore, collection, doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
-import crypto from 'crypto';
+import { Firestore, collection, doc, setDoc, getDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 
 /**
- * Generate a random verification token
+ * Generate a random verification token using Web Crypto API
  */
-export function generateVerificationToken(): string {
-  return crypto.randomBytes(32).toString('hex');
+export async function generateVerificationToken(): Promise<string> {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -19,7 +20,7 @@ export async function createVerificationToken(
   userId: string,
   email: string
 ): Promise<string> {
-  const token = generateVerificationToken();
+  const token = await generateVerificationToken();
   const expiresAt = new Date();
   expiresAt.setMinutes(expiresAt.getMinutes() + 30); // Expires in 30 minutes
 
@@ -28,8 +29,8 @@ export async function createVerificationToken(
   await setDoc(tokenRef, {
     userId,
     email,
-    createdAt: new Date(),
-    expiresAt,
+    createdAt: Timestamp.now(),
+    expiresAt: Timestamp.fromDate(expiresAt),
     used: false,
   });
 
@@ -57,7 +58,8 @@ export async function verifyToken(
       return { valid: false, error: 'Token has already been used' };
     }
 
-    const expiresAt = new Date(tokenData.expiresAt.seconds * 1000);
+    // Handle Timestamp objects
+    const expiresAt = tokenData.expiresAt.toDate ? tokenData.expiresAt.toDate() : new Date(tokenData.expiresAt);
     if (new Date() > expiresAt) {
       return { valid: false, error: 'Token has expired. Please request a new verification email.' };
     }
