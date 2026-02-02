@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase';
-import { applyActionCode, isSignInWithEmailLink } from 'firebase/auth';
+import { useAuth, useFirestore, verifyToken, markTokenAsUsed } from '@/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
@@ -12,50 +12,62 @@ export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verifying your email...');
 
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const oobCode = searchParams.get('oobCode');
-        const mode = searchParams.get('mode');
+        const token = searchParams.get('token');
 
-        if (!auth) {
+        if (!token) {
+          throw new Error('No verification token provided');
+        }
+
+        if (!firestore) {
           throw new Error('Firebase not initialized');
         }
 
-        if (mode === 'verifyEmail' && oobCode) {
-          // Use Firebase's built-in email verification
-          await applyActionCode(auth, oobCode);
-          setStatus('success');
-          setMessage('Email verified successfully! Redirecting to login...');
-          
-          // Redirect to login after 2 seconds
-          setTimeout(() => {
-            router.push('/login');
-          }, 2000);
-        } else if (isSignInWithEmailLink(auth, window.location.href)) {
-          // Handle sign-in link
-          const email = window.localStorage.getItem('emailForSignIn');
-          if (!email) {
-            throw new Error('Email not found. Please sign up again.');
-          }
+        // Verify the token
+        const result = await verifyToken(firestore, token);
 
-          // Note: This requires additional implementation for email link sign-in
-          setMessage('Sign-in link verified! Please complete your registration.');
-        } else {
-          throw new Error('Invalid verification link');
+        if (!result.valid) {
+          throw new Error(result.error || 'Invalid verification token');
         }
+
+        const { userId, email } = result;
+
+        // Mark token as used
+        await markTokenAsUsed(firestore, token);
+
+        // Update user document to mark email as verified
+        const userDocRef = doc(firestore, 'users', userId!);
+        await setDoc(
+          userDocRef,
+          {
+            emailVerified: true,
+            emailVerifiedAt: new Date(),
+          },
+          { merge: true }
+        );
+
+        setStatus('success');
+        setMessage('Email verified successfully! Redirecting to login...');
+
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000);
       } catch (error: any) {
         console.error('Verification error:', error);
         setStatus('error');
-        setMessage(error.message || 'Failed to verify email. Please try again.');
+        setMessage(error.message || 'Failed to verify email. The link may have expired.');
       }
     };
 
     verifyEmail();
-  }, [searchParams, auth, router]);
+  }, [searchParams, firestore, router]);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background p-4 overflow-x-hidden">
@@ -102,19 +114,27 @@ export default function VerifyEmailPage() {
           {status === 'error' && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                There was a problem verifying your email. The link may have expired.
+                There was a problem verifying your email. The link may have expired or is invalid.
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
                 <Button
-                  onClick={() => router.push('/register')}
-                  variant="outline"
-                  className="flex-1"
+                  onClick={() => {
+                    // Get email from localStorage or use a fallback
+                    const email = localStorage.getItem('lastRegisteredEmail');
+                    if (email) {
+                      router.push(`/check-email?email=${encodeURIComponent(email)}`);
+                    } else {
+                      router.push('/register');
+                    }
+                  }}
+                  className="w-full"
                 >
-                  Sign Up Again
+                  Request New Verification Email
                 </Button>
                 <Button
                   onClick={() => router.push('/login')}
-                  className="flex-1"
+                  variant="outline"
+                  className="w-full"
                 >
                   Back to Login
                 </Button>

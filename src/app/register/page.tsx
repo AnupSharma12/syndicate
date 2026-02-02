@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking, sendVerificationEmail } from '@/firebase';
+import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking, createVerificationToken } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,7 +31,7 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!auth) {
+    if (!auth || !firestore) {
         toast({
             variant: 'destructive',
             title: 'Firebase not initialized',
@@ -47,7 +47,7 @@ export default function RegisterPage() {
       const userCredential = await initiateEmailSignUp(auth, email, password);
       const user = userCredential.user;
 
-      // Create user document in Firestore if firestore is available
+      // Create user document in Firestore
       if (user && firestore) {
         const userDocRef = doc(firestore, 'users', user.uid);
         const userData = {
@@ -60,26 +60,40 @@ export default function RegisterPage() {
         setDocumentNonBlocking(userDocRef, userData, { merge: true });
       }
 
-      // Send verification email
-      if (user) {
+      // Create verification token
+      if (user && firestore) {
         try {
-          await sendVerificationEmail(user);
+          const token = await createVerificationToken(firestore, user.uid, email);
+
+          // Send verification email
+          const response = await fetch('/api/send-verification-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, token, userId: user.uid }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to send verification email');
+          }
+
           toast({
             title: 'Verification Email Sent!',
-            description: 'Please check your email to verify your account before logging in.',
+            description: 'Please check your email to verify your account. The link expires in 30 minutes.',
           });
+
+          // Redirect to check email page
+          localStorage.setItem('lastRegisteredEmail', email);
+          router.push('/check-email?email=' + encodeURIComponent(email));
         } catch (emailError: any) {
-          console.warn('Warning: Could not send verification email', emailError);
+          console.error('Error during email verification:', emailError);
           toast({
-            title: 'Account Created!',
+            title: 'Registration Successful!',
             description: 'Your account has been created. Please check your email to verify it.',
-            variant: 'default',
           });
+          router.push('/check-email?email=' + encodeURIComponent(email));
         }
       }
-
-      // Redirect to check email page
-      router.push('/check-email?email=' + encodeURIComponent(email));
     } catch (error: any) {
       toast({
         variant: 'destructive',
