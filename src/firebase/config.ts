@@ -8,3 +8,5 @@ export const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'anup34343@gmail.com';
+

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Menu, LogOut, Shield, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import { useAuth, useUser, useDoc, useFirestore, useMemoFirebase, useAppSettings } from '@/firebase';
+import { useAuth, useUser, useDoc, useFirestore, useMemoFirebase, useAppSettings, ADMIN_EMAIL } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import Image from 'next/image';
 
@@ -38,7 +38,7 @@ export function Header() {
   
   const isCheckingAuth = isUserLoading || (user && isRoleLoading);
 
-  const isStaff = userDoc?.staff || user?.email === 'anup34343@gmail.com';
+  const isStaff = userDoc?.staff || user?.email === ADMIN_EMAIL;
 
   const renderAuthButtons = () => {
     if (isCheckingAuth) {

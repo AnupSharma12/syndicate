@@ -51,3 +51,4 @@ export * from './error-emitter';
 export * from './audit-logger';
 export * from './settings-provider';
 export * from './storage';
+export * from './config';

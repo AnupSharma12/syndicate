@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useDoc, useMemoFirebase, useFirestore } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, useFirestore, ADMIN_EMAIL } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Loader } from '@/components/loader';
 
@@ -20,7 +20,7 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
 
   const isChecking = isUserLoading || isRoleLoading;
   
-  const isStaff = userDoc?.staff === true || user?.email === 'anup34343@gmail.com';
+  const isStaff = userDoc?.staff === true || user?.email === ADMIN_EMAIL;
 
   useEffect(() => {
     if (!isChecking) {

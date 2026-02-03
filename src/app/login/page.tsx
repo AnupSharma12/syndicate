@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, useFirestore, initiateEmailSignIn, setDocumentNonBlocking, useAppSettings } from '@/firebase';
+import { useAuth, useFirestore, initiateEmailSignIn, setDocumentNonBlocking, useAppSettings, ADMIN_EMAIL } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
@@ -83,7 +83,7 @@ export default function LoginPage() {
 
         if (!userDoc.exists()) {
             const username = user.email?.split('@')[0] || 'new-user';
-            const isStaff = user.email === 'anup34343@gmail.com';
+            const isStaff = user.email === ADMIN_EMAIL;
             const userData = {
                 id: user.uid,
                 username,

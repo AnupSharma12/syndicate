@@ -4,7 +4,7 @@ import {
   collection,
   doc,
 } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking, ADMIN_EMAIL } from '@/firebase';
 import { logAction } from '@/firebase/audit-logger';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
@@ -208,7 +208,7 @@ export function UserManagement({ setView }: UserManagementProps) {
                                 onCheckedChange={(checked) =>
                                     handleRoleChange(user, checked)
                                 }
-                                disabled={user.email === 'anup34343@gmail.com'}
+                                disabled={user.email === ADMIN_EMAIL}
                                 aria-label={`Toggle staff role for ${user.username}`}
                                 />
                             )}

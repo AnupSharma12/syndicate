@@ -7,6 +7,7 @@ import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 export interface AppSettings {
   appName: string;
   logoUrl: string;
+  faviconUrl: string;
   appDescription: string;
   appEmail: string;
   maxTeamSize: string;
@@ -32,6 +33,7 @@ export interface AppSettings {
 const defaultSettings: AppSettings = {
   appName: 'Syndicate ESP',
   logoUrl: '/logo.jpg',
+  faviconUrl: '/favicon.svg',
   appDescription: 'The ultimate destination for competitive gaming.',
   appEmail: 'support@syndicate.com',
   maxTeamSize: '5',
@@ -92,7 +94,26 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         descriptionMeta.setAttribute('content', settings.appDescription);
       }
     }
-  }, [settings.appName, settings.appDescription]);
+
+    if (settings.faviconUrl) {
+      // Update favicon
+      const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+      if (link) {
+        link.href = settings.faviconUrl;
+      } else {
+        const newLink = document.createElement('link');
+        newLink.rel = 'icon';
+        newLink.href = settings.faviconUrl;
+        document.head.appendChild(newLink);
+      }
+      
+      // Update apple-touch-icon
+      const appleLink: HTMLLinkElement | null = document.querySelector("link[rel='apple-touch-icon']");
+      if (appleLink) {
+        appleLink.href = settings.faviconUrl;
+      }
+    }
+  }, [settings.appName, settings.appDescription, settings.faviconUrl]);
 
   const value = useMemo(
     () => ({

@@ -30,6 +30,7 @@ type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams
 interface Settings {
   appName: string;
   logoUrl: string;
+  faviconUrl: string;
   appDescription: string;
   appEmail: string;
   maxTeamSize: string;
@@ -57,6 +58,7 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
   const [settings, setSettings] = useState<Settings>({
     appName: 'Syndicate ESP',
     logoUrl: '/logo.jpg',
+    faviconUrl: '/favicon.svg',
     appDescription: 'Esports tournament management platform',
     appEmail: 'support@syndicate.com',
     maxTeamSize: '5',
@@ -83,6 +85,7 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
   const settingsDocRef = useMemoFirebase(
     () => (firestore ? doc(firestore, 'appSettings', 'config') : null),
     [firestore]
@@ -155,6 +158,42 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
       setError('Failed to upload logo. Please try again.');
     } finally {
       setIsUploadingLogo(false);
+    }
+  };
+
+  const handleFaviconUpload = async (file: File | null) => {
+    if (!file) return;
+    setIsUploadingFavicon(true);
+    setError('');
+
+    try {
+      const maxUploadSize = 1 * 1024 * 1024; // Favicons should be small, cap at 1MB
+      if (file.size > maxUploadSize) {
+        setError(`Favicon too large. Max size is 1 MB.`);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // We can reuse the same upload API
+      const response = await fetch('/api/upload-logo', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result?.error || `Favicon upload failed (${response.status})`);
+      }
+
+      const result = await response.json();
+      handleChange('faviconUrl', result.url);
+    } catch (uploadError) {
+      console.error('Favicon upload error:', uploadError);
+      setError('Failed to upload favicon. Please try again.');
+    } finally {
+      setIsUploadingFavicon(false);
     }
   };
 
@@ -348,7 +387,7 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
                               onClick={() => handleChange('logoUrl', '/logo.jpg')}
                               disabled={isUploadingLogo}
                             >
-                              Reset to Default
+                              Reset
                             </Button>
                             <Button
                               type="button"
@@ -356,10 +395,47 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
                               onClick={handleLogoDownload}
                               disabled={isUploadingLogo || !settings.logoUrl}
                             >
-                              Download Logo
+                              Download
                             </Button>
                             <span className="text-xs text-muted-foreground">
-                              {isUploadingLogo ? 'Uploading...' : 'PNG/JPG up to your max upload size'}
+                              {isUploadingLogo ? 'Uploading...' : 'PNG/JPG for branding'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="faviconUpload">Browser Favicon</Label>
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded border border-border/60 overflow-hidden bg-muted/40 p-2">
+                          <Image
+                            src={settings.faviconUrl || '/favicon.svg'}
+                            alt="Favicon preview"
+                            width={32}
+                            height={32}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Input
+                            id="faviconUpload"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleFaviconUpload(e.target.files?.[0] || null)}
+                            disabled={isUploadingFavicon}
+                          />
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => handleChange('faviconUrl', '/favicon.svg')}
+                              disabled={isUploadingFavicon}
+                            >
+                              Reset
+                            </Button>
+                            <span className="text-xs text-muted-foreground">
+                              {isUploadingFavicon ? 'Uploading...' : 'SVG/ICO/PNG for browser tab'}
                             </span>
                           </div>
                         </div>
