@@ -32,16 +32,13 @@ interface Settings {
   appEmail: string;
   maxTeamSize: string;
   minTeamSize: string;
-  registrationDeadline: string;
   maxTournamentsPerGame: string;
   tournamentFeePercentage: string;
-  enableNotifications: boolean;
   enableEmailDigests: boolean;
   enableTeamLogos: boolean;
   enableYouTubeProof: boolean;
   enablePaymentGateway: boolean;
   maintenanceMode: boolean;
-  require2FA: boolean;
   enableRegistration: boolean;
   autoApproveTeams: boolean;
   minPasswordLength: string;
@@ -62,16 +59,13 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
     appEmail: 'support@syndicate.com',
     maxTeamSize: '5',
     minTeamSize: '1',
-    registrationDeadline: '2026-02-28',
     maxTournamentsPerGame: '10',
     tournamentFeePercentage: '10',
-    enableNotifications: true,
     enableEmailDigests: true,
     enableTeamLogos: true,
     enableYouTubeProof: true,
     enablePaymentGateway: true,
     maintenanceMode: false,
-    require2FA: false,
     enableRegistration: true,
     autoApproveTeams: false,
     minPasswordLength: '8',
@@ -171,7 +165,6 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
   };
 
   const featureToggles = [
-    { key: 'enableNotifications', label: 'Notifications', desc: 'Send alerts for new applications' },
     { key: 'enableEmailDigests', label: 'Email Digests', desc: 'Weekly summary emails' },
     { key: 'enableTeamLogos', label: 'Team Logos', desc: 'Allow teams to upload logos' },
     { key: 'enableYouTubeProof', label: 'YouTube Proof', desc: 'Require YouTube proof for registrations' },
@@ -180,7 +173,6 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
 
   const securityToggles = [
     { key: 'maintenanceMode', label: 'Maintenance Mode', desc: 'Restrict access to platform' },
-    { key: 'require2FA', label: 'Require 2FA', desc: 'Two-factor authentication for admins' },
     { key: 'enableRegistration', label: 'Enable Registration', desc: 'Allow new user registrations' },
     { key: 'autoApproveTeams', label: 'Auto-Approve Teams', desc: 'Automatically approve team registrations' },
   ];
@@ -314,15 +306,6 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="registrationDeadline">Registration Deadline</Label>
-                      <Input
-                        id="registrationDeadline"
-                        type="date"
-                        value={settings.registrationDeadline}
-                        onChange={(e) => handleChange('registrationDeadline', e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
                       <Label htmlFor="maxTournamentsPerGame">Max Tournaments Per Game</Label>
                       <Input
                         id="maxTournamentsPerGame"
@@ -332,17 +315,17 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
                         min="1"
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tournamentFeePercentage">Tournament Fee Percentage (%)</Label>
-                    <Input
-                      id="tournamentFeePercentage"
-                      type="number"
-                      value={settings.tournamentFeePercentage}
-                      onChange={(e) => handleChange('tournamentFeePercentage', e.target.value)}
-                      min="0"
-                      max="100"
-                    />
+                    <div className="space-y-2">
+                      <Label htmlFor="tournamentFeePercentage">Tournament Fee Percentage (%)</Label>
+                      <Input
+                        id="tournamentFeePercentage"
+                        type="number"
+                        value={settings.tournamentFeePercentage}
+                        onChange={(e) => handleChange('tournamentFeePercentage', e.target.value)}
+                        min="0"
+                        max="100"
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
