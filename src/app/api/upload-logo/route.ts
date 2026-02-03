@@ -9,14 +9,16 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get('file');
 
-    if (!file || !(file instanceof File)) {
+    if (!file || typeof file !== 'object' || !('arrayBuffer' in file)) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
+    const blob = file as Blob & { name?: string; type?: string };
+    const bytes = await blob.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const originalName = blob.name || 'upload.png';
+    const safeName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_');
     const filename = `${Date.now()}-${safeName}`;
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'logos');
 

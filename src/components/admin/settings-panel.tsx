@@ -145,7 +145,7 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
 
       if (!response.ok) {
         const result = await response.json().catch(() => ({}));
-        throw new Error(result?.error || 'Logo upload failed');
+        throw new Error(result?.error || `Logo upload failed (${response.status})`);
       }
 
       const result = await response.json();
