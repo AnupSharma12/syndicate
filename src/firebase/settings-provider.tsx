@@ -6,6 +6,7 @@ import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 
 export interface AppSettings {
   appName: string;
+  logoUrl: string;
   appDescription: string;
   appEmail: string;
   maxTeamSize: string;
@@ -30,6 +31,7 @@ export interface AppSettings {
 
 const defaultSettings: AppSettings = {
   appName: 'Syndicate ESP',
+  logoUrl: '/logo.jpg',
   appDescription: 'The ultimate destination for competitive gaming.',
   appEmail: 'support@syndicate.com',
   maxTeamSize: '5',

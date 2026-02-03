@@ -15,6 +15,7 @@ export function Header() {
   const { settings } = useAppSettings();
 
   const appName = settings.appName || 'Syndicate ESP';
+  const appLogoUrl = settings.logoUrl || '/logo.jpg';
   const appLogoAlt = `${appName} Logo`;
 
   const userDocRef = useMemoFirebase(
@@ -89,7 +90,7 @@ export function Header() {
       <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2" aria-label="Homepage">
-            <Image src="/logo.jpg" alt={appLogoAlt} width={32} height={32} className="h-8 w-8 rounded-full" />
+            <Image src={appLogoUrl} alt={appLogoAlt} width={32} height={32} className="h-8 w-8 rounded-full" />
             <span className="hidden font-headline text-xl font-bold sm:inline-block">
               {appName}
             </span>
@@ -133,7 +134,7 @@ export function Header() {
             <SheetContent side="right">
               <div className="grid gap-4 py-6">
                   <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Homepage">
-                    <Image src="/logo.jpg" alt={appLogoAlt} width={32} height={32} className="h-8 w-8 rounded-full" />
+                    <Image src={appLogoUrl} alt={appLogoAlt} width={32} height={32} className="h-8 w-8 rounded-full" />
                     <span className="font-headline text-xl font-bold">
                       {appName}
                     </span>

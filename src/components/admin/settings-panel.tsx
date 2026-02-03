@@ -19,6 +19,7 @@ import { useFirestore, setDocumentNonBlocking, useDoc, useMemoFirebase } from '@
 import { doc } from 'firebase/firestore';
 import { logAction } from '@/firebase/audit-logger';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import Image from 'next/image';
 
 interface SettingsPanelProps {
   setView: (view: AdminView) => void;
@@ -28,6 +29,7 @@ type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams
 
 interface Settings {
   appName: string;
+  logoUrl: string;
   appDescription: string;
   appEmail: string;
   maxTeamSize: string;
@@ -54,6 +56,7 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
   const firestore = useFirestore();
   const [settings, setSettings] = useState<Settings>({
     appName: 'Syndicate ESP',
+    logoUrl: '/logo.jpg',
     appDescription: 'Esports tournament management platform',
     appEmail: 'support@syndicate.com',
     maxTeamSize: '5',
@@ -79,6 +82,7 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const settingsDocRef = useMemoFirebase(
     () => (firestore ? doc(firestore, 'appSettings', 'config') : null),
     [firestore]
@@ -117,6 +121,35 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
       [key]: value
     }));
     setError('');
+  };
+
+  const handleLogoUpload = async (file: File | null) => {
+    if (!file) return;
+    setIsUploadingLogo(true);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload-logo', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result?.error || 'Logo upload failed');
+      }
+
+      const result = await response.json();
+      handleChange('logoUrl', result.url);
+    } catch (uploadError) {
+      console.error('Logo upload error:', uploadError);
+      setError('Failed to upload logo. Please try again.');
+    } finally {
+      setIsUploadingLogo(false);
+    }
   };
 
   const handleSave = async () => {
@@ -256,6 +289,42 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="logoUpload">App Logo</Label>
+                      <div className="flex items-center gap-4">
+                        <div className="h-16 w-16 rounded-full border border-border/60 overflow-hidden bg-muted/40">
+                          <Image
+                            src={settings.logoUrl || '/logo.jpg'}
+                            alt="App logo preview"
+                            width={64}
+                            height={64}
+                            className="h-16 w-16 object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Input
+                            id="logoUpload"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleLogoUpload(e.target.files?.[0] || null)}
+                            disabled={isUploadingLogo}
+                          />
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => handleChange('logoUrl', '/logo.jpg')}
+                              disabled={isUploadingLogo}
+                            >
+                              Reset to Default
+                            </Button>
+                            <span className="text-xs text-muted-foreground">
+                              {isUploadingLogo ? 'Uploading...' : 'PNG/JPG up to your max upload size'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="appEmail">Support Email</Label>
                       <Input

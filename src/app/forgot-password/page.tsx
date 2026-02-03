@@ -22,6 +22,7 @@ export default function ForgotPasswordPage() {
   const auth = useAuth();
   const { settings } = useAppSettings();
   const appName = settings.appName || 'Syndicate ESP';
+  const appLogoUrl = settings.logoUrl || '/logo.jpg';
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,7 +61,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
            <div className="flex justify-center mb-4">
-            <Image src="https://iili.io/fo18z3G.png" alt={`${appName} Logo`} width={48} height={48} className="h-12 w-12" />
+            <Image src={appLogoUrl} alt={`${appName} Logo`} width={48} height={48} className="h-12 w-12 rounded-full" />
           </div>
           <CardTitle className="font-headline text-2xl">Forgot Password</CardTitle>
           <CardDescription>

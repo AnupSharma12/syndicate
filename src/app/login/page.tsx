@@ -24,6 +24,7 @@ import { GlowCard, TextGradient, PopIn, FadeInBlur } from '@/components/animated
 export default function LoginPage() {
   const { settings } = useAppSettings();
   const appName = settings.appName || 'Syndicate ESP';
+  const appLogoUrl = settings.logoUrl || '/logo.jpg';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -139,7 +140,7 @@ export default function LoginPage() {
                 
                 <div className="flex justify-center mb-4 transform transition-transform hover:scale-110 relative z-10">
                   <div className="p-3 rounded-full bg-gradient-to-br from-red-500/20 to-blue-500/20 border border-red-500/30 hover:border-blue-500/50 transition-colors duration-300">
-                    <Image src="/logo.jpg" alt={`${appName} Logo`} width={48} height={48} className="h-12 w-12 rounded-full shadow-md" />
+                    <Image src={appLogoUrl} alt={`${appName} Logo`} width={48} height={48} className="h-12 w-12 rounded-full shadow-md" />
                   </div>
                 </div>
                 <CardTitle className="font-headline text-2xl relative z-10">
