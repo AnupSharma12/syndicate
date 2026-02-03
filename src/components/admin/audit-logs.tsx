@@ -40,9 +40,15 @@ export function AuditLogs({ setView }: AuditLogsProps) {
       try {
         setIsLoading(true);
         const allLogs = await getAllAuditLogs(100);
-        setLogs(allLogs);
+        if (Array.isArray(allLogs)) {
+          setLogs(allLogs);
+        } else {
+          console.error('Invalid logs format:', allLogs);
+          setLogs([]);
+        }
       } catch (error) {
         console.error('Failed to fetch audit logs:', error);
+        setLogs([]);
       } finally {
         setIsLoading(false);
       }

@@ -1,5 +1,3 @@
-'use server';
-
 import { initializeFirebase } from './index';
 import { collection, addDoc, query, where, orderBy, getDocs, Timestamp, deleteDoc } from 'firebase/firestore';
 

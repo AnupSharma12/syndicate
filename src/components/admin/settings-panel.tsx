@@ -56,7 +56,10 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
   };
 
   const handleSave = async () => {
-    if (!firestore || !currentUser) return;
+    if (!firestore || !currentUser) {
+      console.error('Missing firestore or user');
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -67,25 +70,34 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
         updatedBy: currentUser.email
       }, { merge: true });
 
-      await logAction(
-        'Settings Updated',
-        currentUser.uid,
-        currentUser.email || 'unknown@example.com',
-        `Application settings updated: ${JSON.stringify(settings)}`,
-        'success'
-      );
+      // Log the action (handle both sync and async)
+      try {
+        await logAction(
+          'Settings Updated',
+          currentUser.uid,
+          currentUser.email || 'unknown@example.com',
+          `Application settings updated`,
+          'success'
+        );
+      } catch (logError) {
+        console.warn('Logging failed but settings saved:', logError);
+      }
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
       console.error('Failed to save settings:', error);
-      await logAction(
-        'Settings Save Error',
-        currentUser.uid,
-        currentUser.email || 'unknown@example.com',
-        `Failed to save settings: ${error}`,
-        'error'
-      );
+      try {
+        await logAction(
+          'Settings Save Error',
+          currentUser.uid,
+          currentUser.email || 'unknown@example.com',
+          `Failed to save settings`,
+          'error'
+        );
+      } catch (logError) {
+        console.warn('Logging error failed:', logError);
+      }
     } finally {
       setIsSaving(false);
     }
