@@ -24,6 +24,9 @@ import type { Event } from '@/lib/data';
 import { useFirestore, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { collection, doc, deleteField } from 'firebase/firestore';
 import { useEffect } from 'react';
+import { logAction } from '@/firebase/audit-logger';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { getAuth } from 'firebase/auth';
 
 interface TournamentFormProps {
   isOpen: boolean;
@@ -124,8 +127,13 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
     }
   }, [event, reset]);
 
-  const onSubmit = (data: EventFormData) => {
+  const onSubmit = async (data: EventFormData) => {
     if (!firestore) return;
+
+    const auth = getAuth();
+    const [user] = useAuthState(auth);
+    const userId = user?.uid || 'unknown';
+    const userEmail = user?.email || 'unknown@example.com';
 
     const eventData: Partial<Event> = {
         ...data,
@@ -137,20 +145,48 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
         eventData.releaseDate = new Date(data.releaseDate).toISOString();
     }
 
-    if (event) {
-      // Update existing event - use deleteField() to remove releaseDate if not needed
-      if (!(data.status === 'Coming Soon' && data.releaseDate)) {
-        (eventData as Record<string, unknown>).releaseDate = deleteField();
+    try {
+      if (event) {
+        // Update existing event
+        if (!(data.status === 'Coming Soon' && data.releaseDate)) {
+          (eventData as Record<string, unknown>).releaseDate = deleteField();
+        }
+        const eventDocRef = doc(firestore, 'events', event.id);
+        setDocumentNonBlocking(eventDocRef, eventData, { merge: true });
+        
+        // Log the action
+        await logAction(
+          'Tournament Updated',
+          userId,
+          userEmail,
+          `Tournament "${data.name}" updated with status: ${data.status}`,
+          'success'
+        );
+      } else {
+        // Add new event
+        const eventsColRef = collection(firestore, 'events');
+        addDocumentNonBlocking(eventsColRef, eventData);
+        
+        // Log the action
+        await logAction(
+          'Tournament Created',
+          userId,
+          userEmail,
+          `New tournament "${data.name}" created for game: ${data.game}`,
+          'success'
+        );
       }
-      const eventDocRef = doc(firestore, 'events', event.id);
-      setDocumentNonBlocking(eventDocRef, eventData, { merge: true });
-    } else {
-      // Add new event - simply don't include releaseDate if not set
-      // (it's already not included since we only set it above when needed)
-      const eventsColRef = collection(firestore, 'events');
-      addDocumentNonBlocking(eventsColRef, eventData);
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Error saving tournament:', error);
+      await logAction(
+        'Tournament Save Error',
+        userId,
+        userEmail,
+        `Error saving tournament "${data.name}": ${error}`,
+        'error'
+      );
     }
-    setIsOpen(false);
   };
 
   return (

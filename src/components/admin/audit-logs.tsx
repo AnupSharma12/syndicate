@@ -10,67 +10,46 @@ import {
   CardContent
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Clock, Trash2, Download } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Clock, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getAllAuditLogs } from '@/firebase/audit-logger';
 
 interface AuditLog {
   id: string;
   action: string;
   user: string;
-  timestamp: string;
+  userId: string;
   details: string;
   status: 'success' | 'error' | 'warning';
+  timestamp: Date;
 }
 
 interface AuditLogsProps {
   setView: (view: AdminView) => void;
 }
 
-type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams' | 'audit';
+type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams' | 'audit' | 'analytics' | 'settings' | 'health';
 
 export function AuditLogs({ setView }: AuditLogsProps) {
-  const [logs, setLogs] = useState<AuditLog[]>([
-    {
-      id: '1',
-      action: 'User Created',
-      user: 'admin@syndicate.esp',
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      details: 'New user john.doe@example.com registered',
-      status: 'success'
-    },
-    {
-      id: '2',
-      action: 'Application Approved',
-      user: 'admin@syndicate.esp',
-      timestamp: new Date(Date.now() - 7200000).toISOString(),
-      details: 'Team "Dragons" application approved',
-      status: 'success'
-    },
-    {
-      id: '3',
-      action: 'Tournament Created',
-      user: 'admin@syndicate.esp',
-      timestamp: new Date(Date.now() - 10800000).toISOString(),
-      details: 'New tournament "Esports Championship 2026" created',
-      status: 'success'
-    },
-    {
-      id: '4',
-      action: 'Failed Login',
-      user: 'unknown@example.com',
-      timestamp: new Date(Date.now() - 14400000).toISOString(),
-      details: 'Multiple failed login attempts detected',
-      status: 'warning'
-    },
-    {
-      id: '5',
-      action: 'Settings Updated',
-      user: 'admin@syndicate.esp',
-      timestamp: new Date(Date.now() - 18000000).toISOString(),
-      details: 'Max team size changed from 5 to 6',
-      status: 'success'
-    },
-  ]);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filterAction, setFilterAction] = useState<string>('all');
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        setIsLoading(true);
+        const allLogs = await getAllAuditLogs(100);
+        setLogs(allLogs);
+      } catch (error) {
+        console.error('Failed to fetch audit logs:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLogs();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch(status) {
@@ -81,7 +60,7 @@ export function AuditLogs({ setView }: AuditLogsProps) {
     }
   };
 
-  const formatTime = (timestamp: string) => {
+  const formatTime = (timestamp: Date) => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -95,6 +74,15 @@ export function AuditLogs({ setView }: AuditLogsProps) {
     
     return date.toLocaleDateString();
   };
+
+  const filteredLogs = filterAction === 'all' 
+    ? logs 
+    : logs.filter(log => log.action === filterAction);
+
+  const uniqueActions = Array.from(new Set(logs.map(log => log.action)));
+  const successCount = logs.filter(l => l.status === 'success').length;
+  const successRate = logs.length > 0 ? Math.round((successCount / logs.length) * 100) : 0;
+  const uniqueUsers = new Set(logs.map(l => l.user)).size;
 
   return (
     <div className="w-full overflow-x-hidden flex min-h-screen flex-col bg-background text-foreground">
@@ -120,68 +108,88 @@ export function AuditLogs({ setView }: AuditLogsProps) {
             </Button>
           </div>
 
-          {/* Filters and Actions */}
+          {/* Filters */}
           <Card className="bg-card border-border/60 mb-8">
             <CardHeader>
-              <CardTitle>Filters & Export</CardTitle>
+              <CardTitle>Filter by Action</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-4">
-              <Button variant="outline" size="sm">All Actions</Button>
-              <Button variant="outline" size="sm">User Actions</Button>
-              <Button variant="outline" size="sm">System Events</Button>
-              <Button variant="outline" size="sm" className="ml-auto flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                Export
+            <CardContent className="flex flex-wrap gap-2">
+              <Button 
+                variant={filterAction === 'all' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setFilterAction('all')}
+              >
+                All Actions ({logs.length})
               </Button>
+              {uniqueActions.map(action => (
+                <Button 
+                  key={action}
+                  variant={filterAction === action ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setFilterAction(action)}
+                >
+                  {action} ({logs.filter(l => l.action === action).length})
+                </Button>
+              ))}
             </CardContent>
           </Card>
 
           {/* Logs Table */}
-          <Card className="bg-card border-border/60">
+          <Card className="bg-card border-border/60 mb-8">
             <CardContent className="pt-6">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b border-border/60 bg-muted/50">
-                    <tr>
-                      <th className="text-left py-3 px-4 font-semibold">Action</th>
-                      <th className="text-left py-3 px-4 font-semibold">User</th>
-                      <th className="text-left py-3 px-4 font-semibold">Details</th>
-                      <th className="text-left py-3 px-4 font-semibold">Time</th>
-                      <th className="text-left py-3 px-4 font-semibold">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {logs.map((log) => (
-                      <tr key={log.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
-                        <td className="py-4 px-4 font-medium">{log.action}</td>
-                        <td className="py-4 px-4 text-muted-foreground">{log.user}</td>
-                        <td className="py-4 px-4 text-muted-foreground text-xs">{log.details}</td>
-                        <td className="py-4 px-4 text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatTime(log.timestamp)}
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(log.status)}`}>
-                            {log.status.toUpperCase()}
-                          </span>
-                        </td>
+              {isLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : filteredLogs.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No audit logs found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="border-b border-border/60 bg-muted/50">
+                      <tr>
+                        <th className="text-left py-3 px-4 font-semibold">Action</th>
+                        <th className="text-left py-3 px-4 font-semibold">User</th>
+                        <th className="text-left py-3 px-4 font-semibold">Details</th>
+                        <th className="text-left py-3 px-4 font-semibold">Time</th>
+                        <th className="text-left py-3 px-4 font-semibold">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {filteredLogs.map((log) => (
+                        <tr key={log.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
+                          <td className="py-4 px-4 font-medium">{log.action}</td>
+                          <td className="py-4 px-4 text-muted-foreground text-sm">{log.user}</td>
+                          <td className="py-4 px-4 text-muted-foreground text-xs max-w-xs truncate">{log.details}</td>
+                          <td className="py-4 px-4 text-xs text-muted-foreground flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatTime(log.timestamp)}
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(log.status)}`}>
+                              {log.status.toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Log Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          {/* Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="bg-card border-border/60">
               <CardHeader>
                 <CardTitle className="text-sm">Total Actions</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{logs.length}</div>
-                <p className="text-xs text-muted-foreground mt-2">Last 30 days</p>
+                <p className="text-xs text-muted-foreground mt-2">All time</p>
               </CardContent>
             </Card>
             <Card className="bg-card border-border/60">
@@ -190,7 +198,7 @@ export function AuditLogs({ setView }: AuditLogsProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-green-600">
-                  {Math.round((logs.filter(l => l.status === 'success').length / logs.length) * 100)}%
+                  {successRate}%
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">Successful operations</p>
               </CardContent>
@@ -200,8 +208,8 @@ export function AuditLogs({ setView }: AuditLogsProps) {
                 <CardTitle className="text-sm">Active Admins</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">1</div>
-                <p className="text-xs text-muted-foreground mt-2">Last 24 hours</p>
+                <div className="text-3xl font-bold">{uniqueUsers}</div>
+                <p className="text-xs text-muted-foreground mt-2">Unique users</p>
               </CardContent>
             </Card>
           </div>

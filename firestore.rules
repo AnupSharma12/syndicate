@@ -210,6 +210,20 @@ service cloud.firestore {
     }
 
     /**
+     * @description Stores audit logs for admin dashboard. Tracks all administrative actions.
+     *              Staff members can read all logs. Users can create logs for their own actions.
+     * @path /auditLogs/{logId}
+     * @allow (list) A staff member lists all audit logs.
+     * @allow (create) Any authenticated user can create audit log entries.
+     * @principle Tracks administrative actions for security and compliance.
+     */
+    match /auditLogs/{logId} {
+      allow list: if isStaff();
+      allow create: if request.auth != null;
+      allow read, update, delete: if isStaff();
+    }
+
+    /**
      * @description Manages staff roles. The existence of a document grants staff privileges.
      *              This collection is read-only for staff and completely inaccessible to others.
      *              Writes must be performed by a trusted admin via the Firebase Console or a backend process.
