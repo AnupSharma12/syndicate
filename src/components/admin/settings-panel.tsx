@@ -158,6 +158,32 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
     }
   };
 
+  const handleLogoDownload = async () => {
+    if (!settings.logoUrl) {
+      setError('No logo available to download.');
+      return;
+    }
+
+    try {
+      const response = await fetch(settings.logoUrl);
+      if (!response.ok) {
+        throw new Error(`Download failed (${response.status})`);
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'app-logo';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (downloadError) {
+      console.error('Logo download error:', downloadError);
+      setError('Failed to download logo. Please try again.');
+    }
+  };
+
   const handleSave = async () => {
     if (!firestore || !currentUser) {
       setError('Missing firestore or user');
@@ -323,6 +349,14 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
                               disabled={isUploadingLogo}
                             >
                               Reset to Default
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={handleLogoDownload}
+                              disabled={isUploadingLogo || !settings.logoUrl}
+                            >
+                              Download Logo
                             </Button>
                             <span className="text-xs text-muted-foreground">
                               {isUploadingLogo ? 'Uploading...' : 'PNG/JPG up to your max upload size'}
