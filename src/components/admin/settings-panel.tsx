@@ -189,20 +189,23 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
         <div className="w-full max-w-6xl mx-auto px-4 py-12 md:py-16">
           <div className="mb-10">
             <div className="flex items-center justify-between mb-8">
-              <div className="flex-1">
+              <div className="flex-1 pr-4">
                 <Label htmlFor="headerAppName" className="text-sm text-muted-foreground">App Name</Label>
-                <Input
-                  id="headerAppName"
-                  value={settings.appName}
-                  onChange={(e) => handleChange('appName', e.target.value)}
-                  className="text-3xl md:text-5xl font-bold font-headline mt-2 border-b-2 border-red-600/50 focus:border-red-600"
-                  placeholder="Application Name"
-                />
+                <div className="relative mt-2">
+                  <input
+                    id="headerAppName"
+                    type="text"
+                    value={settings.appName}
+                    onChange={(e) => handleChange('appName', e.target.value)}
+                    placeholder="Application Name"
+                    className="w-full text-3xl md:text-4xl font-bold font-headline bg-transparent border-0 border-b-2 border-red-600/50 focus:border-red-600 focus:outline-none focus:ring-0 py-2 px-0 transition-colors"
+                  />
+                </div>
               </div>
               <Button 
                 variant="outline" 
                 onClick={() => setView('dashboard')}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 mt-6"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
