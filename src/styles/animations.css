@@ -17,7 +17,7 @@
     rgba(255, 255, 255, 0)
   );
   background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
+  animation: shimmer 3s ease-in-out;
 }
 
 /* Pulse Animation */
@@ -31,7 +31,7 @@
 }
 
 .pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Bounce Animation */
@@ -45,7 +45,7 @@
 }
 
 .bounce {
-  animation: bounce 1s infinite;
+  animation: bounce 2s infinite;
 }
 
 /* Flip Animation */
@@ -142,7 +142,7 @@
 }
 
 .glow {
-  animation: glow 2s ease-in-out infinite;
+  animation: glow 3s ease-in-out infinite;
 }
 
 /* Shake Animation */
@@ -242,7 +242,7 @@
 }
 
 .float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 /* Pop In Animation */
