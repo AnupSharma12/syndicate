@@ -23,10 +23,9 @@ import { z } from 'zod';
 import type { Event } from '@/lib/data';
 import { useFirestore, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { collection, doc, deleteField } from 'firebase/firestore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { logAction } from '@/firebase/audit-logger';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 interface TournamentFormProps {
   isOpen: boolean;
@@ -80,6 +79,8 @@ const gameSpecificOptions = {
 
 export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps) {
   const firestore = useFirestore();
+  const [currentUser, setCurrentUser] = useState<{ uid: string; email: string | null } | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -101,6 +102,16 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
 
   const selectedGame = watch('game');
   const selectedStatus = watch('status');
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser({ uid: user.uid, email: user.email });
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (event) {
@@ -128,12 +139,10 @@ export function TournamentForm({ isOpen, setIsOpen, event }: TournamentFormProps
   }, [event, reset]);
 
   const onSubmit = async (data: EventFormData) => {
-    if (!firestore) return;
+    if (!firestore || !currentUser) return;
 
-    const auth = getAuth();
-    const [user] = useAuthState(auth);
-    const userId = user?.uid || 'unknown';
-    const userEmail = user?.email || 'unknown@example.com';
+    const userId = currentUser.uid;
+    const userEmail = currentUser.email || 'unknown@example.com';
 
     const eventData: Partial<Event> = {
         ...data,

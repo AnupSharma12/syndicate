@@ -1,5 +1,7 @@
-import { db } from './config';
-import { collection, addDoc, query, where, orderBy, getDocs, Timestamp } from 'firebase/firestore';
+'use server';
+
+import { initializeFirebase } from './index';
+import { collection, addDoc, query, where, orderBy, getDocs, Timestamp, deleteDoc } from 'firebase/firestore';
 
 export interface AuditLog {
   id: string;
@@ -22,7 +24,8 @@ export async function logAction(
   status: 'success' | 'error' | 'warning' = 'success'
 ): Promise<void> {
   try {
-    const logsCollection = collection(db, 'auditLogs');
+    const { firestore } = initializeFirebase();
+    const logsCollection = collection(firestore, 'auditLogs');
     await addDoc(logsCollection, {
       action,
       userId,
@@ -42,7 +45,8 @@ export async function logAction(
  */
 export async function getAuditLogsByUser(userId: string): Promise<AuditLog[]> {
   try {
-    const logsCollection = collection(db, 'auditLogs');
+    const { firestore } = initializeFirebase();
+    const logsCollection = collection(firestore, 'auditLogs');
     const q = query(
       logsCollection,
       where('userId', '==', userId),
@@ -69,7 +73,8 @@ export async function getAuditLogsByUser(userId: string): Promise<AuditLog[]> {
  */
 export async function getAllAuditLogs(limit = 100): Promise<AuditLog[]> {
   try {
-    const logsCollection = collection(db, 'auditLogs');
+    const { firestore } = initializeFirebase();
+    const logsCollection = collection(firestore, 'auditLogs');
     const q = query(
       logsCollection,
       orderBy('timestamp', 'desc')
@@ -95,7 +100,8 @@ export async function getAllAuditLogs(limit = 100): Promise<AuditLog[]> {
  */
 export async function deleteOldLogs(days: number = 90): Promise<void> {
   try {
-    const logsCollection = collection(db, 'auditLogs');
+    const { firestore } = initializeFirebase();
+    const logsCollection = collection(firestore, 'auditLogs');
     const cutoffDate = new Timestamp(
       Math.floor(Date.now() / 1000) - days * 24 * 60 * 60,
       0
@@ -107,7 +113,7 @@ export async function deleteOldLogs(days: number = 90): Promise<void> {
     const snapshot = await getDocs(q);
     
     for (const doc of snapshot.docs) {
-      await doc.ref.delete();
+      await deleteDoc(doc.ref);
     }
   } catch (error) {
     console.error('Failed to delete old logs:', error);
