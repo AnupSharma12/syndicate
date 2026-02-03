@@ -38,7 +38,6 @@ interface Settings {
   enableTeamLogos: boolean;
   enableYouTubeProof: boolean;
   enablePaymentGateway: boolean;
-  maintenanceMode: boolean;
   enableRegistration: boolean;
   autoApproveTeams: boolean;
   minPasswordLength: string;
@@ -65,7 +64,6 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
     enableTeamLogos: true,
     enableYouTubeProof: true,
     enablePaymentGateway: true,
-    maintenanceMode: false,
     enableRegistration: true,
     autoApproveTeams: false,
     minPasswordLength: '8',
@@ -179,7 +177,6 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
   ];
 
   const securityToggles = [
-    { key: 'maintenanceMode', label: 'Maintenance Mode', desc: 'Restrict access to platform' },
     { key: 'enableRegistration', label: 'Enable Registration', desc: 'Allow new user registrations' },
     { key: 'autoApproveTeams', label: 'Auto-Approve Teams', desc: 'Automatically approve team registrations' },
   ];

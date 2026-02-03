@@ -16,7 +16,6 @@ export interface AppSettings {
   enableTeamLogos: boolean;
   enableYouTubeProof: boolean;
   enablePaymentGateway: boolean;
-  maintenanceMode: boolean;
   enableRegistration: boolean;
   autoApproveTeams: boolean;
   minPasswordLength: string;
@@ -41,7 +40,6 @@ const defaultSettings: AppSettings = {
   enableTeamLogos: true,
   enableYouTubeProof: true,
   enablePaymentGateway: true,
-  maintenanceMode: false,
   enableRegistration: true,
   autoApproveTeams: false,
   minPasswordLength: '8',
