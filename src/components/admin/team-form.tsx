@@ -29,7 +29,7 @@ import { Textarea } from '../ui/textarea';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const IMGBB_API_KEY = '828e7300541739226abfc621193150d3';
+const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
 
 interface TeamFormProps {
   isOpen: boolean;

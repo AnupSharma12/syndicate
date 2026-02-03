@@ -26,7 +26,7 @@ import { doc, collection } from 'firebase/firestore';
 import type { Event, Registration, SquadMember } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-const IMGBB_API_KEY = '828e7300541739226abfc621193150d3';
+const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
 
 export default function RegisterEventPage() {
   const params = useParams();
