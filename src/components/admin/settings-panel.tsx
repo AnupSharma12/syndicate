@@ -187,23 +187,30 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
       <Header />
       <main className="flex-1 bg-muted/20">
         <div className="w-full max-w-6xl mx-auto px-4 py-12 md:py-16">
-          <div className="mb-10 flex items-center justify-between">
-            <div>
-              <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tighter">
-                Settings
-              </h1>
-              <p className="mt-3 text-lg text-muted-foreground">
-                Configure all application settings and preferences
-              </p>
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex-1">
+                <Label htmlFor="headerAppName" className="text-sm text-muted-foreground">App Name</Label>
+                <Input
+                  id="headerAppName"
+                  value={settings.appName}
+                  onChange={(e) => handleChange('appName', e.target.value)}
+                  className="text-3xl md:text-5xl font-bold font-headline mt-2 border-b-2 border-red-600/50 focus:border-red-600"
+                  placeholder="Application Name"
+                />
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setView('dashboard')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={() => setView('dashboard')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
+            <p className="text-lg text-muted-foreground">
+              Configure all application settings and preferences
+            </p>
           </div>
 
           {saved && (
@@ -241,16 +248,7 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
                   <CardDescription>Basic application configuration</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="appName">Application Name</Label>
-                      <Input
-                        id="appName"
-                        value={settings.appName}
-                        onChange={(e) => handleChange('appName', e.target.value)}
-                        placeholder="App name"
-                      />
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="appEmail">Support Email</Label>
                       <Input
