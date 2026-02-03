@@ -4,8 +4,14 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Trophy, Target, Gamepad2, Shield, Zap } from 'lucide-react';
+import { useAppSettings } from '@/firebase';
 
 export default function AboutPage() {
+  const { settings } = useAppSettings();
+  const appName = settings.appName || 'Syndicate ESP';
+  const appDescription = settings.appDescription || 'The ultimate destination for competitive gaming.';
+  const appEmail = settings.appEmail || 'support@syndicate.com';
+
   return (
     <div className="flex min-h-screen flex-col w-full bg-background text-foreground overflow-x-hidden">
       <Header />
@@ -19,13 +25,13 @@ export default function AboutPage() {
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 text-center relative z-10">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tighter mb-6">
-                About <span className="text-gradient-animate inline-block">Syndicate ESP</span>
+                About <span className="text-gradient-animate inline-block">{appName}</span>
               </h1>
             </div>
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: '0.2s' }}>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                The ultimate destination for competitive gaming. We bring together passionate gamers 
-                to compete, connect, and champion their skills in the most exciting esports tournaments.
+                {appDescription} We bring together passionate gamers to compete, connect, and champion
+                their skills in the most exciting esports tournaments.
               </p>
             </div>
           </div>
@@ -78,7 +84,7 @@ export default function AboutPage() {
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
             <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <h2 className="font-headline text-3xl md:text-4xl font-bold tracking-tighter mb-4">
-                <span className="text-gradient-animate">Why Choose Syndicate ESP?</span>
+                <span className="text-gradient-animate">Why Choose {appName}?</span>
               </h2>
             </div>
 
@@ -118,7 +124,7 @@ export default function AboutPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pop-in">
               <div className="text-muted-foreground">
                 <span className="font-semibold text-foreground">Email:</span>{' '}
-                contact@syndicateesp.com
+                {appEmail}
               </div>
             </div>
           </div>

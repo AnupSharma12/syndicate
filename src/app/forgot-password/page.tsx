@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth, initiatePasswordReset } from '@/firebase';
+import { useAuth, initiatePasswordReset, useAppSettings } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,6 +20,8 @@ import { Loader2 } from 'lucide-react';
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const auth = useAuth();
+  const { settings } = useAppSettings();
+  const appName = settings.appName || 'Syndicate ESP';
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,11 +60,11 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
            <div className="flex justify-center mb-4">
-            <Image src="https://iili.io/fo18z3G.png" alt="Syndicate ESP Logo" width={48} height={48} className="h-12 w-12" />
+            <Image src="https://iili.io/fo18z3G.png" alt={`${appName} Logo`} width={48} height={48} className="h-12 w-12" />
           </div>
           <CardTitle className="font-headline text-2xl">Forgot Password</CardTitle>
           <CardDescription>
-            Enter your email to receive a password reset link.
+            Enter your email to receive a password reset link for {appName}.
           </CardDescription>
         </CardHeader>
         <CardContent>

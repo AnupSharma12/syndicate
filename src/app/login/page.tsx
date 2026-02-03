@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, useFirestore, initiateEmailSignIn, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useFirestore, initiateEmailSignIn, setDocumentNonBlocking, useAppSettings } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,8 @@ import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { GlowCard, TextGradient, PopIn, FadeInBlur } from '@/components/animated-components';
 
 export default function LoginPage() {
+  const { settings } = useAppSettings();
+  const appName = settings.appName || 'Syndicate ESP';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -137,14 +139,14 @@ export default function LoginPage() {
                 
                 <div className="flex justify-center mb-4 transform transition-transform hover:scale-110 relative z-10">
                   <div className="p-3 rounded-full bg-gradient-to-br from-red-500/20 to-blue-500/20 border border-red-500/30 hover:border-blue-500/50 transition-colors duration-300">
-                    <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={48} height={48} className="h-12 w-12 rounded-full shadow-md" />
+                    <Image src="/logo.jpg" alt={`${appName} Logo`} width={48} height={48} className="h-12 w-12 rounded-full shadow-md" />
                   </div>
                 </div>
                 <CardTitle className="font-headline text-2xl relative z-10">
                   <TextGradient>Sign In</TextGradient>
                 </CardTitle>
                 <CardDescription className="relative z-10">
-                  Welcome back! Sign in to your account
+                  Welcome back to {appName}! Sign in to your account
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6 relative z-10">

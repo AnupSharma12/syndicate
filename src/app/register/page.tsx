@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useFirestore, initiateEmailSignUp, setDocumentNonBlocking, useAppSettings } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +22,8 @@ import { Progress } from '@/components/ui/progress';
 import { GlowCard, TextGradient, PopIn, FadeInBlur, AnimatedBadge } from '@/components/animated-components';
 
 export default function RegisterPage() {
+  const { settings } = useAppSettings();
+  const appName = settings.appName || 'Syndicate ESP';
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -131,14 +133,14 @@ export default function RegisterPage() {
                 
                 <div className="flex justify-center mb-4 transform transition-transform hover:scale-110 relative z-10">
                   <div className="p-3 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 hover:border-purple-500/50 transition-colors duration-300">
-                    <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={48} height={48} className="h-12 w-12 rounded-full shadow-md" />
+                    <Image src="/logo.jpg" alt={`${appName} Logo`} width={48} height={48} className="h-12 w-12 rounded-full shadow-md" />
                   </div>
                 </div>
                 <CardTitle className="font-headline text-2xl relative z-10">
                   <TextGradient>Create Account</TextGradient>
                 </CardTitle>
                 <CardDescription className="relative z-10">
-                  Join Syndicate ESP today
+                  Join {appName} today
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6 relative z-10">

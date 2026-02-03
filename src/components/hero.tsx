@@ -1,11 +1,16 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight } from 'lucide-react';
+import { useAppSettings } from '@/firebase';
 
 export function Hero() {
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero');
+  const { settings } = useAppSettings();
+  const description = settings.appDescription || 'The ultimate destination for competitive gaming.';
 
   return (
     <section className="relative h-[75vh] w-screen max-w-full min-h-[400px] sm:h-[80vh] md:h-[90vh] overflow-hidden">
@@ -34,8 +39,7 @@ export function Hero() {
         </div>
         <div className="mt-6 animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: '0.2s' }}>
           <p className="max-w-3xl text-lg text-foreground/80 md:text-xl drop-shadow-lg">
-            The ultimate destination for competitive gaming. Join tournaments, watch
-            live events, and become a part of the action.
+            {description} Join tournaments, watch live events, and become a part of the action.
           </p>
         </div>
         <div className="mt-8 flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 pop-in" style={{ animationDelay: '0.4s' }}>

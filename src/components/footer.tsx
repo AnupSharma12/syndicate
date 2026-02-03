@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Youtube } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useAppSettings } from '@/firebase';
 
 const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -52,6 +53,9 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function Footer() {
   const [year, setYear] = useState(2025);
+  const { settings } = useAppSettings();
+  const appName = settings.appName || 'Syndicate ESP';
+  const appLogoAlt = `${appName} Logo`;
 
   useEffect(() => {
     setYear(new Date().getFullYear());
@@ -61,9 +65,9 @@ export function Footer() {
     <footer id="about" className="border-t border-border/40 bg-background/95 w-full overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-between gap-6 py-8 sm:flex-row px-4 sm:px-6 md:px-8">
         <div className="flex items-center gap-2">
-          <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={24} height={24} className="h-6 w-6 rounded-full" />
+          <Image src="/logo.jpg" alt={appLogoAlt} width={24} height={24} className="h-6 w-6 rounded-full" />
           <p className="text-sm text-muted-foreground">
-            &copy; {year} Syndicate ESP. All rights reserved.
+            &copy; {year} {appName}. All rights reserved.
           </p>
         </div>
         <div className="flex items-center gap-4">

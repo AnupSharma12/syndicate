@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Menu, LogOut, Shield, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import { useAuth, useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { useAuth, useUser, useDoc, useFirestore, useMemoFirebase, useAppSettings } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import Image from 'next/image';
 
@@ -12,6 +12,10 @@ export function Header() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const firestore = useFirestore();
+  const { settings } = useAppSettings();
+
+  const appName = settings.appName || 'Syndicate ESP';
+  const appLogoAlt = `${appName} Logo`;
 
   const userDocRef = useMemoFirebase(
     () => (user && firestore ? doc(firestore, 'users', user.uid) : null),
@@ -85,9 +89,9 @@ export function Header() {
       <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2" aria-label="Homepage">
-            <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
+            <Image src="/logo.jpg" alt={appLogoAlt} width={32} height={32} className="h-8 w-8 rounded-full" />
             <span className="hidden font-headline text-xl font-bold sm:inline-block">
-              Syndicate ESP
+              {appName}
             </span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm md:flex">
@@ -129,9 +133,9 @@ export function Header() {
             <SheetContent side="right">
               <div className="grid gap-4 py-6">
                   <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Homepage">
-                    <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
+                    <Image src="/logo.jpg" alt={appLogoAlt} width={32} height={32} className="h-8 w-8 rounded-full" />
                     <span className="font-headline text-xl font-bold">
-                      Syndicate ESP
+                      {appName}
                     </span>
                   </Link>
                 {navLinks.map((link) => (
