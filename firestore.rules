@@ -239,5 +239,18 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if false;
     }
+
+    /**
+     * @description Stores application settings configuration. Only staff can read and write.
+     * @path /appSettings/{settingId}
+     * @allow (get, list) Staff members can read settings.
+     * @allow (update) Staff members can update settings.
+     * @principle Centralizes app configuration that only staff should be able to modify.
+     */
+    match /appSettings/{settingId} {
+      allow get, list: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if false;
+    }
   }
 }

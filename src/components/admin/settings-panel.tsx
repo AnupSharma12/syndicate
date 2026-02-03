@@ -13,7 +13,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Settings, Bell, Lock, Save } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { logAction } from '@/firebase/audit-logger';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 interface SettingsPanelProps {
   setView: (view: AdminView) => void;
@@ -22,6 +26,7 @@ interface SettingsPanelProps {
 type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams' | 'settings';
 
 export function SettingsPanel({ setView }: SettingsPanelProps) {
+  const firestore = useFirestore();
   const [settings, setSettings] = useState({
     appName: 'Syndicate ESP',
     maxTeamSize: '5',
@@ -29,8 +34,19 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
     enableNotifications: true,
     maintenanceMode: false,
   });
-
+  const [currentUser, setCurrentUser] = useState<{ uid: string; email: string | null } | null>(null);
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser({ uid: user.uid, email: user.email });
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const handleChange = (key: string, value: any) => {
     setSettings(prev => ({
@@ -39,10 +55,40 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
     }));
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-    console.log('Settings saved:', settings);
+  const handleSave = async () => {
+    if (!firestore || !currentUser) return;
+
+    setIsSaving(true);
+    try {
+      const settingsDocRef = doc(firestore, 'appSettings', 'config');
+      setDocumentNonBlocking(settingsDocRef, {
+        ...settings,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser.email
+      }, { merge: true });
+
+      await logAction(
+        'Settings Updated',
+        currentUser.uid,
+        currentUser.email || 'unknown@example.com',
+        `Application settings updated: ${JSON.stringify(settings)}`,
+        'success'
+      );
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      await logAction(
+        'Settings Save Error',
+        currentUser.uid,
+        currentUser.email || 'unknown@example.com',
+        `Failed to save settings: ${error}`,
+        'error'
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -196,14 +242,16 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
           <div className="flex gap-4">
             <Button 
               onClick={handleSave}
+              disabled={isSaving}
               className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700"
             >
               <Save className="w-4 h-4" />
-              Save Settings
+              {isSaving ? 'Saving...' : 'Save Settings'}
             </Button>
             <Button 
               variant="outline"
               onClick={() => setView('dashboard')}
+              disabled={isSaving}
             >
               Cancel
             </Button>
