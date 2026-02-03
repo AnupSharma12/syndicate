@@ -10,12 +10,12 @@ import {
   CardContent
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Swords, ShieldCheck, Loader2, FileText, Trophy } from 'lucide-react';
+import { Users, Swords, ShieldCheck, Loader2, FileText, Trophy, BarChart3, Settings, Clock, Activity } from 'lucide-react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, collectionGroup, query } from 'firebase/firestore';
 import type { Event, Registration, Team } from '@/lib/data';
 
-type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams';
+type AdminView = 'dashboard' | 'users' | 'tournaments' | 'applications' | 'teams' | 'analytics' | 'settings' | 'audit' | 'health';
 
 interface AdminDashboardProps {
   setView: (view: AdminView) => void;
@@ -153,7 +153,58 @@ export function AdminDashboard({ setView }: AdminDashboardProps) {
                 </p>
               </CardContent>
                <CardContent>
-                 <Button variant="outline">View Status</Button>
+                 <Button onClick={() => setView('health')}>View Status</Button>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Analytics
+                </CardTitle>
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Insights</div>
+                <p className="text-xs text-muted-foreground">
+                  View platform analytics & stats
+                </p>
+              </CardContent>
+               <CardContent>
+                 <Button onClick={() => setView('analytics')}>View Analytics</Button>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Audit Logs
+                </CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Activity</div>
+                <p className="text-xs text-muted-foreground">
+                  Track admin actions
+                </p>
+              </CardContent>
+               <CardContent>
+                 <Button onClick={() => setView('audit')}>View Logs</Button>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Settings
+                </CardTitle>
+                <Settings className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Config</div>
+                <p className="text-xs text-muted-foreground">
+                  Manage app settings
+                </p>
+              </CardContent>
+               <CardContent>
+                 <Button onClick={() => setView('settings')}>Go to Settings</Button>
               </CardContent>
             </Card>
           </div>
