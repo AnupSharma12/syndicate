@@ -89,7 +89,7 @@ export function TeamForm({ isOpen, setIsOpen, team, application }: TeamFormProps
     if (team) { // Editing existing team
       reset({
         ...team,
-        tournamentsWon: team.tournamentsWon.join(', '),
+        tournamentsWon: team.tournamentsWon,
       });
     } else if (application) { // Creating team from application
       // Filter out the team leader from squad members to avoid duplicates, then add them at the start
