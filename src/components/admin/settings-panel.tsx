@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Settings, Bell, Lock, Save, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useFirestore, setDocumentNonBlocking, useDoc, useMemoFirebase, useFirebaseApp, uploadFileToStorage } from '@/firebase';
+import { useFirestore, setDocumentNonBlocking, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { logAction } from '@/firebase/audit-logger';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -54,7 +54,6 @@ interface Settings {
 
 export function SettingsPanel({ setView }: SettingsPanelProps) {
   const firestore = useFirestore();
-  const firebaseApp = useFirebaseApp();
   const [settings, setSettings] = useState<Settings>({
     appName: 'Syndicate ESP',
     logoUrl: '/logo.jpg',
@@ -136,14 +135,21 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
         return;
       }
 
-      const ownerId = currentUser?.uid || 'admin';
-      const url = await uploadFileToStorage(
-        firebaseApp,
-        file,
-        `uploads/app-logos/${ownerId}`
-      );
+      const formData = new FormData();
+      formData.append('file', file);
 
-      handleChange('logoUrl', url);
+      const response = await fetch('/api/upload-logo', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result?.error || 'Logo upload failed');
+      }
+
+      const result = await response.json();
+      handleChange('logoUrl', result.url);
     } catch (uploadError) {
       console.error('Logo upload error:', uploadError);
       setError('Failed to upload logo. Please try again.');
