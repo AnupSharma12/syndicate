@@ -123,20 +123,20 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-background via-background to-background p-4 overflow-x-hidden relative">
       {/* Animated background gradient */}
       <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-500/20 rounded-full filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       <FadeInBlur>
         <PopIn delay="0.1s">
           <div className="w-full max-w-sm relative z-10">
             <Card className="border-0 shadow-2xl backdrop-blur-sm bg-background/95 hover:shadow-blue-500/20 transition-shadow duration-500">
-              <CardHeader className="text-center bg-gradient-to-r from-blue-500/10 to-purple-500/10 pb-6 relative overflow-hidden">
+              <CardHeader className="text-center bg-gradient-to-r from-red-500/10 to-blue-500/10 pb-6 relative overflow-hidden">
                 {/* Animated shimmer effect */}
                 <div className="absolute inset-0 shimmer opacity-0 hover:opacity-50 transition-opacity duration-300" />
                 
                 <div className="flex justify-center mb-4 transform transition-transform hover:scale-110 relative z-10">
-                  <div className="p-3 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 hover:border-purple-500/50 transition-colors duration-300">
+                  <div className="p-3 rounded-full bg-gradient-to-br from-red-500/20 to-blue-500/20 border border-red-500/30 hover:border-blue-500/50 transition-colors duration-300">
                     <Image src="/logo.jpg" alt="Syndicate ESP Logo" width={48} height={48} className="h-12 w-12 rounded-full shadow-md" />
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export default function LoginPage() {
                       <div className="flex items-center justify-between">
                         <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                         <Link href="/forgot-password" passHref>
-                          <span className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer transition-colors hover:underline-animate">Forgot password?</span>
+                          <span className="text-xs text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline-animate">Forgot password?</span>
                         </Link>
                       </div>
                       <div className="relative group">
@@ -225,7 +225,7 @@ export default function LoginPage() {
                   <PopIn delay="0.4s">
                     <Button 
                       type="submit" 
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-blue-500/50 relative overflow-hidden group"
+                      className="w-full bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-red-500/50 relative overflow-hidden group"
                       disabled={isLoading}
                     >
                       <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -242,9 +242,9 @@ export default function LoginPage() {
                 </form>
                 <div className="mt-6 text-center text-sm text-gray-600">
                   Don&apos;t have an account?{' '}
-                  <Link href="/register" className="text-blue-600 hover:text-blue-700 font-medium transition-colors relative group">
+                  <Link href="/register" className="text-red-600 hover:text-red-700 font-medium transition-colors relative group">
                     Create one
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300" />
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-red-600 to-blue-600 group-hover:w-full transition-all duration-300" />
                   </Link>
                 </div>
               </CardContent>

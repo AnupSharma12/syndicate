@@ -13,8 +13,8 @@ export default function AboutPage() {
         {/* Hero Section */}
         <section className="py-16 md:py-24 bg-gradient-to-b from-primary/10 to-background relative overflow-hidden">
           {/* Animated background orbs */}
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse opacity-50" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse opacity-50" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-500/20 rounded-full filter blur-3xl animate-pulse opacity-50" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse opacity-50" style={{ animationDelay: '1s' }} />
 
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 text-center relative z-10">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -72,7 +72,7 @@ export default function AboutPage() {
         <section className="py-16 bg-muted/30 relative overflow-hidden">
           {/* Animated background */}
           <div className="absolute inset-0 opacity-20 pointer-events-none">
-            <div className="absolute top-20 right-10 w-72 h-72 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" />
+            <div className="absolute top-20 right-10 w-72 h-72 bg-red-500/20 rounded-full filter blur-3xl animate-pulse" />
           </div>
 
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
@@ -128,8 +128,8 @@ export default function AboutPage() {
         <section className="py-16 bg-muted/30 relative overflow-hidden">
           {/* Animated background orbs */}
           <div className="absolute inset-0 opacity-20 pointer-events-none">
-            <div className="absolute top-10 left-10 w-72 h-72 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" />
-            <div className="absolute bottom-10 right-10 w-72 h-72 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+            <div className="absolute top-10 left-10 w-72 h-72 bg-red-500/20 rounded-full filter blur-3xl animate-pulse" />
+            <div className="absolute bottom-10 right-10 w-72 h-72 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
           </div>
 
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 text-center relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">

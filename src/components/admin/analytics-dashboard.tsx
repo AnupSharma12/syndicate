@@ -81,10 +81,10 @@ export function AnalyticsDashboard({ setView }: AnalyticsDashboardProps) {
 
           {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
+            <Card className="bg-gradient-to-br from-red-500/10 to-red-500/5 border-red-500/30">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                <Users className="h-4 w-4 text-blue-500" />
+                <Users className="h-4 w-4 text-red-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{totalUsers}</div>
@@ -92,10 +92,10 @@ export function AnalyticsDashboard({ setView }: AnalyticsDashboardProps) {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30">
+            <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Events</CardTitle>
-                <TrendingUp className="h-4 w-4 text-purple-500" />
+                <TrendingUp className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{totalEvents}</div>

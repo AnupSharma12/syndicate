@@ -196,7 +196,7 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
           <div className="flex gap-4">
             <Button 
               onClick={handleSave}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700"
             >
               <Save className="w-4 h-4" />
               Save Settings

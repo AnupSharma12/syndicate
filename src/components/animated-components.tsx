@@ -35,7 +35,7 @@ export const GlowCard = ({
 }) => {
   return (
     <div
-      className={`glow rounded-lg border border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-6 backdrop-blur-sm ${className}`}
+      className={`glow rounded-lg border border-red-500/30 bg-gradient-to-br from-red-500/10 to-blue-500/10 p-6 backdrop-blur-sm ${className}`}
       style={{ animationDelay: delay }}
     >
       {children}
@@ -172,7 +172,7 @@ export const AnimatedInput = ({
         className={`relative z-10 w-full bg-transparent border-b-2 border-gray-300 pb-2 focus:outline-none focus:border-blue-600 transition-colors ${className}`}
         {...props}
       />
-      <div className="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-blue-600 to-purple-600 scale-x-0 transition-transform duration-300 origin-left" />
+      <div className="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-red-600 to-blue-600 scale-x-0 transition-transform duration-300 origin-left" />
     </div>
   );
 };
@@ -208,6 +208,6 @@ export const PulseDot = ({
   className?: string;
 }) => {
   return (
-    <div className={`pulse inline-block h-2 w-2 rounded-full bg-blue-500 ${className}`} />
+    <div className={`pulse inline-block h-2 w-2 rounded-full bg-red-500 ${className}`} />
   );
 };

@@ -117,15 +117,15 @@ export default function RegisterPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-background via-background to-background p-4 overflow-x-hidden relative">
       {/* Animated background gradient */}
       <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-500/20 rounded-full filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       <FadeInBlur>
         <PopIn delay="0.1s">
           <div className="w-full max-w-sm relative z-10">
             <Card className="border-0 shadow-2xl backdrop-blur-sm bg-background/95 hover:shadow-purple-500/20 transition-shadow duration-500">
-              <CardHeader className="text-center bg-gradient-to-r from-blue-500/10 to-purple-500/10 pb-6 relative overflow-hidden">
+              <CardHeader className="text-center bg-gradient-to-r from-red-500/10 to-blue-500/10 pb-6 relative overflow-hidden">
                 {/* Animated shimmer effect */}
                 <div className="absolute inset-0 shimmer opacity-0 hover:opacity-50 transition-opacity duration-300" />
                 
