@@ -21,18 +21,18 @@ import { Youtube, ArrowLeft, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Loader } from '@/components/loader';
-import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase, useUser, addDocumentNonBlocking, useFirebaseApp, useAppSettings, uploadFileToStorage } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
 import type { Event, Registration, SquadMember } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-
-const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
 
 export default function RegisterEventPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
   const firestore = useFirestore();
+  const firebaseApp = useFirebaseApp();
+  const { settings } = useAppSettings();
   const { user, isUserLoading } = useUser();
   const eventId = params.id as string;
 
@@ -92,22 +92,24 @@ export default function RegisterEventPage() {
 
   const uploadImage = async (imageFile: File | null): Promise<string | null> => {
     if (!imageFile) return null;
-    
-    const formData = new FormData();
-    formData.append('image', imageFile);
+
+    const maxUploadSize = Number(settings.maxUploadSize || '10') * 1024 * 1024;
+    if (Number.isFinite(maxUploadSize) && imageFile.size > maxUploadSize) {
+      toast({
+        variant: 'destructive',
+        title: 'File Too Large',
+        description: `Max upload size is ${settings.maxUploadSize || '10'} MB.`
+      });
+      return null;
+    }
 
     try {
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        return result.data.url;
-      } else {
-        throw new Error(result.error?.message || 'Image upload failed');
-      }
+      const ownerId = user?.uid || 'guest';
+      return await uploadFileToStorage(
+        firebaseApp,
+        imageFile,
+        `uploads/registrations/${ownerId}`
+      );
     } catch (error) {
       console.error('Image upload error:', error);
       toast({

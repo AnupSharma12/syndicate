@@ -22,14 +22,12 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Team, SquadMember, Registration } from '@/lib/data';
-import { useFirestore, setDocumentNonBlocking, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { useFirestore, setDocumentNonBlocking, addDocumentNonBlocking, updateDocumentNonBlocking, useFirebaseApp, useUser, useAppSettings, uploadFileToStorage } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Textarea } from '../ui/textarea';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
 
 interface TeamFormProps {
   isOpen: boolean;
@@ -57,6 +55,9 @@ type TeamFormData = z.infer<typeof teamSchema>;
 
 export function TeamForm({ isOpen, setIsOpen, team, application }: TeamFormProps) {
   const firestore = useFirestore();
+  const firebaseApp = useFirebaseApp();
+  const { user } = useUser();
+  const { settings } = useAppSettings();
   const { toast } = useToast();
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -125,22 +126,26 @@ export function TeamForm({ isOpen, setIsOpen, team, application }: TeamFormProps
 
   const uploadImage = async (imageFile: File): Promise<string> => {
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append('image', imageFile);
+    const maxUploadSize = Number(settings.maxUploadSize || '10') * 1024 * 1024;
+    if (Number.isFinite(maxUploadSize) && imageFile.size > maxUploadSize) {
+      toast({
+        variant: 'destructive',
+        title: 'File Too Large',
+        description: `Max upload size is ${settings.maxUploadSize || '10'} MB.`
+      });
+      setIsUploading(false);
+      return '';
+    }
 
     try {
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        toast({ title: "Image Uploaded", description: "Logo has been successfully uploaded." });
-        return result.data.url;
-      } else {
-        throw new Error(result.error?.message || 'Image upload failed');
-      }
+      const ownerId = user?.uid || 'admin';
+      const url = await uploadFileToStorage(
+        firebaseApp,
+        imageFile,
+        `uploads/team-logos/${ownerId}`
+      );
+      toast({ title: 'Image Uploaded', description: 'Logo has been successfully uploaded.' });
+      return url;
     } catch (error) {
       console.error('Image upload error:', error);
       toast({

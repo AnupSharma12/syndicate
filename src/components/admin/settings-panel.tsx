@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Settings, Bell, Lock, Save, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useFirestore, setDocumentNonBlocking, useDoc } from '@/firebase';
+import { useFirestore, setDocumentNonBlocking, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { logAction } from '@/firebase/audit-logger';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -81,10 +81,12 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const settingsDocRef = firestore ? doc(firestore, 'appSettings', 'config') : null;
-  const { data: loadedSettings } = useDoc(settingsDocRef);
+  const settingsDocRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, 'appSettings', 'config') : null),
+    [firestore]
+  );
+  const { data: loadedSettings, isLoading: isSettingsLoading, error: settingsError } = useDoc(settingsDocRef);
+  const isLoading = isSettingsLoading;
 
   useEffect(() => {
     const auth = getAuth();
@@ -103,8 +105,13 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
         ...loadedSettings
       }));
     }
-    setIsLoading(false);
   }, [loadedSettings]);
+
+  useEffect(() => {
+    if (settingsError) {
+      setError('Failed to load settings. Please refresh and try again.');
+    }
+  }, [settingsError]);
 
   const handleChange = (key: string, value: string | boolean) => {
     setSettings(prev => ({
