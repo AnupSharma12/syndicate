@@ -5,6 +5,8 @@ import {
   doc,
 } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { logAction } from '@/firebase/audit-logger';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -44,6 +46,17 @@ export function UserManagement({ setView }: UserManagementProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState<Record<string, boolean>>({});
+  const [currentUser, setCurrentUser] = useState<{ uid: string; email: string | null } | null>(null);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser({ uid: user.uid, email: user.email });
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const usersRef = useMemoFirebase(
     () => (firestore ? collection(firestore, 'users') : null),
@@ -61,7 +74,7 @@ export function UserManagement({ setView }: UserManagementProps) {
   }, [usersError, users, usersLoading]);
 
   const handleRoleChange = async (user: User, isStaff: boolean) => {
-    if (!firestore) return;
+    if (!firestore || !currentUser) return;
 
     setIsProcessing((prev) => ({ ...prev, [user.id]: true }));
 
@@ -76,6 +89,13 @@ export function UserManagement({ setView }: UserManagementProps) {
           username: user.username,
         }, { merge: true });
         setDocumentNonBlocking(userDocRef, { staff: true }, { merge: true });
+        await logAction(
+          'Staff Role Granted',
+          currentUser.uid,
+          currentUser.email || 'unknown@example.com',
+          `Granted staff role to user: ${user.username} (${user.email})`,
+          'success'
+        );
         toast({
           title: 'Success',
           description: `${user.username} is now a staff member.`,
@@ -84,6 +104,13 @@ export function UserManagement({ setView }: UserManagementProps) {
         // Revoke staff role
         deleteDocumentNonBlocking(staffRoleRef);
         setDocumentNonBlocking(userDocRef, { staff: false }, { merge: true });
+        await logAction(
+          'Staff Role Revoked',
+          currentUser.uid,
+          currentUser.email || 'unknown@example.com',
+          `Revoked staff role from user: ${user.username} (${user.email})`,
+          'success'
+        );
         toast({
           title: 'Success',
           description: `Staff role revoked for ${user.username}.`,
@@ -91,6 +118,13 @@ export function UserManagement({ setView }: UserManagementProps) {
       }
     } catch (error) {
       console.error("Error updating roles: ", error);
+      await logAction(
+        'Staff Role Change Error',
+        currentUser.uid,
+        currentUser.email || 'unknown@example.com',
+        `Failed to change staff role for ${user.username}: ${error}`,
+        'error'
+      );
       toast({
         variant: 'destructive',
         title: 'Error',
