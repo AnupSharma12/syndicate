@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Settings, Bell, Lock, Save, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useFirestore, setDocumentNonBlocking, useDoc, useMemoFirebase } from '@/firebase';
+import { useFirestore, setDocumentNonBlocking, useDoc, useMemoFirebase, uploadFileToStorage } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { logAction } from '@/firebase/audit-logger';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -138,24 +138,11 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
         return;
       }
 
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/upload-logo', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const result = await response.json().catch(() => ({}));
-        throw new Error(result?.error || `Logo upload failed (${response.status})`);
-      }
-
-      const result = await response.json();
-      handleChange('logoUrl', result.url);
-    } catch (uploadError) {
+      const downloadUrl = await uploadFileToStorage(null, file, 'app-assets/logos');
+      handleChange('logoUrl', downloadUrl);
+    } catch (uploadError: any) {
       console.error('Logo upload error:', uploadError);
-      setError('Failed to upload logo. Please try again.');
+      setError(uploadError.message || 'Failed to upload logo.');
     } finally {
       setIsUploadingLogo(false);
     }
@@ -167,31 +154,17 @@ export function SettingsPanel({ setView }: SettingsPanelProps) {
     setError('');
 
     try {
-      const maxUploadSize = 1 * 1024 * 1024; // Favicons should be small, cap at 1MB
+      const maxUploadSize = 1 * 1024 * 1024;
       if (file.size > maxUploadSize) {
         setError(`Favicon too large. Max size is 1 MB.`);
         return;
       }
 
-      const formData = new FormData();
-      formData.append('file', file);
-
-      // We can reuse the same upload API
-      const response = await fetch('/api/upload-logo', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const result = await response.json().catch(() => ({}));
-        throw new Error(result?.error || `Favicon upload failed (${response.status})`);
-      }
-
-      const result = await response.json();
-      handleChange('faviconUrl', result.url);
-    } catch (uploadError) {
+      const downloadUrl = await uploadFileToStorage(null, file, 'app-assets/favicons');
+      handleChange('faviconUrl', downloadUrl);
+    } catch (uploadError: any) {
       console.error('Favicon upload error:', uploadError);
-      setError('Failed to upload favicon. Please try again.');
+      setError(uploadError.message || 'Failed to upload favicon.');
     } finally {
       setIsUploadingFavicon(false);
     }

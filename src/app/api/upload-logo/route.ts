@@ -20,12 +20,15 @@ export async function POST(request: Request) {
     const originalName = blob.name || 'upload.png';
     const safeName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_');
     const filename = `${Date.now()}-${safeName}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'logos');
+    
+    // We'll store everything in a flat uploads folder for simplicity, 
+    // or you can add more logic here to separate by type
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
     await mkdir(uploadDir, { recursive: true });
     await writeFile(path.join(uploadDir, filename), buffer);
 
-    return NextResponse.json({ url: `/uploads/logos/${filename}` });
+    return NextResponse.json({ url: `/uploads/${filename}` });
   } catch (error) {
     console.error('Logo upload failed:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
